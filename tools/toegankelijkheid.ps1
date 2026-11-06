@@ -1,5 +1,6 @@
 ﻿# Paper Pilot - controle met UI Automation (zoals een schermlezer het programma ziet).
-# Hard: elk onderdeel dat focus kan krijgen heeft een naam, en er is een menubalk.
+# Hard (via MSAA, zoals JAWS en NVDA): de knoppen zijn drukknoppen met een naam en focus, de menubalk heeft drie menu's.
+# UIA wordt ook getoond, maar alleen als waarschuwing: op de bouwcomputer van GitHub werken de UIA-proxy's niet.
 # Zacht (waarschuwing): Tab, F1 en Escape werken met het toetsenbord.
 param([string]$Exe = "target\release\PaperPilot.exe")
 $ErrorActionPreference = "Stop"
@@ -30,49 +31,45 @@ try {
     }
     Boom $venster 1
     "Programma reageert: $((Get-Process -Id $p.Id).Responding)"
-    # Tweede manier: MSAA (IAccessible), zoals JAWS en NVDA het ook opvragen.
-    Add-Type -AssemblyName Accessibility
-    Add-Type -TypeDefinition @"
-using System; using System.Runtime.InteropServices;
+    # Tweede manier: MSAA (IAccessible), zoals JAWS en NVDA het opvragen. Dit is de harde controle.
+    Add-Type -ReferencedAssemblies Accessibility -TypeDefinition @"
+using System; using System.Text; using System.Runtime.InteropServices; using Accessibility;
 public static class Msaa {
-  [DllImport("oleacc.dll")] public static extern int AccessibleObjectFromWindow(IntPtr hwnd, uint id, ref Guid iid, [MarshalAs(UnmanagedType.IUnknown)] out object acc);
+  [DllImport("oleacc.dll")] static extern int AccessibleObjectFromWindow(IntPtr hwnd, uint id, ref Guid iid, [MarshalAs(UnmanagedType.Interface)] out IAccessible acc);
   [DllImport("user32.dll")] public static extern IntPtr FindWindowEx(IntPtr parent, IntPtr after, string klasse, string titel);
+  static IAccessible Haal(IntPtr hwnd, uint id) {
+    Guid iid = new Guid("618736E0-3C3D-11CF-810C-00AA00389B71"); IAccessible acc;
+    return AccessibleObjectFromWindow(hwnd, id, ref iid, out acc) == 0 ? acc : null;
+  }
+  public static int Rol(IntPtr hwnd, uint id) { var a = Haal(hwnd, id); return a == null ? -1 : Convert.ToInt32(a.get_accRole(0)); }
+  public static string Naam(IntPtr hwnd, uint id) { var a = Haal(hwnd, id); return a == null ? null : a.get_accName(0); }
+  public static int Status(IntPtr hwnd, uint id) { var a = Haal(hwnd, id); return a == null ? -1 : Convert.ToInt32(a.get_accState(0)); }
+  public static string Menu(IntPtr hwnd) {
+    var a = Haal(hwnd, 0xFFFFFFFD); if (a == null) return null;
+    var sb = new StringBuilder();
+    for (int i = 1; i <= a.accChildCount; i++) { sb.Append(a.get_accName(i)); sb.Append(" | "); }
+    return a.accChildCount + ": " + sb.ToString();
+  }
 }
 "@
-    $iid = [Guid]"618736E0-3C3D-11CF-810C-00AA00389B71"
     $hwnd = [IntPtr]$venster.Current.NativeWindowHandle
-    foreach ($soort in @(@("venster", [uint32]4294967292), @("menubalk", [uint32]4294967293))) {
-        $acc = $null
-        $r = [Msaa]::AccessibleObjectFromWindow($hwnd, $soort[1], [ref]$iid, [ref]$acc)
-        if ($r -ne 0 -or -not $acc) { "MSAA $($soort[0]): niet gelukt ($r)"; continue }
-        $acc = [Accessibility.IAccessible]$acc
-        "MSAA $($soort[0]): rol $($acc.accRole(0)), kinderen $($acc.accChildCount)"
-        for ($i = 1; $i -le $acc.accChildCount; $i++) {
-            try { "  - rol $($acc.accRole($i)) | $($acc.accName($i))" } catch { "  - kind ${i}: $_" }
-        }
+    $menu = [Msaa]::Menu($hwnd)
+    "MSAA menubalk: $menu"
+    if (-not $menu -or -not $menu.StartsWith("3:")) { "FOUT: de menubalk heeft geen drie menu's"; $fouten++ }
+    $knop = [IntPtr]::Zero
+    $knoppen = 0
+    while (($knop = [Msaa]::FindWindowEx($hwnd, $knop, "Button", $null)) -ne [IntPtr]::Zero) {
+        $rol = [Msaa]::Rol($knop, [uint32]4294967292)
+        $naam = [Msaa]::Naam($knop, [uint32]4294967292)
+        $status = [Msaa]::Status($knop, [uint32]4294967292)
+        $kanfocus = ($status -band 0x100000) -ne 0
+        "MSAA knop: rol $rol (43 = drukknop), focus mogelijk: $kanfocus, naam: $naam"
+        if ($rol -ne 43) { "FOUT: onderdeel is geen drukknop voor de schermlezer"; $fouten++ }
+        if ([string]::IsNullOrWhiteSpace($naam)) { "FOUT: knop zonder naam"; $fouten++ }
+        if (-not $kanfocus) { "FOUT: knop kan geen focus krijgen"; $fouten++ }
+        $knoppen++
     }
-    $knop = [Msaa]::FindWindowEx($hwnd, [IntPtr]::Zero, "Button", $null)
-    if ($knop -ne [IntPtr]::Zero) {
-        $acc = $null
-        $r = [Msaa]::AccessibleObjectFromWindow($knop, [uint32]4294967292, [ref]$iid, [ref]$acc)
-        if ($r -eq 0 -and $acc) { $acc = [Accessibility.IAccessible]$acc; "MSAA eerste knop: rol $($acc.accRole(0)) (43 = knop), status $($acc.accState(0)), naam $($acc.accName(0))" }
-        else { "MSAA eerste knop: niet gelukt ($r)" }
-    }
-    $alles = $venster.FindAll([System.Windows.Automation.TreeScope]::Descendants, [System.Windows.Automation.Condition]::TrueCondition)
-    "Onderdelen gevonden: $($alles.Count)"
-    $menubalk = 0
-    foreach ($e in $alles) {
-        $soort = $e.Current.ControlType.ProgrammaticName
-        if ($soort -eq "ControlType.MenuBar") { $menubalk++ }
-        if ($e.Current.IsKeyboardFocusable) {
-            if ([string]::IsNullOrWhiteSpace($e.Current.Name)) {
-                "FOUT: $soort zonder naam"; $fouten++
-            } else {
-                "Met focus: $soort - $($e.Current.Name)"
-            }
-        }
-    }
-    if ($menubalk -lt 1) { "FOUT: geen menubalk gevonden"; $fouten++ }
+    if ($knoppen -lt 2) { "FOUT: $knoppen knoppen gevonden in plaats van 2"; $fouten++ }
 
     # Toetsenbord (alleen waarschuwingen: focus op een bouwcomputer is niet altijd betrouwbaar).
     try {
