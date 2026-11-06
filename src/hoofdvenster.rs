@@ -29,6 +29,7 @@ const ID_THEMA_LICHT: i32 = 211;
 const ID_THEMA_DONKER: i32 = 212;
 const ID_UPDATES_START: i32 = 220;
 const ID_TAALMODEL: i32 = 221;
+const ID_GEGEVENS: i32 = 222;
 const ID_HANDLEIDING: i32 = 300;
 const ID_RONDLEIDING: i32 = 301;
 const ID_WIJZIGINGEN: i32 = 302;
@@ -248,6 +249,7 @@ fn maak_menu() -> HMENU {
         voeg(weergave, ID_THEMA_DONKER, "MenuThemaDonker");
         sub(inst, weergave, "MenuWeergave");
         streep(inst);
+        voeg(inst, ID_GEGEVENS, "MenuGegevens");
         voeg(inst, ID_TAALMODEL, "MenuTaalmodel");
         voeg(inst, ID_UPDATES_START, "MenuUpdatesBijStart");
         sub(balk, inst, "MenuInstellingen");
@@ -547,6 +549,22 @@ fn na_start(hwnd: HWND) {
     }
 }
 
+/// Mijn gegevens bekijken en aanpassen (versleuteld bewaard).
+fn mijn_gegevens(hwnd: HWND) {
+    let mut g = crate::gegevens::laad();
+    let velden: Vec<(String, String)> = crate::gegevens::SOORTEN.iter()
+        .map(|s| (t(&format!("Gegeven_{s}")), g.get(*s).cloned().unwrap_or_default())).collect();
+    if let Some(nieuw) = crate::keuzevensters::formulier(hwnd, &t("GegevensTitel"), &t("GegevensUitleg"), &velden) {
+        for (s, w) in crate::gegevens::SOORTEN.iter().zip(nieuw) {
+            g.insert(s.to_string(), w);
+        }
+        match crate::gegevens::bewaar(&g) {
+            Ok(_) => dialogen::melding(hwnd, &t("GegevensBewaard"), &t("GegevensBewaardTekst"), dialogen::ICOON_INFO),
+            Err(e) => dialogen::melding(hwnd, &t("OpslaanMislukt"), &e, dialogen::ICOON_WAARSCHUWING),
+        }
+    }
+}
+
 fn opdracht(hwnd: HWND, id: i32) {
     match id {
         ID_LEZEN => crate::leesvenster::open_en_kies(hwnd),
@@ -573,6 +591,7 @@ fn opdracht(hwnd: HWND, id: i32) {
             instellingen::zet_aan("updates_bij_start", aan);
             vink_menu();
         }
+        ID_GEGEVENS => mijn_gegevens(hwnd),
         ID_TAALMODEL => {
             if crate::beeldmodel::geinstalleerd() {
                 let gb = format!("{:.1}", crate::beeldmodel::grootte_gb());
@@ -752,6 +771,13 @@ fn berichtenlus() -> i32 {
                     continue;
                 }
             } else if unsafe { IsDialogMessageW(hoofd, &msg) } != 0 {
+                continue;
+            }
+        } else if !boven.is_null() && boven == crate::invulvenster::hwnd() {
+            if unsafe { TranslateAcceleratorW(boven, crate::invulvenster::toetsen(), &msg) } != 0 {
+                continue;
+            }
+            if unsafe { IsDialogMessageW(boven, &msg) } != 0 {
                 continue;
             }
         } else if !boven.is_null() && boven == crate::leesvenster::hwnd() {

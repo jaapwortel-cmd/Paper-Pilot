@@ -1,5 +1,12 @@
 ﻿Wijzigingen in Paper Pilot
 
+Versie 0.0.0.7 (november 2026)
+- Nieuw: PDF-formulieren invullen, vraag voor vraag (Ctrl+I in het leesvenster). Tekstvakken, vinkjes, keuzerondjes en keuzelijsten.
+- Paper Pilot zoekt bij elk invulveld de vraag die erbij hoort, en zegt het als een vraag verplicht is.
+- Overzicht van alle vragen en antwoorden (Ctrl+L), en opslaan als nieuwe PDF (Ctrl+S). De antwoorden zijn in elke PDF-lezer te zien.
+- Nieuw: Mijn gegevens (menu Instellingen). Naam, adres, geboortedatum, telefoon, e-mail, BSN en IBAN worden alvast ingevuld bij formulieren. Versleuteld bewaard op je eigen computer.
+- Na het opslaan vraagt Paper Pilot of nieuwe gegevens bewaard mogen worden in Mijn gegevens.
+
 Versie 0.0.0.6 (november 2026)
 - Nieuw: enveloppen herkennen, ook met een venster. Paper Pilot zegt van wie de post komt (logo, retouradres of bekende afzender) en aan wie hij is.
 - Kleine letters beter gelezen, zoals bijsluiters, etiketten en labels van theezakjes: Paper Pilot vergroot de afbeelding en maakt hem contrastrijker als dat beter werkt.

@@ -82,3 +82,8 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   retouradres of linksboven; vanzelf bij liggend + weinig tekst + postcode, of als de gebruiker "envelop" kiest) en kleine
   letters (`herkennen.rs`: vergroot2 en contrast als extra poging, beste score wint). Scannen: keuze brief/envelop/klein
   (600 dpi). Testbeelden envelop.jpg, theezakje.png, bijsluiter.png.
+- 0.0.0.7 (6 nov 2026): stap 5 en 6, formulieren invullen en Mijn gegevens. `formulier_pdf.rs` (eigen FFI naar pdfium.dll:
+  formulier-omgeving, FORM_SetFocusedAnnot + SelectAllText + ReplaceSelection voor tekst, klikken voor vinkjes/rondjes,
+  FORM_SetIndexSelected voor lijsten, FPDF_SaveAsCopy; vraag = TU, anders tekst links/rechts/boven het veld, anders de naam),
+  `invulvenster.rs` (vraag voor vraag; Enter, Alt+pijlen, Ctrl+L overzicht, Ctrl+S), `gegevens.rs` (DPAPI, soort_van op
+  woorden in de vraag), `keuzevensters::formulier`. Proef `--proef-invullen`. Let op: pypdfium2 tekent velden pas na init_forms().

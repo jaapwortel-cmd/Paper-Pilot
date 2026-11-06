@@ -34,12 +34,14 @@ const ID_HANDSCHRIFT: i32 = 109;
 const ID_BESCHRIJF: i32 = 110;
 const ID_SCAN: i32 = 111;
 const ID_AFDRUK: i32 = 112;
+const ID_INVULLEN: i32 = 113;
 const ID_SLUITEN: i32 = IDCANCEL;
 const WM_GELADEN: u32 = WM_APP + 10;
 const WM_VOORTGANG: u32 = WM_APP + 11;
 
-const KNOPPEN: [(i32, &str); 11] = [
+const KNOPPEN: [(i32, &str); 12] = [
     (ID_OPENEN, "KnopOpenen"),
+    (ID_INVULLEN, "KnopInvullen"),
     (ID_SCAN, "KnopScannen"),
     (ID_AFDRUK, "KnopAfdrukken"),
     (ID_HANDSCHRIFT, "KnopHandschrift"),
@@ -306,6 +308,7 @@ fn maak(eigenaar: HWND) -> HWND {
             ACCEL { fVirt: ctrl, key: b'G' as u16, cmd: ID_PAGINA as u16 },
             ACCEL { fVirt: ctrl, key: b'H' as u16, cmd: ID_HANDSCHRIFT as u16 },
             ACCEL { fVirt: ctrl, key: b'N' as u16, cmd: ID_SCAN as u16 },
+            ACCEL { fVirt: ctrl, key: b'I' as u16, cmd: ID_INVULLEN as u16 },
             ACCEL { fVirt: ctrl, key: b'P' as u16, cmd: ID_AFDRUK as u16 },
             ACCEL { fVirt: ctrl, key: b'D' as u16, cmd: ID_BESCHRIJF as u16 },
             ACCEL { fVirt: ctrl, key: b'S' as u16, cmd: ID_OPSLAAN as u16 },
@@ -400,6 +403,11 @@ fn open_venster(eigenaar: HWND, map: &str) -> Option<PathBuf> {
 fn opslaan_venster(eigenaar: HWND, naam: &str) -> Option<PathBuf> {
     let filter = format!("{}\0*.txt\0\0", t("FilterTekst"));
     opslaan_als(eigenaar, naam, &filter, "txt")
+}
+
+/// Het venster "Opslaan als" voor een PDF (voor het ingevulde formulier).
+pub fn opslaan_als_pdf(eigenaar: HWND, naam: &str) -> Option<PathBuf> {
+    opslaan_als(eigenaar, naam, "PDF\0*.pdf\0\0", "pdf")
 }
 
 fn opslaan_als(eigenaar: HWND, naam: &str, filter: &str, standaard_ext: &str) -> Option<PathBuf> {
@@ -753,6 +761,15 @@ fn opdracht(hwnd: HWND, id: i32) {
         ID_BEELD => opslaan_beeld(),
         ID_HANDSCHRIFT => kijk(crate::beeldmodel::Soort::Handschrift),
         ID_AFDRUK => afdrukken(),
+        ID_INVULLEN => {
+            let s = lees();
+            let doc = s.as_ref().and_then(|s| s.doc.clone());
+            let pad = s.as_ref().and_then(|s| s.pad.clone()).filter(|p| p.extension().map(|e| e.eq_ignore_ascii_case("pdf")).unwrap_or(false));
+            match (doc, pad) {
+                (Some(d), Some(p)) if d.invulvelden > 0 => crate::invulvenster::open(hwnd, &p, &d.naam),
+                _ => dialogen::melding(hwnd, &t("GeenFormulier"), &t("GeenFormulierTekst"), dialogen::ICOON_INFO),
+            }
+        }
         ID_BESCHRIJF => kijk(crate::beeldmodel::Soort::Beschrijven),
         _ => {}
     }

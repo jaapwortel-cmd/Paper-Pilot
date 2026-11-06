@@ -1,5 +1,12 @@
 ﻿Changes in Paper Pilot
 
+Version 0.0.0.7 (November 2026)
+- New: fill in PDF forms, question by question (Ctrl+I in the reading window). Text fields, check boxes, radio buttons and lists.
+- Paper Pilot finds the question that belongs to each field, and tells you when a question is required.
+- Overview of all questions and answers (Ctrl+L), and save as a new PDF (Ctrl+S). The answers can be seen in every PDF reader.
+- New: My details (Settings menu). Name, address, date of birth, phone, email, BSN and IBAN are filled in for you in forms. Stored encrypted on your own computer.
+- After saving, Paper Pilot asks whether new details may be kept in My details.
+
 Version 0.0.0.6 (November 2026)
 - New: recognising envelopes, also window envelopes. Paper Pilot tells you who the post is from (logo, return address or a known sender) and who it is addressed to.
 - Small print is read better, such as medicine leaflets, labels and tea bag tags: Paper Pilot enlarges the picture and increases the contrast when that works better.

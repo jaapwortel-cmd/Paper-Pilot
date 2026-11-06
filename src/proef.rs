@@ -216,6 +216,55 @@ pub fn proef_beeldmodel(hfmap: &str, afbeelding: &str, verslag: &str) -> i32 {
     if fout { 1 } else { 0 }
 }
 
+/// Leest de velden van een formulier, vult ze in, slaat op, en leest het opgeslagen formulier terug.
+pub fn proef_invullen(bron: &str, doel: &str, verslag: &str) -> i32 {
+    use crate::formulier_pdf::{lees_velden, vul_in, Soort};
+    let mut uit = String::new();
+    let mut fout = false;
+    let velden = match lees_velden(std::path::Path::new(bron)) {
+        Ok(v) => v,
+        Err(e) => {
+            let _ = std::fs::write(verslag, format!("FOUT: velden lezen: {e}"));
+            return 1;
+        }
+    };
+    uit.push_str(&format!("Velden: {}\r\n", velden.len()));
+    let mut ingevuld = velden.clone();
+    for (i, v) in ingevuld.iter_mut().enumerate() {
+        let soort = crate::gegevens::soort_van(&v.vraag).unwrap_or("-");
+        uit.push_str(&format!("Vraag {}: {} ({:?}, Mijn gegevens: {soort})\r\n", i + 1, v.vraag, v.soort));
+        v.waarde = match v.soort {
+            Soort::Tekst => format!("Proef {} é", i + 1),
+            Soort::Vinkje => if i % 2 == 0 { "1".into() } else { String::new() },
+            _ => "0".into(),
+        };
+    }
+    match vul_in(std::path::Path::new(bron), &ingevuld, std::path::Path::new(doel)) {
+        Ok(_) => uit.push_str("Opgeslagen.\r\n"),
+        Err(e) => {
+            fout = true;
+            uit.push_str(&format!("FOUT: invullen: {e}\r\n"));
+        }
+    }
+    match lees_velden(std::path::Path::new(doel)) {
+        Ok(terug) => {
+            for (a, b) in ingevuld.iter().zip(terug.iter()) {
+                let goed = a.waarde == b.waarde;
+                if !goed {
+                    fout = true;
+                }
+                uit.push_str(&format!("{} {}: '{}' {}\r\n", if goed { "Goed" } else { "FOUT" }, a.vraag, b.waarde, if goed { "" } else { "(verwacht iets anders)" }));
+            }
+        }
+        Err(e) => {
+            fout = true;
+            uit.push_str(&format!("FOUT: teruglezen: {e}\r\n"));
+        }
+    }
+    let _ = std::fs::write(verslag, format!("\u{feff}{uit}"));
+    if fout { 1 } else { 0 }
+}
+
 /// Zoekt scanners (ter informatie; op de bouwcomputer zijn er geen).
 pub fn proef_scanners(verslag: &str) -> i32 {
     let lijst = crate::scanner::zoek();

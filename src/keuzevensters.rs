@@ -17,6 +17,8 @@ const LBN_DBLCLK: u32 = 2;
 struct Staat {
     hwnd: HWND,
     invoer: HWND,
+    /// Bij een venster met meer invulvakken (Mijn gegevens).
+    invoeren: Vec<HWND>,
     lijst: bool,
     klaar: bool,
     uitkomst: Option<(String, usize)>,
@@ -115,7 +117,7 @@ fn toon(eigenaar: HWND, titel: &str, label: &str, items: Option<&[String]>, stan
         client.right - m - kb, onder, kb, kh, IDCANCEL);
     let kwast = unsafe { CreateSolidBrush(kleuren.achter) };
     let vak = unsafe { CreateSolidBrush(kleuren.vak) };
-    OPEN.with(|o| o.borrow_mut().push(Staat { hwnd, invoer, lijst: items.is_some(), klaar: false, uitkomst: None, kwast, vak }));
+    OPEN.with(|o| o.borrow_mut().push(Staat { hwnd, invoer, invoeren: Vec::new(), lijst: items.is_some(), klaar: false, uitkomst: None, kwast, vak }));
     unsafe {
         EnableWindow(eigenaar, 0);
         ShowWindow(hwnd, SW_SHOW);
@@ -156,10 +158,13 @@ fn toon(eigenaar: HWND, titel: &str, label: &str, items: Option<&[String]>, stan
 }
 
 fn sluit(hwnd: HWND, ok: bool) {
-    let invoer = OPEN.with(|o| o.borrow().iter().find(|s| s.hwnd == hwnd).map(|s| (s.invoer, s.lijst)));
-    let Some((invoer, lijst)) = invoer else { return };
+    let invoer = OPEN.with(|o| o.borrow().iter().find(|s| s.hwnd == hwnd).map(|s| (s.invoer, s.lijst, s.invoeren.clone())));
+    let Some((invoer, lijst, invoeren)) = invoer else { return };
     let uitkomst = if !ok {
         None
+    } else if !invoeren.is_empty() {
+        // Alle waarden achter elkaar, gescheiden door een teken dat niemand typt.
+        Some((invoeren.iter().map(|h| lees_tekst(*h)).collect::<Vec<_>>().join("\u{1f}"), 0))
     } else if lijst {
         let i = unsafe { SendMessageW(invoer, LB_GETCURSEL, 0, 0) };
         if i < 0 { None } else { Some((String::new(), i as usize)) }
@@ -212,4 +217,94 @@ unsafe extern "system" fn venster_proc(hwnd: HWND, msg: u32, wp: WPARAM, lp: LPA
         }
         _ => DefWindowProcW(hwnd, msg, wp, lp),
     }
+}
+
+/// Een venster met meer invulvakken onder elkaar (bijvoorbeeld Mijn gegevens). Geeft de nieuwe waarden, of None.
+pub fn formulier(eigenaar: HWND, titel: &str, uitleg: &str, velden: &[(String, String)]) -> Option<Vec<String>> {
+    registreer();
+    let d = dpi(eigenaar);
+    let kleuren = crate::hoofdvenster::kleuren();
+    let rij = px(44, d);
+    let breed = px(640, d);
+    let hoog = px(150, d) + rij * velden.len() as i32 + px(60, d);
+    let mut rc: RECT = unsafe { std::mem::zeroed() };
+    unsafe { GetWindowRect(eigenaar, &mut rc) };
+    let x = rc.left + (rc.right - rc.left - breed) / 2;
+    let y = (rc.top + (rc.bottom - rc.top - hoog) / 2).max(rc.top);
+    let klasse = w(KLASSE);
+    let naam = w(titel);
+    let hwnd = unsafe {
+        CreateWindowExW(WS_EX_DLGMODALFRAME, klasse.as_ptr(), naam.as_ptr(), WS_POPUP | WS_CAPTION | WS_SYSMENU,
+            x, y, breed, hoog, eigenaar, std::ptr::null_mut(), instantie(), std::ptr::null())
+    };
+    if hwnd.is_null() {
+        return None;
+    }
+    crate::thema::titelbalk(hwnd, kleuren.donker);
+    let mut client: RECT = unsafe { std::mem::zeroed() };
+    unsafe { GetClientRect(hwnd, &mut client) };
+    let m = px(16, d);
+    let letter = lettertype(12, false, d, "Segoe UI");
+    let maak = |klasse: &str, tekst: &str, stijl: u32, ex: u32, x: i32, y: i32, b: i32, h: i32, id: i32| unsafe {
+        let k = w(klasse);
+        let t = w(tekst);
+        let c = CreateWindowExW(ex, k.as_ptr(), t.as_ptr(), WS_CHILD | WS_VISIBLE | stijl, x, y, b, h, hwnd, id as isize as _,
+            instantie(), std::ptr::null());
+        zet_lettertype(c, letter);
+        c
+    };
+    maak("STATIC", uitleg, 0x80, 0, m, m, client.right - 2 * m, px(60, d), -1);
+    let labelbreed = px(230, d);
+    let mut invoeren = Vec::new();
+    for (i, (label, waarde)) in velden.iter().enumerate() {
+        let y = m + px(70, d) + rij * i as i32;
+        maak("STATIC", label, 0, 0, m, y + px(6, d), labelbreed, px(26, d), -1);
+        invoeren.push(maak("EDIT", waarde, WS_TABSTOP | ES_AUTOHSCROLL as u32, WS_EX_CLIENTEDGE,
+            m + labelbreed, y, client.right - 2 * m - labelbreed, px(34, d), ID_INVOER + i as i32 + 1));
+    }
+    let kh = px(40, d);
+    let kb = px(130, d);
+    let onder = client.bottom - m - kh;
+    maak("BUTTON", &crate::teksten::t("KnopOpslaan"), WS_TABSTOP | BS_DEFPUSHBUTTON as u32, 0, client.right - m - 2 * kb - m / 2, onder, kb, kh, IDOK);
+    maak("BUTTON", &crate::teksten::t("KnopAnnuleren"), WS_TABSTOP | BS_PUSHBUTTON as u32, 0, client.right - m - kb, onder, kb, kh, IDCANCEL);
+    let kwast = unsafe { CreateSolidBrush(kleuren.achter) };
+    let vak = unsafe { CreateSolidBrush(kleuren.vak) };
+    let eerste = invoeren.first().copied().unwrap_or(std::ptr::null_mut());
+    OPEN.with(|o| o.borrow_mut().push(Staat { hwnd, invoer: eerste, invoeren, lijst: false, klaar: false, uitkomst: None, kwast, vak }));
+    unsafe {
+        EnableWindow(eigenaar, 0);
+        ShowWindow(hwnd, SW_SHOW);
+        SetFocus(eerste);
+    }
+    let mut msg: MSG = unsafe { std::mem::zeroed() };
+    loop {
+        let klaar = OPEN.with(|o| o.borrow().iter().find(|s| s.hwnd == hwnd).map(|s| s.klaar).unwrap_or(true));
+        if klaar {
+            break;
+        }
+        if unsafe { GetMessageW(&mut msg, std::ptr::null_mut(), 0, 0) } <= 0 {
+            unsafe { PostQuitMessage(msg.wParam as i32) };
+            break;
+        }
+        if unsafe { IsDialogMessageW(hwnd, &msg) } == 0 {
+            unsafe {
+                TranslateMessage(&msg);
+                DispatchMessageW(&msg);
+            }
+        }
+    }
+    let staat = OPEN.with(|o| {
+        let mut o = o.borrow_mut();
+        o.iter().position(|s| s.hwnd == hwnd).map(|i| o.remove(i))
+    });
+    unsafe {
+        EnableWindow(eigenaar, 1);
+        DestroyWindow(hwnd);
+        SetForegroundWindow(eigenaar);
+        weg(letter as _);
+    }
+    let s = staat?;
+    weg(s.kwast as _);
+    weg(s.vak as _);
+    s.uitkomst.map(|(t, _)| t.split('\u{1f}').map(|x| x.trim().to_string()).collect())
 }

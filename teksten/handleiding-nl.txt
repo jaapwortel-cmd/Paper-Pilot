@@ -1,5 +1,5 @@
 ﻿Handleiding Paper Pilot
-Versie 0.0.0.6
+Versie 0.0.0.7
 
 Paper Pilot helpt je met brieven en formulieren, helemaal zelf. Het programma is gratis en open source, gemaakt door Jaap Wortel. Het werkt met NVDA, JAWS en Verteller, met het toetsenbord en met de muis.
 
@@ -14,7 +14,7 @@ Lezen en invullen: voor blinden en slechtzienden. Je scant of opent een brief en
 
 Controleren: voor ziende mensen die een PDF, Word-bestand of website maken. Paper Pilot zegt in gewone taal wat een schermlezer niet goed kan lezen, en hoe je dat oplost.
 
-Let op: in deze versie kun je documenten, scans en foto's openen en lezen. Formulieren invullen en Controleren worden nu gebouwd en komen in de volgende versies. Updates krijg je vanzelf.
+Let op: in deze versie kun je documenten, scans en foto's openen en lezen. Formulieren zonder invulvelden, ondertekenen en Controleren worden nu gebouwd en komen in de volgende versies. Updates krijg je vanzelf.
 
 
 2. Het hoofdvenster
@@ -35,6 +35,7 @@ Paper Pilot maakt er nette tekst van. Bovenaan staat de naam van het document, e
 Sneltoetsen in het leesvenster:
 - Ctrl+O: een ander document openen.
 - Ctrl+N: scannen.
+- Ctrl+I: formulier invullen.
 - Ctrl+P: afdrukken.
 - Ctrl+F: zoeken. Typ of dicteer het woord en druk op Enter. F3 zoekt het volgende, Shift+F3 het vorige.
 - Ctrl+K: een lijst met alle koppen. Kies een kop met de pijltjes en druk op Enter.
@@ -46,7 +47,9 @@ Sneltoetsen in het leesvenster:
 - Escape: het leesvenster sluiten.
 Met Tab ga je naar de knoppen; dezelfde opdrachten staan daar ook.
 
-Is het document een formulier, dan zegt Paper Pilot hoeveel invulvelden het heeft. Invullen komt in een volgende versie.
+Is het document een PDF-formulier met invulvelden, dan zegt Paper Pilot hoeveel velden het heeft. Kies dan Formulier invullen (Ctrl+I).
+
+Formulier invullen: Paper Pilot stelt de vragen één voor één. Bovenaan hoor je "Vraag 3 van 12", daarna de vraag zelf. Typ of dicteer het antwoord en druk op Enter voor de volgende vraag. Bij een vinkje zet de spatiebalk het aan of uit. Bij een keuze kies je met de pijltjestoetsen. Alt+Pijl links gaat terug naar de vorige vraag. Met Ctrl+L krijg je een overzicht van alle vragen en antwoorden; kies er een om hem te veranderen. Met Ctrl+S sla je het ingevulde formulier op als nieuwe PDF. Verplichte vragen hoor je met "(verplicht)" erachter. Bij vragen als naam, adres of BSN vult Paper Pilot alvast Mijn gegevens in; klopt het niet, typ dan iets anders. Escape sluit het invulvenster.
 
 Scans en foto's: Paper Pilot herkent de gedrukte tekst, met de tekstherkenning van Windows en zonder internet. Ligt de scan op zijn kop, op zijn kant of scheef, dan zegt Paper Pilot dat en zet hem zelf recht. Met Ctrl+Shift+S sla je de rechtgezette scan op als afbeelding (PNG, JPG, TIFF met alle pagina's, BMP of GIF). Handschrift en foto's: kies Handschrift lezen (Ctrl+H) om handgeschreven tekst te laten lezen, zoals een boodschappenlijstje of ansichtkaart. Kies Beschrijven (Ctrl+D) om te horen wat er op een foto, tekening of scan staat. Dit doet een taalmodel op je eigen computer, zonder internet. De eerste keer vraagt Paper Pilot of je het model wilt downloaden (eenmalig, ongeveer 3,5 GB). Het antwoord komt in een apart venster; lees het met de pijltjestoetsen, Escape sluit het. Netjes handschrift gaat meestal goed, slordig handschrift niet altijd. Met een videokaart gaat het snel, alleen met de processor kan het een paar minuten duren. Een woord dat het model niet kan lezen, staat er als [onleesbaar].
 
@@ -75,6 +78,7 @@ Bestand
 Instellingen
 - Taal / Language: Nederlands of English. Paper Pilot wisselt meteen van taal.
 - Weergave: Automatisch (zoals Windows), Licht of Donker. Staat hoog contrast van Windows aan, dan gebruikt Paper Pilot altijd de kleuren van Windows.
+- Mijn gegevens: je naam, adres, geboortedatum, telefoonnummer, e-mailadres, BSN en IBAN. Paper Pilot vult ze alvast in bij formulieren. Ze staan versleuteld op je eigen computer; alleen jij kunt ze lezen.
 - Taalmodel voor handschrift en foto's: het taalmodel downloaden, of verwijderen als het er al is.
 - Bij het starten naar updates zoeken: staat dit aan, dan kijkt Paper Pilot één keer per dag of er een nieuwe versie is.
 

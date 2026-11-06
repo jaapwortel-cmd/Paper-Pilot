@@ -15,8 +15,11 @@ mod afdrukken;
 mod bijwerken;
 mod dialogen;
 mod envelop;
+mod formulier_pdf;
+mod gegevens;
 mod herkennen;
 mod hoofdvenster;
+mod invulvenster;
 mod http;
 mod instellingen;
 mod keuzevensters;
@@ -65,6 +68,12 @@ fn main() {
         let beeld = args.get(i + 2).cloned().unwrap_or_default();
         let verslag = args.get(i + 3).cloned().unwrap_or_else(|| "beeldmodel.txt".into());
         std::process::exit(proef::proef_beeldmodel(&hfmap, &beeld, &verslag));
+    }
+    if let Some(bron) = waarde("--proef-invullen") {
+        let i = args.iter().position(|a| a == "--proef-invullen").unwrap_or(0);
+        let doel = args.get(i + 2).cloned().unwrap_or_else(|| "ingevuld.pdf".into());
+        let verslag = args.get(i + 3).cloned().unwrap_or_else(|| "invullen.txt".into());
+        std::process::exit(proef::proef_invullen(&bron, &doel, &verslag));
     }
     if let Some(verslag) = waarde("--proef-scanners") {
         std::process::exit(proef::proef_scanners(&verslag));

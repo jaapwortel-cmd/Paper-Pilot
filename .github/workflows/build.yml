@@ -112,6 +112,15 @@ jobs:
           }
           if ($fouten -gt 0) { throw "$fouten fout(en) bij het lezen." }
 
+      - name: Formulier invullen
+        shell: pwsh
+        run: |
+          $p = Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-invullen", "tests\voorbeeld-formulier.pdf", "ingevuld.pdf", "invullen.txt" -Wait -PassThru
+          Get-Content invullen.txt -Encoding utf8
+          if ($p.ExitCode -ne 0) { throw "Formulier invullen werkt niet." }
+          $t = Get-Content invullen.txt -Raw -Encoding utf8
+          foreach ($v in "Velden: 7", "Vraag 1: Naam", "Mijn gegevens: bsn", "Goed Naam") { if (-not $t.Contains($v)) { throw "'$v' ontbreekt." } }
+
       - name: Echte formulieren van een zorgkantoor lezen (ter informatie)
         continue-on-error: true
         shell: pwsh
@@ -217,7 +226,7 @@ jobs:
         run: |
           New-Item -ItemType Directory uit | Out-Null
           Copy-Item "uitvoer\*.exe", "scherm-*.png", "proef.txt", "toegankelijkheid.txt" uit\
-          Copy-Item "lezen-*.txt", "beeldmodel*.txt" uit\ -ErrorAction SilentlyContinue
+          Copy-Item "lezen-*.txt", "beeldmodel*.txt", "invullen.txt", "ingevuld.pdf" uit\ -ErrorAction SilentlyContinue
           @"
           # Paper Pilot $env:VERSIE
 
