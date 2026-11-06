@@ -18,6 +18,12 @@ bijvoorbeeld het wijzigingsformulier pgb en het budgetplan pgb Wlz.
   een menubalk, duidelijke namen voor elk onderdeel, meldingen via UI Automation.
 - **Muis en toetsenbord:** alles werkt met de muis én met het toetsenbord. De mooie opmaak mag de
   schermlezer nooit hinderen (versieringen zijn niet focusbaar en hebben geen naam).
+- **Dicteren in elk invulveld:** andere dicteerprogramma's (Spraak naar tekst, Wispr Flow, Dragon
+  NaturallySpeaking, Windows-dicteren met Windows+H en andere) moeten in elk invulveld kunnen schrijven.
+  Daarom: echte Windows-invulvakken (Edit/RichEdit, met TSF voor Dragon), plakken (Ctrl+V, WM_PASTE)
+  en getypte tekens (SendInput, ook Unicode) altijd toegestaan, UI Automation Value- en TextPattern,
+  geen globale sneltoetsen die met dicteerprogramma's botsen, en nooit vanzelf naar het volgende veld
+  springen terwijl iemand dicteert. De proef op GitHub test plakken en typen in de velden.
 - **Mooi voor zienden:** rustige kleuren, ronde hoeken, grote duidelijke knoppen, licht en donker,
   hoog contrast van Windows wordt gevolgd. GitHub maakt bij elke bouwronde schermafbeeldingen.
 - **Snel:** het programma start in een fractie van een seconde.
