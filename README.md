@@ -18,4 +18,4 @@ Dit programma is nog in ontwikkeling. Zie [PLAN.md](PLAN.md). Licentie / license
 ## Ondertekening / Code signing policy
 
 Free code signing provided by SignPath.io, certificate by SignPath Foundation.
-(Aangevraagd; geldt vanaf de eerste ondertekende versie. / Applied for; applies from the first signed version.)
+(Wordt aangevraagd na de eerste versie. / Will be applied for after the first release.)
