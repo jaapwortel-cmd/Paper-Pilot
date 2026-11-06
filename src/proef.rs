@@ -119,11 +119,18 @@ pub fn proefstart(verslag: &str) -> i32 {
 
 /// Alleen ter informatie: wat staat er nu in de Dropbox-map?
 pub fn proef_updates(verslag: &str) -> i32 {
-    let tekst = match crate::bijwerken::zoek_in(crate::bijwerken::ADRES) {
-        Ok(crate::bijwerken::Uitkomst::Nieuw { versie, .. }) => format!("Nieuwere versie in de map: {versie}"),
-        Ok(crate::bijwerken::Uitkomst::Actueel) => "Geen nieuwere versie in de map.".to_string(),
-        Ok(crate::bijwerken::Uitkomst::Fout(e)) | Err(e) => format!("Fout: {e}"),
+    let mut tekst = match crate::bijwerken::zoek_in(crate::bijwerken::ADRES) {
+        Ok(crate::bijwerken::Uitkomst::Nieuw { versie, .. }) => format!("Nieuwere versie in de map: {versie}\r\n"),
+        Ok(crate::bijwerken::Uitkomst::Actueel) => format!("Geen nieuwere versie dan {} in de map.\r\n", crate::VERSIE),
+        Ok(crate::bijwerken::Uitkomst::Fout(e)) | Err(e) => format!("Fout: {e}\r\n"),
     };
+    // Welke installatieprogramma's er in de map stonden, met hun versie.
+    if let Ok(lijst) = std::fs::read_dir(crate::bijwerken::tijdelijke_map()) {
+        for b in lijst.flatten() {
+            let v = crate::bijwerken::versie_van(&b.path()).map(crate::bijwerken::tekst).unwrap_or_else(|| "?".into());
+            tekst.push_str(&format!("In de map: {} (versie {v})\r\n", b.file_name().to_string_lossy()));
+        }
+    }
     let _ = std::fs::write(verslag, tekst);
     crate::bijwerken::ruim_op();
     0
