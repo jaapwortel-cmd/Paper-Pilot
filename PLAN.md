@@ -94,3 +94,23 @@ Elke stap eindigt met een testversie voor Jaap. Pas als Jaap zegt dat het werkt,
 - Een versie voor Android (Google Play-account nodig) of iPhone (Apple-account nodig).
   Het hart van het programma (Rust) kan dan mee.
 - Brieven samenvatten of uitleggen in eenvoudige taal, met een taalmodel op de eigen computer.
+
+## Meer programma's van Jaap (Jaaps tekst, 6 nov 2026)
+
+In het menu Help, met een knop om Jaap ernaar te mailen. Alleen deze programma's noemen.
+
+- **Spraak naar tekst** – heel gemakkelijk dicteren, en je dictaten blijven op je eigen computer.
+  *Speech to Text – dictate with ease, and your dictations stay on your own computer.*
+- **Computerhulp Maatje** – een hulp die je vragen in gewone taal beantwoordt: radio, tv-gids, mail,
+  agenda, weer en nog veel meer.
+  *Computer Buddy – a helper that answers your questions in plain language: radio, TV guide, mail,
+  calendar, weather and much more.*
+- **Jaaps Audio Editor** – geluid bewerken, internetradio luisteren en opnemen. Je bewerkt geluid net
+  zo makkelijk als tekst in een tekstverwerker: tekst weghalen of ergens anders neerzetten, en het
+  geluid verandert mee.
+  *Jaap's Audio Editor – edit audio, listen to and record internet radio. Edit sound as easily as text in a
+  word processor: remove text or move it elsewhere, and the sound follows.*
+- **Taxi Publiek Vervoer** – voor wie reist met Publiek Vervoer: een taxi boeken, wijzigen en in je
+  agenda zetten.
+  *Taxi Publiek Vervoer – for people who travel with Publiek Vervoer: book or change a taxi ride and add it
+  to your calendar.*
