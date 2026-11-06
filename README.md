@@ -14,3 +14,8 @@ Sighted people can use Paper Pilot to check whether their PDF, Word document or 
 Werkt met / works with NVDA, JAWS en Narrator. Gemaakt door / made by Jaap Wortel.
 
 Dit programma is nog in ontwikkeling. Zie [PLAN.md](PLAN.md). Licentie / license: GPL-3.0.
+
+## Ondertekening / Code signing policy
+
+Free code signing provided by SignPath.io, certificate by SignPath Foundation.
+(Aangevraagd; geldt vanaf de eerste ondertekende versie. / Applied for; applies from the first signed version.)
