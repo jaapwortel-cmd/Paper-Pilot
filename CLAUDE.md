@@ -45,3 +45,12 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
 - GitHub (`.github/workflows/build.yml`, windows-latest, gratis voor openbare repo's): bouwen, proefstart,
   `tools/toegankelijkheid.ps1` (UI Automation: elk focusbaar onderdeel heeft een naam), schermafbeeldingen,
   Inno Setup (`installer/PaperPilot.iss`), proef installeren/bijwerken/verwijderen, daarna naar de tak `exe-builds`.
+- Toegankelijkheidsproef: op de bouwcomputer van GitHub werken de UIA-proxy's niet (alles is "Pane"), MSAA wel.
+  Daarom is MSAA (C# in tools/toegankelijkheid.ps1, Windows PowerShell 5.1) de harde controle.
+- Installatieproef: niet `Start-Process -Wait` op het installatieprogramma (dat wacht ook op het gestarte Paper Pilot).
+
+## Stand van zaken
+
+- 0.0.0.1 (6 nov 2026): stap 1, de basis. Bouwronde helemaal groen (proefstart, MSAA, schermafbeeldingen,
+  installeren/bijwerken/verwijderen). Download: tak exe-builds. Jaap test nu. Daarna: GitHub Release maken en
+  SignPath aanvragen (Jaap), en Jaap zet het installatieprogramma in de Dropbox-updatemap.
