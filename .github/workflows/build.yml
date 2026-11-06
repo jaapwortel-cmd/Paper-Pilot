@@ -92,7 +92,7 @@ jobs:
             "voorbeeld-brief.pdf" = @("Pagina's: 2", "Kop: Uw budget voor 2027", "Kop: Vragen?", "gegevens controleren en");
             "voorbeeld-formulier.pdf" = @("Invulvelden: 7", "Kop: Wijzigingsformulier pgb", "Telefoonnummer:");
             "voorbeeld-brief.docx" = @("Kop: Brief van de gemeente", "Kop: Afspraken", "Datum | 12 november 2026");
-            "scan-recht.png" = @("persoonsgebonden budget", "Kop: Zorgkantoor Voorbeeld", "Afbeelding opgeslagen");
+            "scan-recht.png" = @("persoonsgebonden budget", "Kop: Zorgkantoor Voorbeeld", "Afbeelding opgeslagen", ", 0 pagina's zonder tekst", "PDF-tekst: ");
             "scan-kop.jpg" = @("op zijn kop", "persoonsgebonden budget");
             "scan-kant.png" = @("op zijn kant", "persoonsgebonden budget");
             "scan-scheef.png" = @("graden scheef", "persoonsgebonden budget");
@@ -162,6 +162,13 @@ jobs:
             $img.Dispose()
             "$naam.png gemaakt"
           }
+
+      - name: Scanners zoeken (ter informatie)
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-scanners", "scanners.txt" -Wait
+          Get-Content scanners.txt
 
       - name: Updates zoeken in de Dropbox-map
         shell: pwsh

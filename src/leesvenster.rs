@@ -32,12 +32,16 @@ const ID_OPSLAAN: i32 = 107;
 const ID_BEELD: i32 = 108;
 const ID_HANDSCHRIFT: i32 = 109;
 const ID_BESCHRIJF: i32 = 110;
+const ID_SCAN: i32 = 111;
+const ID_AFDRUK: i32 = 112;
 const ID_SLUITEN: i32 = IDCANCEL;
 const WM_GELADEN: u32 = WM_APP + 10;
 const WM_VOORTGANG: u32 = WM_APP + 11;
 
-const KNOPPEN: [(i32, &str); 9] = [
+const KNOPPEN: [(i32, &str); 11] = [
     (ID_OPENEN, "KnopOpenen"),
+    (ID_SCAN, "KnopScannen"),
+    (ID_AFDRUK, "KnopAfdrukken"),
     (ID_HANDSCHRIFT, "KnopHandschrift"),
     (ID_BESCHRIJF, "KnopBeschrijven"),
     (ID_ZOEKEN, "KnopZoeken"),
@@ -89,9 +93,131 @@ pub fn toetsen() -> HACCEL {
 /// Opent het leesvenster en laat meteen een document kiezen.
 pub fn open_en_kies(eigenaar: HWND) {
     let h = maak(eigenaar);
-    if !h.is_null() {
-        kies_bestand();
+    if h.is_null() {
+        return;
     }
+    // Een bestand openen of scannen?
+    let titel = t("Lezen");
+    let kop = t("KeuzeKop");
+    let tekst = t("KeuzeTekst");
+    let mut v = dialogen::Vraag::nieuw(&titel, &kop, &tekst);
+    v.opdrachtlinks = true;
+    v.knoppen.push(dialogen::Knop { id: 3001, tekst: t("KeuzeOpenen") });
+    v.knoppen.push(dialogen::Knop { id: 3002, tekst: t("KeuzeScannen") });
+    v.gewone_knoppen = windows_sys::Win32::UI::Controls::TDCBF_CANCEL_BUTTON;
+    v.standaard = 3001;
+    match v.toon(h) {
+        3001 => kies_bestand(),
+        3002 => scannen(),
+        _ => unsafe {
+            if let Some(s) = lees() {
+                SetFocus(s.vak);
+            }
+        },
+    }
+}
+
+/// Scannen: scanner zoeken (en kiezen), glasplaat of documentinvoer, pagina's scannen, en de tekst herkennen.
+fn scannen() {
+    let Some(s) = lees() else { return };
+    let hwnd = s.hwnd;
+    let terug = || unsafe {
+        SetFocus(s.vak);
+    };
+    let Some(scanners) = dialogen::werk(hwnd, &t("ScanTitel"), &t("ScannersZoeken"), |v| {
+        v.meld(t("ScannersZoekenTekst"), 0);
+        crate::scanner::zoek()
+    }) else { return terug() };
+    if scanners.is_empty() {
+        dialogen::melding(hwnd, &t("GeenScanner"), &t("GeenScannerTekst"), dialogen::ICOON_WAARSCHUWING);
+        return terug();
+    }
+    let scanner = if scanners.len() == 1 {
+        scanners[0].clone()
+    } else {
+        let namen: Vec<String> = scanners.iter().map(|s| s.naam.clone()).collect();
+        let vorige = instellingen::get("scanner").and_then(|n| namen.iter().position(|x| *x == n)).unwrap_or(0);
+        match keuzevensters::kies_uit_lijst(hwnd, &t("ScanTitel"), &t("ScannerKiezen"), &namen, vorige) {
+            Some(i) => scanners[i].clone(),
+            None => return terug(),
+        }
+    };
+    instellingen::zet("scanner", &scanner.naam);
+    let invoer = if scanner.glasplaat && scanner.invoer {
+        let keuzes = vec![t("BronGlasplaat"), t("BronInvoer")];
+        let vorige = if instellingen::aan("scan_invoer", false) { 1 } else { 0 };
+        match keuzevensters::kies_uit_lijst(hwnd, &t("ScanTitel"), &t("BronKiezen"), &keuzes, vorige) {
+            Some(i) => i == 1,
+            None => return terug(),
+        }
+    } else {
+        scanner.invoer && !scanner.glasplaat
+    };
+    instellingen::zet_aan("scan_invoer", invoer);
+    let mut beelden = Vec::new();
+    loop {
+        let sc = scanner.clone();
+        let uitkomst = dialogen::werk(hwnd, &t("ScanTitel"), &t("ScanBezig"), move |v| {
+            v.meld(tf("ScanBezigTekst", &[&sc.naam]), 0);
+            crate::scanner::scan(&sc, invoer)
+        });
+        match uitkomst {
+            Some(Ok(b)) if !b.is_empty() => beelden.extend(b),
+            Some(Ok(_)) => {
+                dialogen::melding(hwnd, &t("ScanLeeg"), &t("ScanLeegTekst"), dialogen::ICOON_WAARSCHUWING);
+            }
+            Some(Err(e)) => {
+                dialogen::melding(hwnd, &t("ScanMislukt"), &tf("ScanMisluktTekst", &[&e]), dialogen::ICOON_WAARSCHUWING);
+            }
+            None => {}
+        }
+        if invoer || beelden.is_empty() || !dialogen::ja_nee(hwnd, &tf("ScanNogEen", &[&beelden.len().to_string()]), &t("ScanNogEenTekst"), false) {
+            break;
+        }
+    }
+    if beelden.is_empty() {
+        return terug();
+    }
+    let naam = format!("{} {}", t("ScanNaam"), crate::logboek::nu().replace(':', ".").chars().take(16).collect::<String>());
+    let n = naam.clone();
+    let doc = dialogen::werk(hwnd, &t("ScanTitel"), &t("ScanHerkennen"), move |v| {
+        crate::lezen::van_beelden(&n, &beelden, &|tekst| v.meld(tekst, 0))
+    });
+    if let Some(doc) = doc {
+        logboek::schrijf(&format!("Gescand: {} pagina('s).", doc.beelden.len()));
+        geladen(Ok((doc, PathBuf::new())));
+        dialogen::melding(hwnd, &t("ScanKlaar"), &t("ScanKlaarTekst"), dialogen::ICOON_INFO);
+        terug();
+    }
+}
+
+/// Afdrukken: de tekst, of (bij een scan of foto) de afbeelding.
+fn afdrukken() {
+    let Some(s) = lees() else { return };
+    let Some(doc) = s.doc.clone() else { return };
+    let afbeelding = if doc.beelden.is_empty() {
+        false
+    } else {
+        let keuzes = vec![t("AfdrukTekst"), t("AfdrukBeeld")];
+        match keuzevensters::kies_uit_lijst(s.hwnd, &t("AfdrukTitel"), &t("AfdrukKiezen"), &keuzes, 0) {
+            Some(i) => i == 1,
+            None => {
+                unsafe { SetFocus(s.vak) };
+                return;
+            }
+        }
+    };
+    let uitkomst = if afbeelding {
+        crate::afdrukken::beelden(s.hwnd, &doc.naam, &doc.beelden)
+    } else {
+        crate::afdrukken::tekst(s.hwnd, &doc.naam, &doc.tekst)
+    };
+    match uitkomst {
+        Some(Ok(n)) => dialogen::melding(s.hwnd, &t("Afgedrukt"), &tf("AfgedruktTekst", &[&n.to_string()]), dialogen::ICOON_INFO),
+        Some(Err(e)) => dialogen::melding(s.hwnd, &t("AfdrukkenMislukt"), &e, dialogen::ICOON_WAARSCHUWING),
+        None => {}
+    }
+    unsafe { SetFocus(s.vak) };
 }
 
 /// Opent het leesvenster met dit bestand (bijvoorbeeld via "Openen met").
@@ -169,6 +295,8 @@ fn maak(eigenaar: HWND) -> HWND {
             ACCEL { fVirt: ctrl, key: b'K' as u16, cmd: ID_KOPPEN as u16 },
             ACCEL { fVirt: ctrl, key: b'G' as u16, cmd: ID_PAGINA as u16 },
             ACCEL { fVirt: ctrl, key: b'H' as u16, cmd: ID_HANDSCHRIFT as u16 },
+            ACCEL { fVirt: ctrl, key: b'N' as u16, cmd: ID_SCAN as u16 },
+            ACCEL { fVirt: ctrl, key: b'P' as u16, cmd: ID_AFDRUK as u16 },
             ACCEL { fVirt: ctrl, key: b'D' as u16, cmd: ID_BESCHRIJF as u16 },
             ACCEL { fVirt: ctrl, key: b'S' as u16, cmd: ID_OPSLAAN as u16 },
             ACCEL { fVirt: (FVIRTKEY | FCONTROL | FSHIFT) as u8, key: b'S' as u16, cmd: ID_BEELD as u16 },
@@ -501,15 +629,18 @@ fn opslaan_beeld() {
         unsafe { SetFocus(s.vak) };
         return;
     }
-    let ext = if doc.beelden.len() > 1 { "tif" } else { "png" };
+    let ext = "pdf";
     let naam = Path::new(&doc.naam).with_extension(ext).to_string_lossy().to_string();
-    let filter = if doc.beelden.len() > 1 {
-        format!("TIFF ({})\0*.tif\0PNG\0*.png\0JPG\0*.jpg\0BMP\0*.bmp\0\0", t("FilterAllePaginas"))
-    } else {
-        "PNG\0*.png\0JPG\0*.jpg\0TIFF\0*.tif\0BMP\0*.bmp\0GIF\0*.gif\0\0".to_string()
-    };
+    let filter = format!("PDF ({})\0*.pdf\0TIFF ({})\0*.tif\0PNG\0*.png\0JPG\0*.jpg\0BMP\0*.bmp\0GIF\0*.gif\0\0",
+        t("FilterPdfMetTekst"), t("FilterAllePaginas"));
     if let Some(pad) = opslaan_als(s.hwnd, &naam, &filter, ext) {
-        match crate::beeld::schrijf(&pad, &doc.beelden) {
+        let is_pdf = pad.extension().map(|e| e.eq_ignore_ascii_case("pdf")).unwrap_or(false);
+        let uitkomst = if is_pdf {
+            crate::pdf_maken::schrijf(&pad, &doc.beelden, &doc.beeld_regels)
+        } else {
+            crate::beeld::schrijf(&pad, &doc.beelden)
+        };
+        match uitkomst {
             Ok(_) => dialogen::melding(s.hwnd, &t("Opgeslagen"), &tf("BeeldOpgeslagenTekst", &[&pad.to_string_lossy()]), dialogen::ICOON_INFO),
             Err(e) => dialogen::melding(s.hwnd, &t("OpslaanMislukt"), &e, dialogen::ICOON_WAARSCHUWING),
         }
@@ -596,6 +727,7 @@ fn opdracht(hwnd: HWND, id: i32) {
     let doc_open = lees().map(|s| s.doc.is_some()).unwrap_or(false);
     match id {
         ID_OPENEN => kies_bestand(),
+        ID_SCAN => scannen(),
         ID_SLUITEN => unsafe {
             DestroyWindow(hwnd);
         },
@@ -610,6 +742,7 @@ fn opdracht(hwnd: HWND, id: i32) {
         ID_OPSLAAN => opslaan(),
         ID_BEELD => opslaan_beeld(),
         ID_HANDSCHRIFT => kijk(crate::beeldmodel::Soort::Handschrift),
+        ID_AFDRUK => afdrukken(),
         ID_BESCHRIJF => kijk(crate::beeldmodel::Soort::Beschrijven),
         _ => {}
     }

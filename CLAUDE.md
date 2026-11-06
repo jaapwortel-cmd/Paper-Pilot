@@ -73,3 +73,8 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   10 min; -ngl 99, anders 0), `http.rs` (WinHTTP, hervatten met Range), `dialogen::werk` (TaskDialog met voortgangsbalk en
   Annuleren). Leesvenster: Ctrl+H handschrift, Ctrl+D beschrijven; menu Instellingen, Taalmodel. Proef: `--proef-beeldmodel`
   met SmolVLM-256M bij elke bouwronde; het echte model via Run workflow met groot_model aangevinkt.
+- 0.0.0.5 (6 nov 2026): stap 4, scannen en afdrukken. `scanner.rs` (Windows.Devices.Scanners: ScanFilesToFolderAsync,
+  300 dpi grijs, glasplaat/invoer; eSCL via eigen mDNS-zoeker _uscan._tcp en POST ScanJobs/NextDocument), `afdrukken.rs`
+  (PrintDlgW + GDI: tekst met marges en voetregel, afbeeldingen passend), `pdf_maken.rs` (eigen PDF-schrijver: JPG per
+  pagina + onzichtbare OCR-tekst, Tr 3). Leesvenster: Ctrl+N, Ctrl+P; Ctrl+Shift+S met PDF als eerste keuze; tegel vraagt
+  openen of scannen. Niet te testen op GitHub: echte scanners en printers (Jaap test).

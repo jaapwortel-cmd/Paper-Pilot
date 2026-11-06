@@ -29,6 +29,8 @@ pub struct Document {
     pub beelden: Vec<crate::beeld::Beeld>,
     /// Bij elk beeld: het paginanummer (vanaf 1).
     pub beeld_paginas: Vec<usize>,
+    /// Bij elk beeld: de herkende regels met hun plaats (voor een doorzoekbare PDF).
+    pub beeld_regels: Vec<Vec<crate::herkennen::Regel>>,
 }
 
 /// Bouwt de tekst op en houdt de plaatsen bij.
@@ -286,6 +288,7 @@ fn scan_pagina(b: &mut Bouwer, beeld: &crate::beeld::Beeld, nr: usize) {
             b.alinea(&e);
             b.doc.beelden.push(beeld.clone());
             b.doc.beeld_paginas.push(nr);
+            b.doc.beeld_regels.push(Vec::new());
             return;
         }
     };
@@ -311,6 +314,7 @@ fn scan_pagina(b: &mut Bouwer, beeld: &crate::beeld::Beeld, nr: usize) {
     }
     b.doc.beelden.push(u.beeld);
     b.doc.beeld_paginas.push(nr);
+    b.doc.beeld_regels.push(u.regels);
 }
 
 /// Herkende regels netjes in alinea's en koppen zetten.
@@ -351,6 +355,11 @@ fn ocr_alineas(b: &mut Bouwer, regels: &[crate::herkennen::Regel]) {
 
 fn afbeelding(pad: &Path, naam: &str, voortgang: &dyn Fn(String)) -> Result<Document, String> {
     let beelden = crate::beeld::lees(pad)?;
+    Ok(van_beelden(naam, &beelden, voortgang))
+}
+
+/// Een document van gescande pagina's of foto's: elke pagina wordt herkend en rechtgezet.
+pub fn van_beelden(naam: &str, beelden: &[crate::beeld::Beeld], voortgang: &dyn Fn(String)) -> Document {
     let mut b = Bouwer::nieuw(naam);
     let totaal = beelden.len();
     for (i, beeld) in beelden.iter().enumerate() {
@@ -360,7 +369,7 @@ fn afbeelding(pad: &Path, naam: &str, voortgang: &dyn Fn(String)) -> Result<Docu
         }
         scan_pagina(&mut b, beeld, i + 1);
     }
-    Ok(b.klaar())
+    b.klaar()
 }
 
 // ---------------------------------------------------------------- Word

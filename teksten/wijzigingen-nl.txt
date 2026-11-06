@@ -1,5 +1,12 @@
 ﻿Wijzigingen in Paper Pilot
 
+Versie 0.0.0.5 (november 2026)
+- Nieuw: scannen (Ctrl+N). Paper Pilot zoekt zelf scanners: aangesloten, in het netwerk, en de scanner in je printer. Ook netwerkprinters met scanner die Windows nog niet kent (eSCL/AirScan).
+- Scannen van de glasplaat (pagina voor pagina) of uit de documentinvoer (alle pagina's in één keer). Daarna herkent Paper Pilot de tekst.
+- Nieuw: afdrukken (Ctrl+P) op elke printer die Windows kent: de tekst, of de scan of foto.
+- Nieuw: opslaan als PDF met de tekst erin (Ctrl+Shift+S). Zo is de PDF later te doorzoeken en voor te lezen.
+- Lezen en invullen vraagt eerst: een bestand openen, of scannen.
+
 Versie 0.0.0.4 (november 2026)
 - Nieuw: handschrift lezen (Ctrl+H), zoals boodschappenlijstjes en ansichtkaarten.
 - Nieuw: beschrijven wat er op een foto, tekening of scan staat (Ctrl+D).

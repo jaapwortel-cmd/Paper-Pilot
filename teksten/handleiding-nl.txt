@@ -1,5 +1,5 @@
 ﻿Handleiding Paper Pilot
-Versie 0.0.0.4
+Versie 0.0.0.5
 
 Paper Pilot helpt je met brieven en formulieren, helemaal zelf. Het programma is gratis en open source, gemaakt door Jaap Wortel. Het werkt met NVDA, JAWS en Verteller, met het toetsenbord en met de muis.
 
@@ -14,7 +14,7 @@ Lezen en invullen: voor blinden en slechtzienden. Je scant of opent een brief en
 
 Controleren: voor ziende mensen die een PDF, Word-bestand of website maken. Paper Pilot zegt in gewone taal wat een schermlezer niet goed kan lezen, en hoe je dat oplost.
 
-Let op: in deze versie kun je documenten, scans en foto's openen en lezen. Scannen, formulieren invullen en Controleren worden nu gebouwd en komen in de volgende versies. Updates krijg je vanzelf.
+Let op: in deze versie kun je documenten, scans en foto's openen en lezen. Formulieren invullen en Controleren worden nu gebouwd en komen in de volgende versies. Updates krijg je vanzelf.
 
 
 2. Het hoofdvenster
@@ -28,17 +28,19 @@ Met Tab of de pijltjes ga je van de ene knop naar de andere. Enter of spatie kie
 
 3. Een document lezen
 
-Kies Lezen en invullen (Alt+L). Het venster Document openen komt meteen. Kies een PDF, een Word-bestand (.docx), een tekstbestand of een foto of scan (JPG, PNG, TIFF, BMP, GIF, HEIC of WebP) en kies Openen.
+Kies Lezen en invullen (Alt+L). Paper Pilot vraagt: een bestand openen, of scannen. Kies je een bestand openen, dan komt het venster Document openen. Kies een PDF, een Word-bestand (.docx), een tekstbestand of een foto of scan (JPG, PNG, TIFF, BMP, GIF, HEIC of WebP) en kies Openen.
 
 Paper Pilot maakt er nette tekst van. Bovenaan staat de naam van het document, en een regel met het aantal pagina's, koppen en invulvelden. De tekst lees je met de pijltjestoetsen, net als in Kladblok. Elke pagina begint met een regel als "Pagina 1 van 3". Koppen staan op een eigen regel.
 
 Sneltoetsen in het leesvenster:
 - Ctrl+O: een ander document openen.
+- Ctrl+N: scannen.
+- Ctrl+P: afdrukken.
 - Ctrl+F: zoeken. Typ of dicteer het woord en druk op Enter. F3 zoekt het volgende, Shift+F3 het vorige.
 - Ctrl+K: een lijst met alle koppen. Kies een kop met de pijltjes en druk op Enter.
 - Ctrl+G: naar een pagina.
 - Ctrl+S: de tekst opslaan als tekstbestand.
-- Ctrl+Shift+S: een scan of foto (rechtgezet) opslaan als afbeelding.
+- Ctrl+Shift+S: een scan of foto (rechtgezet) opslaan als PDF met de tekst erin, of als afbeelding.
 - Ctrl+H: handschrift lezen (bij een scan of foto).
 - Ctrl+D: beschrijven wat er op de scan of foto staat.
 - Escape: het leesvenster sluiten.
@@ -51,6 +53,12 @@ Scans en foto's: Paper Pilot herkent de gedrukte tekst, met de tekstherkenning v
 Zegt Paper Pilot dat de tekstherkenning niet beschikbaar is? Ga dan in Windows naar Instellingen, Tijd en taal, Taal en regio. Kies Nederlands, dan Taalopties, en installeer Optische tekenherkenning (OCR).
 
 Voor HEIC-foto's (iPhone) en WebP heeft Windows een gratis extensie nodig uit de Microsoft Store: HEIF-afbeeldingsextensies en WebP-afbeeldingsextensies.
+
+Scannen: kies Scannen (Ctrl+N). Paper Pilot zoekt scanners: aangesloten scanners, scanners in het netwerk, en de scanner in je printer. Zijn er meer, dan kies je er een; Paper Pilot onthoudt je keuze. Heeft de scanner een glasplaat en een documentinvoer, dan kies je waar de brief ligt. Bij de glasplaat scan je pagina voor pagina: na elke pagina vraagt Paper Pilot of er nog een pagina is. Daarna herkent Paper Pilot de tekst, en hoor je of een pagina scheef of op zijn kop lag. Bewaar de scan met Ctrl+Shift+S; kies PDF, dan staat de tekst er onzichtbaar in en is de PDF later te doorzoeken.
+
+Vindt Paper Pilot geen scanner? Kijk of de scanner of printer aan staat en aan de computer of in hetzelfde netwerk zit. Een nieuwe scanner voeg je eerst toe in Windows: Instellingen, Bluetooth en apparaten, Printers en scanners.
+
+Afdrukken: kies Afdrukken (Ctrl+P). Bij een scan of foto kies je eerst: de tekst, of de scan of foto. Daarna komt het gewone afdrukvenster van Windows, waar je de printer kiest.
 
 Je kunt ook in de Verkenner op een PDF, Word-bestand of foto gaan staan en kiezen: Openen met, Paper Pilot.
 

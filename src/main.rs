@@ -11,6 +11,7 @@
 
 mod beeld;
 mod beeldmodel;
+mod afdrukken;
 mod bijwerken;
 mod dialogen;
 mod herkennen;
@@ -21,7 +22,9 @@ mod keuzevensters;
 mod leesvenster;
 mod lezen;
 mod logboek;
+mod pdf_maken;
 mod proef;
+mod scanner;
 mod tekstvenster;
 mod teksten;
 mod thema;
@@ -61,6 +64,9 @@ fn main() {
         let beeld = args.get(i + 2).cloned().unwrap_or_default();
         let verslag = args.get(i + 3).cloned().unwrap_or_else(|| "beeldmodel.txt".into());
         std::process::exit(proef::proef_beeldmodel(&hfmap, &beeld, &verslag));
+    }
+    if let Some(verslag) = waarde("--proef-scanners") {
+        std::process::exit(proef::proef_scanners(&verslag));
     }
     if let Some(verslag) = waarde("--proef-updates") {
         std::process::exit(proef::proef_updates(&verslag));

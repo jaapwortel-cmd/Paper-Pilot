@@ -1,5 +1,12 @@
 ﻿Changes in Paper Pilot
 
+Version 0.0.0.5 (November 2026)
+- New: scanning (Ctrl+N). Paper Pilot finds scanners itself: connected, on the network, and the scanner in your printer. Also network printers with a scanner that Windows does not know yet (eSCL/AirScan).
+- Scan from the glass (page by page) or from the document feeder (all pages at once). Paper Pilot then recognises the text.
+- New: printing (Ctrl+P) on any printer Windows knows: the text, or the scan or photo.
+- New: save as a PDF with the text in it (Ctrl+Shift+S). The PDF can then be searched and read aloud later.
+- Read and fill in first asks: open a file, or scan.
+
 Version 0.0.0.4 (November 2026)
 - New: read handwriting (Ctrl+H), such as shopping lists and postcards.
 - New: describe what is on a photo, drawing or scan (Ctrl+D).

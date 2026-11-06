@@ -31,6 +31,18 @@ pub fn verzoek(
     wachttijd_ms: i32,
     ontvang: &mut dyn FnMut(&[u8], u32, Option<u64>) -> Result<(), String>,
 ) -> Result<(u32, Option<u64>), String> {
+    verzoek_met_locatie(methode, adres, kopregels, lichaam, wachttijd_ms, ontvang).map(|(s, l, _)| (s, l))
+}
+
+/// Zoals `verzoek`, maar geeft ook de kop "Location" terug (voor eSCL-scanners).
+pub fn verzoek_met_locatie(
+    methode: &str,
+    adres: &str,
+    kopregels: &str,
+    lichaam: Option<&[u8]>,
+    wachttijd_ms: i32,
+    ontvang: &mut dyn FnMut(&[u8], u32, Option<u64>) -> Result<(), String>,
+) -> Result<(u32, Option<u64>, Option<String>), String> {
     let (veilig, rest) = if let Some(r) = adres.strip_prefix("https://") {
         (true, r)
     } else if let Some(r) = adres.strip_prefix("http://") {
@@ -85,6 +97,12 @@ pub fn verzoek(
         let mut l8 = 8u32;
         let heeft_lengte = WinHttpQueryHeaders(verzoek.0, WINHTTP_QUERY_CONTENT_LENGTH | WINHTTP_QUERY_FLAG_NUMBER64, std::ptr::null(),
             &mut totaal as *mut u64 as *mut _, &mut l8, std::ptr::null_mut()) != 0;
+        let mut locatie = None;
+        let mut lbuf = vec![0u16; 2048];
+        let mut llen = (lbuf.len() * 2) as u32;
+        if WinHttpQueryHeaders(verzoek.0, WINHTTP_QUERY_LOCATION, std::ptr::null(), lbuf.as_mut_ptr() as *mut _, &mut llen, std::ptr::null_mut()) != 0 {
+            locatie = Some(String::from_utf16_lossy(&lbuf[..(llen / 2) as usize]));
+        }
         let mut buf = vec![0u8; 256 * 1024];
         loop {
             let mut gelezen = 0u32;
@@ -96,7 +114,7 @@ pub fn verzoek(
             }
             ontvang(&buf[..gelezen as usize], status, if heeft_lengte { Some(totaal) } else { None })?;
         }
-        Ok((status, if heeft_lengte { Some(totaal) } else { None }))
+        Ok((status, if heeft_lengte { Some(totaal) } else { None }, locatie))
     }
 }
 

@@ -1,5 +1,5 @@
 ﻿Paper Pilot manual
-Version 0.0.0.4
+Version 0.0.0.5
 
 Paper Pilot helps you with letters and forms, all by yourself. The program is free and open source, made by Jaap Wortel. It works with NVDA, JAWS and Narrator, with the keyboard and with the mouse.
 
@@ -14,7 +14,7 @@ Read and fill in: for blind and visually impaired people. Scan or open a letter 
 
 Check: for sighted people who make a PDF, Word document or website. Paper Pilot tells you in plain language what a screen reader cannot read well, and how to fix it.
 
-Please note: in this version you can open and read documents, scans and photos. Scanning, filling in forms and Check are being built now and will come in the next versions. You will get updates automatically.
+Please note: in this version you can open and read documents, scans and photos. Filling in forms and Check are being built now and will come in the next versions. You will get updates automatically.
 
 
 2. The main window
@@ -28,17 +28,19 @@ Use Tab or the arrow keys to move between the buttons. Enter or Space chooses a 
 
 3. Reading a document
 
-Choose Read and fill in (Alt+R). The Open document window appears right away. Choose a PDF, a Word document (.docx), a text file or a photo or scan (JPG, PNG, TIFF, BMP, GIF, HEIC or WebP) and choose Open.
+Choose Read and fill in (Alt+R). Paper Pilot asks: open a file, or scan. If you choose to open a file, the Open document window appears. Choose a PDF, a Word document (.docx), a text file or a photo or scan (JPG, PNG, TIFF, BMP, GIF, HEIC or WebP) and choose Open.
 
 Paper Pilot turns it into clean text. At the top is the name of the document, and a line with the number of pages, headings and form fields. Read the text with the arrow keys, just like in Notepad. Each page starts with a line such as "Page 1 of 3". Headings are on a line of their own.
 
 Shortcut keys in the reading window:
 - Ctrl+O: open another document.
+- Ctrl+N: scan.
+- Ctrl+P: print.
 - Ctrl+F: find. Type or dictate the word and press Enter. F3 finds the next one, Shift+F3 the previous one.
 - Ctrl+K: a list of all headings. Choose a heading with the arrow keys and press Enter.
 - Ctrl+G: go to a page.
 - Ctrl+S: save the text as a text file.
-- Ctrl+Shift+S: save a scan or photo (straightened) as a picture.
+- Ctrl+Shift+S: save a scan or photo (straightened) as a PDF with the text in it, or as a picture.
 - Ctrl+H: read handwriting (with a scan or photo).
 - Ctrl+D: describe what is on the scan or photo.
 - Escape: close the reading window.
@@ -51,6 +53,12 @@ Scans and photos: Paper Pilot recognises the printed text, using Windows text re
 Does Paper Pilot say that text recognition is not available? In Windows, go to Settings, Time and language, Language and region. Choose your language, then Language options, and install Optical character recognition (OCR).
 
 For HEIC photos (iPhone) and WebP, Windows needs a free extension from the Microsoft Store: HEIF Image Extensions and WebP Image Extensions.
+
+Scanning: choose Scan (Ctrl+N). Paper Pilot looks for scanners: connected scanners, scanners on the network, and the scanner in your printer. If there are several, you choose one; Paper Pilot remembers your choice. If the scanner has both a glass plate and a document feeder, you choose where the letter is. With the glass you scan page by page: after each page Paper Pilot asks whether there is another page. Paper Pilot then recognises the text, and tells you if a page was crooked or upside down. Save the scan with Ctrl+Shift+S; choose PDF and the text is included invisibly, so the PDF can be searched later.
+
+Paper Pilot does not find a scanner? Check that the scanner or printer is switched on and connected to the computer or on the same network. Add a new scanner in Windows first: Settings, Bluetooth and devices, Printers and scanners.
+
+Printing: choose Print (Ctrl+P). With a scan or photo you first choose: the text, or the scan or photo. Then the normal Windows print window appears, where you choose the printer.
 
 In File Explorer you can also select a PDF, Word document or photo and choose: Open with, Paper Pilot.
 

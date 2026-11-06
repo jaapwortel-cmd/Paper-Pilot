@@ -17,6 +17,8 @@ pub struct Regel {
     pub tekst: String,
     pub boven: f32,
     pub hoogte: f32,
+    pub links: f32,
+    pub breedte: f32,
 }
 
 pub struct Uitkomst {
@@ -60,17 +62,20 @@ fn een_keer(e: &OcrEngine, beeld: &Beeld) -> Result<(Vec<Regel>, f64), String> {
     let mut regels = Vec::new();
     for regel in uitkomst.Lines().map_err(fout)? {
         let tekst = regel.Text().map(|t| t.to_string()).unwrap_or_default();
-        let (mut boven, mut onder) = (f32::MAX, f32::MIN);
+        let (mut boven, mut onder, mut links, mut rechts) = (f32::MAX, f32::MIN, f32::MAX, f32::MIN);
         if let Ok(woorden) = regel.Words() {
             for w in woorden {
                 if let Ok(r) = w.BoundingRect() {
                     boven = boven.min(r.Y);
                     onder = onder.max(r.Y + r.Height);
+                    links = links.min(r.X);
+                    rechts = rechts.max(r.X + r.Width);
                 }
             }
         }
         if !tekst.trim().is_empty() {
-            regels.push(Regel { tekst, boven: boven * schaal, hoogte: (onder - boven).max(1.0) * schaal });
+            regels.push(Regel { tekst, boven: boven * schaal, hoogte: (onder - boven).max(1.0) * schaal,
+                links: links * schaal, breedte: (rechts - links).max(1.0) * schaal });
         }
     }
     Ok((regels, hoek))

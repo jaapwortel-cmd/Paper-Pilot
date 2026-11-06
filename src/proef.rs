@@ -143,6 +143,19 @@ pub fn proef_lezen(bestand: &str, verslag: &str) -> i32 {
                 }
             }
             if !d.beelden.is_empty() {
+                // Doorzoekbare PDF maken en weer lezen: de tekst moet erin zitten.
+                let pdf = format!("{verslag}.pdf");
+                match crate::pdf_maken::schrijf(std::path::Path::new(&pdf), &d.beelden, &d.beeld_regels) {
+                    Ok(_) => match crate::lezen::open(std::path::Path::new(&pdf), &|_| {}) {
+                        Ok(terug) => {
+                            let woorden: Vec<&str> = terug.tekst.split_whitespace().collect();
+                            s.push_str(&format!("PDF met tekst: {} woorden, {} pagina's zonder tekst\r\n", woorden.len(), terug.zonder_tekst.len()));
+                            s.push_str(&format!("PDF-tekst: {}\r\n", woorden.iter().take(25).cloned().collect::<Vec<_>>().join(" ")));
+                        }
+                        Err(e) => s.push_str(&format!("FOUT: PDF teruglezen: {e}\r\n")),
+                    },
+                    Err(e) => s.push_str(&format!("FOUT: PDF maken: {e}\r\n")),
+                }
                 let doel = format!("{verslag}.png");
                 match crate::beeld::schrijf(std::path::Path::new(&doel), &d.beelden) {
                     Ok(_) => s.push_str(&format!("Afbeelding opgeslagen: {doel}\r\n")),
@@ -201,6 +214,17 @@ pub fn proef_beeldmodel(hfmap: &str, afbeelding: &str, verslag: &str) -> i32 {
     uit.push_str(&log.chars().rev().take(3000).collect::<Vec<_>>().into_iter().rev().collect::<String>());
     let _ = std::fs::write(verslag, format!("\u{feff}{uit}"));
     if fout { 1 } else { 0 }
+}
+
+/// Zoekt scanners (ter informatie; op de bouwcomputer zijn er geen).
+pub fn proef_scanners(verslag: &str) -> i32 {
+    let lijst = crate::scanner::zoek();
+    let mut uit = format!("Scanners gevonden: {}\r\n", lijst.len());
+    for s in &lijst {
+        uit.push_str(&format!("- {} (glasplaat {}, invoer {})\r\n", s.naam, s.glasplaat, s.invoer));
+    }
+    let _ = std::fs::write(verslag, uit);
+    0
 }
 
 /// Alleen ter informatie: wat staat er nu in de Dropbox-map?
