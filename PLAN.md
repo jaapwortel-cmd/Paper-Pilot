@@ -16,6 +16,8 @@ bijvoorbeeld het wijzigingsformulier pgb en het budgetplan pgb Wlz.
 
 - **Toegankelijk:** NVDA, JAWS en Verteller. Gewone Windows-onderdelen, alles met het toetsenbord,
   een menubalk, duidelijke namen voor elk onderdeel, meldingen via UI Automation.
+- **Muis en toetsenbord:** alles werkt met de muis én met het toetsenbord. De mooie opmaak mag de
+  schermlezer nooit hinderen (versieringen zijn niet focusbaar en hebben geen naam).
 - **Mooi voor zienden:** rustige kleuren, ronde hoeken, grote duidelijke knoppen, licht en donker,
   hoog contrast van Windows wordt gevolgd. GitHub maakt bij elke bouwronde schermafbeeldingen.
 - **Snel:** het programma start in een fractie van een seconde.
@@ -46,8 +48,10 @@ bijvoorbeeld het wijzigingsformulier pgb en het budgetplan pgb Wlz.
   Microsoft Store: voorlopig niet (Jaap, 6 nov 2026).
 - Installeren in Program Files (met beheerdersrechten, één UAC-vraag). Een eigen verwijderprogramma
   (Startmenu en Windows Instellingen, Apps); bij verwijderen de vraag of je eigen gegevens ook weg moeten.
-- Updates via Jaaps Dropbox-map `Paper Pilot updates` (in `/Updates van mijn programma's`): daarin staan
-  `versie.txt` en het installatieprogramma. Paper Pilot kijkt of er een nieuwere versie is, haalt het
+- Geen zipversie: alleen een installatieprogramma (Jaap, 6 nov 2026).
+- Updates via Jaaps Dropbox-map `Paper Pilot updates` (in `/Updates van mijn programma's`): daarin zet Jaap
+  alleen het installatieprogramma. Paper Pilot haalt de map op (Dropbox geeft een map als zip, `dl=1`),
+  leest het versienummer uit het installatieprogramma zelf en kiest het nieuwste, als er meer staan. Paper Pilot kijkt of er een nieuwere versie is, haalt het
   installatieprogramma op en start het met beheerdersrechten. Het installatieprogramma ruimt eerst alle
   oude programmabestanden op ([InstallDelete]) en zet de nieuwe ervoor in de plaats; eigen gegevens blijven.
   Daarna start Paper Pilot opnieuw.
