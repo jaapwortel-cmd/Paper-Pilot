@@ -54,4 +54,6 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
 ## Stand van zaken
 
 - 0.0.0.1 (6 nov 2026): stap 1, de basis. Bouwronde helemaal groen (proefstart, MSAA, schermafbeeldingen,
-  installeren/bijwerken/verwijderen). Download: tak exe-builds. Jaap test nu, en zet het installatieprogramma in de Dropbox-updatemap.
+  installeren/bijwerken/verwijderen). Download: tak exe-builds. Jaap test nu.
+  Updates zoeken werkte eerst niet (URLDownloadToFile: 0x800c0008 bij Dropbox); nu WinHTTP, en de bouwronde
+  controleert de Dropbox-map echt. Jaap kreeg daarna een nieuwe 0.0.0.1 (zelfde versienummer) voor Dropbox.
