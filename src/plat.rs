@@ -264,6 +264,29 @@ pub fn zoek(pagina: usize, g: &Grijs, regels: &[Regel]) -> Vec<Plek> {
         y += 1;
     }
 
+    // Hokjes naast elkaar op één regel: de vraag bij een hokje stopt bij het volgende hokje.
+    let kopie = uit.clone();
+    for p in uit.iter_mut().filter(|p| p.soort == Plaats::Vinkje) {
+        let volgende = kopie.iter().filter(|q| q.soort == Plaats::Vinkje && (q.onder - p.onder).abs() < lh && q.x > p.x + p.breedte)
+            .map(|q| q.x).fold(f32::MAX, f32::min);
+        if volgende < f32::MAX {
+            let woorden: Vec<String> = regels.iter().filter(|r| (r.boven + r.hoogte / 2.0 - (p.onder - p.hoogte / 2.0)).abs() < lh * 0.8)
+                .flat_map(|r| r.woorden.iter()).filter(|w| w.1 >= p.x + p.breedte - 2.0 && w.1 + w.2 <= volgende + 2.0)
+                .filter(|w| !w.0.chars().next().map(|c| HOKJES.contains(&c)).unwrap_or(false))
+                .map(|w| w.0.clone()).collect();
+            let nieuw = schoon(&woorden.join(" "));
+            if !nieuw.is_empty() {
+                // Een groepsvraag ervoor ("Geslacht: ") blijft staan.
+                p.vraag = match p.vraag.split_once(": ") {
+                    Some((groep, _)) if p.vraag.contains(": ") => format!("{groep}: {nieuw}"),
+                    _ => nieuw,
+                };
+            }
+        }
+    }
+    // Plekken zonder vraag, of met een hele zin als "vraag", zijn bijna altijd geen echte invulplek.
+    uit.retain(|p| !p.vraag.trim().is_empty() && p.vraag.split_whitespace().count() <= 10);
+
     // Leesvolgorde.
     uit.sort_by(|a, b| {
         if (a.onder - b.onder).abs() < lh * 0.6 {
