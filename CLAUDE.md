@@ -20,7 +20,9 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   browser gaat naar Firefox of de standaardbrowser.
 - Licentie: GPL-3.0.
 - "Mail de maker" gaat naar jaap.wortel@gmail.com (Jaaps keuze, 6 nov 2026; kan later een ander adres worden).
-- Updates: Dropbox-map `/Updates van mijn programma's/Paper Pilot updates` (link volgt van Jaap).
+- Updates: Dropbox-map `/Updates van mijn programma's/Paper Pilot updates` 
+  Link (alleen bekijken, 6 nov 2026): https://www.dropbox.com/scl/fo/dgj0om0qkz4al43owg91c/AENyj6dSYBH7sdMj1VOE96I?rlkey=vhtmwomkhbzgvhb0kaffpyeex&dl=0
+  Nooit een link met bewerkrechten gebruiken: updates draaien met beheerdersrechten.
 - Werkwijze: testversies, pas een echte versie als Jaap zegt dat alles werkt. Bij elke stap de handleiding
   en de wijzigingen bijwerken.
 - Wijzigingen verzamelen en samen pushen; altijd pushen voordat Jaap moet testen of de sessie stopt.
