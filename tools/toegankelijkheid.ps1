@@ -44,6 +44,11 @@ public static class Msaa {
   public static int Rol(IntPtr hwnd, uint id) { var a = Haal(hwnd, id); return a == null ? -1 : Convert.ToInt32(a.get_accRole(0)); }
   public static string Naam(IntPtr hwnd, uint id) { var a = Haal(hwnd, id); return a == null ? null : a.get_accName(0); }
   public static int Status(IntPtr hwnd, uint id) { var a = Haal(hwnd, id); return a == null ? -1 : Convert.ToInt32(a.get_accState(0)); }
+  public static IntPtr[] Knoppen(IntPtr hwnd) {
+    var lijst = new System.Collections.Generic.List<IntPtr>(); IntPtr k = IntPtr.Zero;
+    while ((k = FindWindowEx(hwnd, k, "Button", null)) != IntPtr.Zero) lijst.Add(k);
+    return lijst.ToArray();
+  }
   public static string Menu(IntPtr hwnd) {
     var a = Haal(hwnd, 0xFFFFFFFD); if (a == null) return null;
     var sb = new StringBuilder();
@@ -56,9 +61,8 @@ public static class Msaa {
     $menu = [Msaa]::Menu($hwnd)
     "MSAA menubalk: $menu"
     if (-not $menu -or -not $menu.StartsWith("3:")) { "FOUT: de menubalk heeft geen drie menu's"; $fouten++ }
-    $knop = [IntPtr]::Zero
     $knoppen = 0
-    while (($knop = [Msaa]::FindWindowEx($hwnd, $knop, "Button", $null)) -ne [IntPtr]::Zero) {
+    foreach ($knop in [Msaa]::Knoppen($hwnd)) {
         $rol = [Msaa]::Rol($knop, [uint32]4294967292)
         $naam = [Msaa]::Naam($knop, [uint32]4294967292)
         $status = [Msaa]::Status($knop, [uint32]4294967292)
