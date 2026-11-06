@@ -15,8 +15,22 @@ try {
         $venster = $A::RootElement.FindFirst([System.Windows.Automation.TreeScope]::Children, $c)
     }
     if (-not $venster) { throw "Het venster van Paper Pilot is niet gevonden." }
-    "Venster: $($venster.Current.Name)"
+    "Venster: $($venster.Current.Name) (klasse $($venster.Current.ClassName), aan: $($venster.Current.IsEnabled))"
+    Start-Sleep -Seconds 2
+    # Wat de schermlezer ziet: de boom tot drie lagen diep.
+    $loper = [System.Windows.Automation.TreeWalker]::RawViewWalker
+    function Boom($e, $diepte) {
+        if ($diepte -gt 3) { return }
+        $k = $loper.GetFirstChild($e)
+        while ($k) {
+            "$('  ' * $diepte)- $($k.Current.ControlType.ProgrammaticName) | $($k.Current.Name) | $($k.Current.ClassName) | focus: $($k.Current.IsKeyboardFocusable)"
+            Boom $k ($diepte + 1)
+            $k = $loper.GetNextSibling($k)
+        }
+    }
+    Boom $venster 1
     $alles = $venster.FindAll([System.Windows.Automation.TreeScope]::Descendants, [System.Windows.Automation.Condition]::TrueCondition)
+    "Onderdelen gevonden: $($alles.Count)"
     $menubalk = 0
     foreach ($e in $alles) {
         $soort = $e.Current.ControlType.ProgrammaticName
