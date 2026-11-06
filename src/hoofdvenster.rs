@@ -210,7 +210,7 @@ fn zet_teksten() {
                 DestroyMenu(oud);
             }
         }
-        zet_tekst(s.tegels[0], &format!("{}. {} {}", t("TegelLezen"), t("TegelLezenOver"), t("Binnenkort")));
+        zet_tekst(s.tegels[0], &format!("{}. {}", t("TegelLezen"), t("TegelLezenOver")));
         zet_tekst(s.tegels[1], &format!("{}. {} {}", t("TegelControleren"), t("TegelControlerenOver"), t("Binnenkort")));
         unsafe { InvalidateRect(s.hwnd, std::ptr::null(), 1) };
     }
@@ -413,8 +413,8 @@ fn teken_tegel(di: &DRAWITEMSTRUCT) {
         let mut rs = RECT { left: binnen, top: binnen, right: binnen + px(48, d), bottom: binnen + px(44, d) };
         teken_tekst(dc, if lezen { "\u{E8A5}" } else { "\u{E9D5}" }, &mut rs, s.letters.symbool,
             if k.hoog_contrast { tekstkleur } else { k.accent }, DT_LEFT | DT_SINGLELINE | DT_NOPREFIX);
-        // "Binnenkort" als label rechtsboven.
-        let label = t("BinnenkortLabel");
+        // "Binnenkort" als label rechtsboven (alleen bij onderdelen die er nog niet zijn).
+        let label = if lezen { t("NieuwLabel") } else { t("BinnenkortLabel") };
         let lb = px(110, d);
         let lh = px(28, d);
         let lx = b - binnen - lb;
@@ -547,7 +547,7 @@ fn na_start(hwnd: HWND) {
 
 fn opdracht(hwnd: HWND, id: i32) {
     match id {
-        ID_LEZEN => komt_later(hwnd, "TegelLezen"),
+        ID_LEZEN => crate::leesvenster::open_en_kies(hwnd),
         ID_CONTROLEREN => komt_later(hwnd, "TegelControleren"),
         ID_AFSLUITEN => unsafe {
             DestroyWindow(hwnd);
@@ -620,7 +620,20 @@ unsafe extern "system" fn venster_proc(hwnd: HWND, msg: u32, wp: WPARAM, lp: LPA
         }
         WM_START => {
             na_start(hwnd);
+            if let Some(pad) = met(|s| s.opties.bestand.clone()).flatten() {
+                crate::leesvenster::open_bestand(hwnd, std::path::Path::new(&pad));
+            }
             0
+        }
+        WM_COPYDATA => {
+            // Een tweede Paper Pilot geeft een document door ("Openen met").
+            let cds = &*(lp as *const windows_sys::Win32::System::DataExchange::COPYDATASTRUCT);
+            if cds.dwData == 1 && !cds.lpData.is_null() {
+                let tekst = std::slice::from_raw_parts(cds.lpData as *const u16, cds.cbData as usize / 2);
+                let pad = String::from_utf16_lossy(tekst);
+                crate::leesvenster::open_bestand(hwnd, std::path::Path::new(&pad));
+            }
+            1
         }
         WM_UPDATE => {
             let uitkomst = Box::from_raw(lp as *mut crate::bijwerken::Uitkomst);
@@ -683,6 +696,11 @@ fn sneltoets(tekst: &str) -> Option<char> {
     None
 }
 
+/// Waar als Insert of Caps Lock nu ingedrukt is (de toetsen van de schermlezer).
+fn schermlezertoets() -> bool {
+    unsafe { (GetKeyState(VK_INSERT as i32) as u16 & 0x8000) != 0 || (GetKeyState(VK_CAPITAL as i32) as u16 & 0x8000) != 0 }
+}
+
 fn berichtenlus() -> i32 {
     let mut msg: MSG = unsafe { std::mem::zeroed() };
     loop {
@@ -692,6 +710,15 @@ fn berichtenlus() -> i32 {
         }
         let hoofd = hoofd_hwnd();
         let boven = unsafe { GetAncestor(msg.hwnd, GA_ROOT) };
+        // Insert en Caps Lock zijn de toetsen van de schermlezer (NVDA, JAWS). Zolang een daarvan
+        // ingedrukt is, doet Paper Pilot niets met de toetsen: geen F1, geen Alt+letter.
+        if (WM_KEYFIRST..=WM_KEYLAST).contains(&msg.message) && schermlezertoets() {
+            unsafe {
+                TranslateMessage(&msg);
+                DispatchMessageW(&msg);
+            }
+            continue;
+        }
         if !hoofd.is_null() && boven == hoofd {
             let toetsen = met(|s| s.toetsen).unwrap_or(std::ptr::null_mut());
             if unsafe { TranslateAcceleratorW(hoofd, toetsen, &msg) } != 0 {
@@ -710,6 +737,13 @@ fn berichtenlus() -> i32 {
                     continue;
                 }
             } else if unsafe { IsDialogMessageW(hoofd, &msg) } != 0 {
+                continue;
+            }
+        } else if !boven.is_null() && boven == crate::leesvenster::hwnd() {
+            if unsafe { TranslateAcceleratorW(boven, crate::leesvenster::toetsen(), &msg) } != 0 {
+                continue;
+            }
+            if unsafe { IsDialogMessageW(boven, &msg) } != 0 {
                 continue;
             }
         } else if tekstvenster::is_tekstvenster(boven) && unsafe { IsDialogMessageW(boven, &msg) } != 0 {

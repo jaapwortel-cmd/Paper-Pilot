@@ -13,6 +13,9 @@ mod bijwerken;
 mod dialogen;
 mod hoofdvenster;
 mod instellingen;
+mod keuzevensters;
+mod leesvenster;
+mod lezen;
 mod logboek;
 mod proef;
 mod tekstvenster;
@@ -31,6 +34,8 @@ pub struct Opties {
     pub taal: Option<String>,
     pub thema: Option<String>,
     pub schermafbeelding: Option<String>,
+    /// Een document om meteen te openen ("Openen met" in de Verkenner).
+    pub bestand: Option<String>,
 }
 
 fn main() {
@@ -42,6 +47,10 @@ fn main() {
     if let Some(verslag) = waarde("--proefstart") {
         std::process::exit(proef::proefstart(&verslag));
     }
+    if let Some(bestand) = waarde("--proef-lezen") {
+        let verslag = args.iter().position(|a| a == "--proef-lezen").and_then(|i| args.get(i + 2)).cloned().unwrap_or_else(|| "lezen.txt".into());
+        std::process::exit(proef::proef_lezen(&bestand, &verslag));
+    }
     if let Some(verslag) = waarde("--proef-updates") {
         std::process::exit(proef::proef_updates(&verslag));
     }
@@ -51,6 +60,7 @@ fn main() {
         taal: waarde("--taal"),
         thema: waarde("--thema"),
         schermafbeelding: waarde("--schermafbeelding"),
+        bestand: args.iter().find(|a| !a.starts_with("--") && std::path::Path::new(a).is_file()).cloned(),
     };
     let proef = opties.demo || opties.schermafbeelding.is_some();
 
@@ -58,7 +68,7 @@ fn main() {
     let naam = win::w("PaperPilotDraait");
     let mutex = unsafe { windows_sys::Win32::System::Threading::CreateMutexW(std::ptr::null(), 0, naam.as_ptr()) };
     if !proef && unsafe { windows_sys::Win32::Foundation::GetLastError() } == windows_sys::Win32::Foundation::ERROR_ALREADY_EXISTS {
-        laat_ander_venster_zien();
+        laat_ander_venster_zien(opties.bestand.as_deref());
         return;
     }
     if !proef {
@@ -69,8 +79,9 @@ fn main() {
     std::process::exit(code);
 }
 
-/// Draait Paper Pilot al, dan dat venster naar voren halen.
-fn laat_ander_venster_zien() {
+/// Draait Paper Pilot al, dan dat venster naar voren halen (en het document daar openen).
+fn laat_ander_venster_zien(bestand: Option<&str>) {
+    use windows_sys::Win32::System::DataExchange::COPYDATASTRUCT;
     use windows_sys::Win32::UI::WindowsAndMessaging::*;
     let klasse = win::w("PaperPilotHoofdvenster");
     unsafe {
@@ -80,6 +91,11 @@ fn laat_ander_venster_zien() {
                 ShowWindow(h, SW_RESTORE);
             }
             SetForegroundWindow(h);
+            if let Some(pad) = bestand {
+                let tekst: Vec<u16> = pad.encode_utf16().collect();
+                let cds = COPYDATASTRUCT { dwData: 1, cbData: (tekst.len() * 2) as u32, lpData: tekst.as_ptr() as *mut _ };
+                SendMessageW(h, WM_COPYDATA, 0, &cds as *const _ as isize);
+            }
         }
     }
 }

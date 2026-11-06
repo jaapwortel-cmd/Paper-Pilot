@@ -18,6 +18,8 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
 - Talen: Nederlands en Engels; nieuwe teksten altijd in allebei, handleiding in allebei.
 - Privé: brieven en gegevens blijven op de computer. Geen Microsoft Edge of WebView2; iets met een
   browser gaat naar Firefox of de standaardbrowser.
+- Sneltoetsen: NOOIT de Insert-toets of Caps Lock gebruiken (toetsen van NVDA en JAWS). Zolang Insert of
+  Caps Lock ingedrukt is, reageert Paper Pilot op geen enkele sneltoets (Jaap, 6 nov 2026).
 - Licentie: GPL-3.0.
 - Niet ondertekenen (geen SignPath, geen certificaat): Jaap vindt dat te veel handelingen (6 nov 2026).
 - Alleen de naam Jaap Wortel als maker in het programma (geen andere namen of organisaties).
@@ -57,3 +59,8 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   installeren/bijwerken/verwijderen). Download: tak exe-builds. Jaap test nu.
   Updates zoeken werkte eerst niet (URLDownloadToFile: 0x800c0008 bij Dropbox); nu WinHTTP, en de bouwronde
   controleert de Dropbox-map echt. Jaap kreeg daarna een nieuwe 0.0.0.1 (zelfde versienummer) voor Dropbox.
+- 0.0.0.2 (6 nov 2026): stap 2, documenten lezen. `lezen.rs` (PDF via pdfium-render + pdfium.dll uit de PyPI-wheel
+  pypdfium2 5.15.0, in {app}\onderdelen; koppen = grotere letter of korte vette regel; teken 2 = afbreekstreepje;
+  Word via quick-xml; tekst), `leesvenster.rs` (Ctrl+O/F/K/G/S, F3, Escape; openen op de achtergrond),
+  `keuzevensters.rs` (vraag_tekst, kies_uit_lijst). Testbestanden in `tests/` (gemaakt met reportlab en python-docx).
+  "Openen met" voor .pdf/.docx/.txt in de installer. Insert/Caps Lock: geen sneltoetsen (Jaap).

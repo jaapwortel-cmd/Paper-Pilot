@@ -71,6 +71,18 @@ Type: filesandordirs; Name: "{app}\onderdelen"
 [Files]
 Source: "..\target\release\PaperPilot.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\LICENSE"; DestDir: "{app}"; DestName: "LICENSE.txt"; Flags: ignoreversion
+Source: "..\target\release\onderdelen\pdfium.dll"; DestDir: "{app}\onderdelen"; Flags: ignoreversion
+Source: "..\res\pdfium-licentie.txt"; DestDir: "{app}\onderdelen"; Flags: ignoreversion
+
+[Registry]
+; "Openen met" in de Verkenner voor PDF, Word en tekst (Paper Pilot wordt niet het standaardprogramma).
+Root: HKA; Subkey: "Software\Classes\Applications\PaperPilot.exe"; ValueType: string; ValueName: "FriendlyAppName"; ValueData: "Paper Pilot"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\Applications\PaperPilot.exe\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\PaperPilot.exe"" ""%1"""
+Root: HKA; Subkey: "Software\Classes\Applications\PaperPilot.exe\SupportedTypes"; ValueType: string; ValueName: ".pdf"; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\Applications\PaperPilot.exe\SupportedTypes"; ValueType: string; ValueName: ".docx"; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\Applications\PaperPilot.exe\SupportedTypes"; ValueType: string; ValueName: ".txt"; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\.pdf\OpenWithList\PaperPilot.exe"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\.docx\OpenWithList\PaperPilot.exe"; Flags: uninsdeletekey
 
 [Icons]
 Name: "{autoprograms}\Paper Pilot"; Filename: "{app}\PaperPilot.exe"

@@ -1,5 +1,5 @@
 ﻿Paper Pilot manual
-Version 0.0.0.1
+Version 0.0.0.2
 
 Paper Pilot helps you with letters and forms, all by yourself. The program is free and open source, made by Jaap Wortel. It works with NVDA, JAWS and Narrator, with the keyboard and with the mouse.
 
@@ -14,7 +14,7 @@ Read and fill in: for blind and visually impaired people. Scan or open a letter 
 
 Check: for sighted people who make a PDF, Word document or website. Paper Pilot tells you in plain language what a screen reader cannot read well, and how to fix it.
 
-Please note: this first version (0.0.0.1) contains the basics: the window, the menus, the manual, the privacy statement, updates, and installing and uninstalling. Read and fill in and Check are being built now and will come in the next versions. You will get updates automatically.
+Please note: in this version you can open and read documents. Scanning, filling in forms and Check are being built now and will come in the next versions. You will get updates automatically.
 
 
 2. The main window
@@ -26,7 +26,27 @@ At the top is the name Paper Pilot. Below it are two large buttons:
 Use Tab or the arrow keys to move between the buttons. Enter or Space chooses a button. With the mouse, click a button.
 
 
-3. The menus
+3. Reading a document
+
+Choose Read and fill in (Alt+R). The Open document window appears right away. Choose a PDF, a Word document (.docx) or a text file and choose Open.
+
+Paper Pilot turns it into clean text. At the top is the name of the document, and a line with the number of pages, headings and form fields. Read the text with the arrow keys, just like in Notepad. Each page starts with a line such as "Page 1 of 3". Headings are on a line of their own.
+
+Shortcut keys in the reading window:
+- Ctrl+O: open another document.
+- Ctrl+F: find. Type or dictate the word and press Enter. F3 finds the next one, Shift+F3 the previous one.
+- Ctrl+K: a list of all headings. Choose a heading with the arrow keys and press Enter.
+- Ctrl+G: go to a page.
+- Ctrl+S: save the text as a text file.
+- Escape: close the reading window.
+Use Tab to reach the buttons; the same commands are there as well.
+
+If the document is a form, Paper Pilot tells you how many fields it has. Filling it in will come in a next version. If a page has no text, it is probably a scan. Text recognition will also come in a next version.
+
+In File Explorer you can also select a PDF or Word document and choose: Open with, Paper Pilot.
+
+
+4. The menus
 
 Press Alt to go to the menu bar.
 
@@ -49,22 +69,24 @@ Help
 - About Paper Pilot: version and maker.
 
 
-4. Dictation
+5. Dictation
 
 In every input field of Paper Pilot you can also use a dictation program, such as Speech to Text, Wispr Flow, Dragon NaturallySpeaking or Windows dictation (Windows+H). Paper Pilot never jumps to another field by itself, so your dictation always ends up in the field you are in.
 
+Paper Pilot never uses the Insert key or Caps Lock: those are your screen reader keys. While you hold down one of those keys, Paper Pilot does not react to any key.
 
-5. The first time and after an update
+
+6. The first time and after an update
 
 The first time you start Paper Pilot, you see a short guided tour. After an update you see once what is new. You can find both again in the Help menu.
 
 
-6. Updates
+7. Updates
 
 Paper Pilot checks once a day whether there is a new version (you can turn this off in the Settings menu). If there is, Paper Pilot asks whether you want to install it. If you choose Yes, Windows asks for permission. Paper Pilot closes for a moment, the new version is installed and Paper Pilot starts again by itself. The old program files are removed. Your own data and settings are kept.
 
 
-7. Installing and uninstalling
+8. Installing and uninstalling
 
 Paper Pilot is installed in the Program Files folder. Windows asks for permission once.
 
@@ -75,11 +97,11 @@ You can uninstall it in two ways:
 When uninstalling, Paper Pilot asks whether your own data and settings should be removed too.
 
 
-8. Where Paper Pilot stores things
+9. Where Paper Pilot stores things
 
 Settings and the log file are in the folder %APPDATA%\Paper Pilot on your own computer. The log file helps to find errors. It is never sent to anyone by itself.
 
 
-9. Questions and ideas
+10. Questions and ideas
 
 Do you have a question, did you find an error, or do you have an idea? Choose Help, Mail the maker, or email jaap.wortel@gmail.com.

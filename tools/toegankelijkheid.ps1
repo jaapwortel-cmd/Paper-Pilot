@@ -49,6 +49,16 @@ public static class Msaa {
     while ((k = FindWindowEx(hwnd, k, "Button", null)) != IntPtr.Zero) lijst.Add(k);
     return lijst.ToArray();
   }
+  [DllImport("user32.dll")] static extern int GetWindowLong(IntPtr h, int i);
+  [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr FindWindow(string klasse, string titel);
+  public static string[] Tabstops(IntPtr hwnd) {
+    var lijst = new System.Collections.Generic.List<string>(); IntPtr k = IntPtr.Zero;
+    while ((k = FindWindowEx(hwnd, k, null, null)) != IntPtr.Zero) {
+      if ((GetWindowLong(k, -16) & 0x10010000) != 0x10010000) continue; // WS_VISIBLE en WS_TABSTOP
+      lijst.Add(Rol(k, 0xFFFFFFFC) + "|" + Naam(k, 0xFFFFFFFC));
+    }
+    return lijst.ToArray();
+  }
   public static string Menu(IntPtr hwnd) {
     var a = Haal(hwnd, 0xFFFFFFFD); if (a == null) return null;
     var sb = new StringBuilder();
@@ -74,6 +84,25 @@ public static class Msaa {
         $knoppen++
     }
     if ($knoppen -lt 2) { "FOUT: $knoppen knoppen gevonden in plaats van 2"; $fouten++ }
+
+    # Het leesvenster: open een brief en controleer elk onderdeel met focus (naam en rol via MSAA).
+    Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue
+    Start-Sleep 1
+    $p = Start-Process $Exe -ArgumentList "--demo", "--taal", "nl", "tests\voorbeeld-brief.pdf" -PassThru
+    $lees = [IntPtr]::Zero
+    for ($i = 0; $i -lt 40 -and $lees -eq [IntPtr]::Zero; $i++) { Start-Sleep -Milliseconds 250; $lees = [Msaa]::FindWindow("PaperPilotLezen", $null) }
+    if ($lees -eq [IntPtr]::Zero) { "FOUT: het leesvenster is niet gevonden"; $fouten++ }
+    else {
+        Start-Sleep 2
+        $tab = [Msaa]::Tabstops($lees)
+        foreach ($t in $tab) {
+            $rol, $naam = $t.Split("|", 2)
+            "Leesvenster: rol $rol | $naam"
+            if ([string]::IsNullOrWhiteSpace($naam)) { "FOUT: onderdeel zonder naam in het leesvenster (rol $rol)"; $fouten++ }
+        }
+        if ($tab.Count -lt 7) { "FOUT: het leesvenster heeft $($tab.Count) onderdelen met focus in plaats van 7"; $fouten++ }
+        if (-not ($tab -match "^42\|voorbeeld-brief.pdf$")) { "FOUT: het tekstvak heeft niet de naam van het document"; $fouten++ }
+    }
 
     # Toetsenbord (alleen waarschuwingen: focus op een bouwcomputer is niet altijd betrouwbaar).
     try {

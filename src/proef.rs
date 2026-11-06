@@ -117,6 +117,32 @@ pub fn proefstart(verslag: &str) -> i32 {
     if fouten == 0 { 0 } else { 1 }
 }
 
+/// Leest een document zoals Paper Pilot het toont, en schrijft de tekst, de koppen en de pagina's op.
+pub fn proef_lezen(bestand: &str, verslag: &str) -> i32 {
+    let uit = match crate::lezen::open(std::path::Path::new(bestand)) {
+        Ok(d) => {
+            let mut s = format!("Bestand: {}\r\nPagina's: {}\r\nZonder tekst: {:?}\r\nInvulvelden: {}\r\n", d.naam, d.paginas.len(), d.zonder_tekst, d.invulvelden);
+            for (k, b, e) in &d.koppen {
+                s.push_str(&format!("Kop: {k} ({b}-{e})\r\n"));
+            }
+            // De plaatsen moeten precies kloppen met de tekst (in UTF-16, zoals het tekstvak telt).
+            let utf16: Vec<u16> = d.tekst.encode_utf16().collect();
+            for (k, b, e) in &d.koppen {
+                if String::from_utf16_lossy(&utf16[*b..*e]) != *k {
+                    s.push_str(&format!("FOUT: kop '{k}' staat niet op zijn plaats\r\n"));
+                }
+            }
+            s.push_str("----\r\n");
+            s.push_str(&d.tekst);
+            s
+        }
+        Err(e) => format!("FOUT: {e}"),
+    };
+    let fout = uit.contains("FOUT:");
+    let _ = std::fs::write(verslag, format!("\u{feff}{uit}"));
+    if fout { 1 } else { 0 }
+}
+
 /// Alleen ter informatie: wat staat er nu in de Dropbox-map?
 pub fn proef_updates(verslag: &str) -> i32 {
     let mut tekst = match crate::bijwerken::zoek_in(crate::bijwerken::ADRES) {

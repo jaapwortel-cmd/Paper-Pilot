@@ -1,5 +1,5 @@
 ﻿Handleiding Paper Pilot
-Versie 0.0.0.1
+Versie 0.0.0.2
 
 Paper Pilot helpt je met brieven en formulieren, helemaal zelf. Het programma is gratis en open source, gemaakt door Jaap Wortel. Het werkt met NVDA, JAWS en Verteller, met het toetsenbord en met de muis.
 
@@ -14,7 +14,7 @@ Lezen en invullen: voor blinden en slechtzienden. Je scant of opent een brief en
 
 Controleren: voor ziende mensen die een PDF, Word-bestand of website maken. Paper Pilot zegt in gewone taal wat een schermlezer niet goed kan lezen, en hoe je dat oplost.
 
-Let op: in deze eerste versie (0.0.0.1) staat de basis klaar: het venster, de menu's, de handleiding, de privacyverklaring, de updates en het installeren en verwijderen. Lezen en invullen en Controleren worden nu gebouwd en komen in de volgende versies. Updates krijg je vanzelf.
+Let op: in deze versie kun je documenten openen en lezen. Scannen, formulieren invullen en Controleren worden nu gebouwd en komen in de volgende versies. Updates krijg je vanzelf.
 
 
 2. Het hoofdvenster
@@ -26,7 +26,27 @@ Bovenaan staat de naam Paper Pilot. Daaronder staan twee grote knoppen:
 Met Tab of de pijltjes ga je van de ene knop naar de andere. Enter of spatie kiest de knop. Met de muis klik je op een knop.
 
 
-3. De menu's
+3. Een document lezen
+
+Kies Lezen en invullen (Alt+L). Het venster Document openen komt meteen. Kies een PDF, een Word-bestand (.docx) of een tekstbestand en kies Openen.
+
+Paper Pilot maakt er nette tekst van. Bovenaan staat de naam van het document, en een regel met het aantal pagina's, koppen en invulvelden. De tekst lees je met de pijltjestoetsen, net als in Kladblok. Elke pagina begint met een regel als "Pagina 1 van 3". Koppen staan op een eigen regel.
+
+Sneltoetsen in het leesvenster:
+- Ctrl+O: een ander document openen.
+- Ctrl+F: zoeken. Typ of dicteer het woord en druk op Enter. F3 zoekt het volgende, Shift+F3 het vorige.
+- Ctrl+K: een lijst met alle koppen. Kies een kop met de pijltjes en druk op Enter.
+- Ctrl+G: naar een pagina.
+- Ctrl+S: de tekst opslaan als tekstbestand.
+- Escape: het leesvenster sluiten.
+Met Tab ga je naar de knoppen; dezelfde opdrachten staan daar ook.
+
+Is het document een formulier, dan zegt Paper Pilot hoeveel invulvelden het heeft. Invullen komt in een volgende versie. Heeft een pagina geen tekst, dan is dat waarschijnlijk een scan. Tekstherkenning komt ook in een volgende versie.
+
+Je kunt ook in de Verkenner op een PDF of Word-bestand gaan staan en kiezen: Openen met, Paper Pilot.
+
+
+4. De menu's
 
 Druk op Alt om naar de menubalk te gaan.
 
@@ -49,22 +69,24 @@ Help
 - Over Paper Pilot: versie en maker.
 
 
-4. Dicteren
+5. Dicteren
 
 In elk invulveld van Paper Pilot kun je ook dicteren met een dicteerprogramma, zoals Spraak naar tekst, Wispr Flow, Dragon NaturallySpeaking of dicteren van Windows (Windows+H). Paper Pilot springt nooit vanzelf naar een ander veld, dus je dictaat komt altijd in het veld waar je staat.
 
+Paper Pilot gebruikt nooit de Insert-toets of Caps Lock: dat zijn de toetsen van je schermlezer. Zolang je een van die toetsen ingedrukt houdt, reageert Paper Pilot nergens op.
 
-5. De eerste keer en na een update
+
+6. De eerste keer en na een update
 
 De eerste keer dat je Paper Pilot start, zie je een korte rondleiding. Na een update zie je één keer wat er nieuw is. Beide vind je later terug in het menu Help.
 
 
-6. Updates
+7. Updates
 
 Paper Pilot kijkt één keer per dag of er een nieuwe versie is (dat kun je uitzetten in het menu Instellingen). Is er een nieuwe versie, dan vraagt Paper Pilot of je hem wilt installeren. Kies je Ja, dan vraagt Windows om toestemming. Paper Pilot sluit even, de nieuwe versie wordt geïnstalleerd en Paper Pilot start vanzelf opnieuw. De oude programmabestanden worden opgeruimd. Je eigen gegevens en instellingen blijven bewaard.
 
 
-7. Installeren en verwijderen
+8. Installeren en verwijderen
 
 Paper Pilot wordt geïnstalleerd in de map Program Files. Windows vraagt daarbij één keer om toestemming.
 
@@ -75,11 +97,11 @@ Verwijderen kan op twee manieren:
 Bij het verwijderen vraagt Paper Pilot of je eigen gegevens en instellingen ook weg moeten.
 
 
-8. Waar Paper Pilot iets bewaart
+9. Waar Paper Pilot iets bewaart
 
 Instellingen en het logboek staan in de map %APPDATA%\Paper Pilot op je eigen computer. Het logboek helpt bij het zoeken naar fouten. Het gaat nooit vanzelf naar iemand toe.
 
 
-9. Vragen en ideeën
+10. Vragen en ideeën
 
 Heb je een vraag, een fout gevonden of een idee? Kies Help, Mail de maker, of mail naar jaap.wortel@gmail.com.

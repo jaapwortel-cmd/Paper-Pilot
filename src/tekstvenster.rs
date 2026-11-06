@@ -128,7 +128,7 @@ fn schik(hwnd: HWND) {
     });
 }
 
-unsafe extern "system" fn vak_proc(hwnd: HWND, msg: u32, wp: WPARAM, lp: LPARAM, _id: usize, _data: usize) -> LRESULT {
+pub unsafe extern "system" fn vak_proc(hwnd: HWND, msg: u32, wp: WPARAM, lp: LPARAM, _id: usize, _data: usize) -> LRESULT {
     if msg == WM_GETDLGCODE {
         let r = DefSubclassProc(hwnd, msg, wp, lp);
         return r & !((DLGC_WANTALLKEYS | DLGC_WANTTAB | DLGC_HASSETSEL) as isize);

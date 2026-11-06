@@ -1,5 +1,14 @@
 ﻿Wijzigingen in Paper Pilot
 
+Versie 0.0.0.2 (november 2026)
+- Nieuw: documenten lezen. Kies Lezen en invullen en open een PDF, een Word-bestand (.docx) of een tekstbestand.
+- Paper Pilot maakt er nette tekst van, met de pagina's en de koppen. Afgebroken woorden worden weer heel.
+- In het leesvenster: Zoeken (Ctrl+F, F3 en Shift+F3), Koppen (Ctrl+K), Naar pagina (Ctrl+G) en Opslaan als tekst (Ctrl+S).
+- Paper Pilot zegt het als een document een formulier is, en als een pagina geen tekst heeft (een scan).
+- In de Verkenner kun je een PDF of Word-bestand openen met Paper Pilot (Openen met).
+- Zolang je de Insert-toets of Caps Lock ingedrukt houdt (de toetsen van je schermlezer), reageert Paper Pilot nergens op.
+- Zoeken naar updates werkt nu goed.
+
 Versie 0.0.0.1 (november 2026)
 - De eerste versie: de basis van Paper Pilot.
 - Hoofdvenster met de twee onderdelen Lezen en invullen en Controleren (deze komen in de volgende versies).
