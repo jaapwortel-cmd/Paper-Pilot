@@ -145,7 +145,7 @@ pub fn proef_lezen(bestand: &str, verslag: &str) -> i32 {
             if !d.beelden.is_empty() {
                 // Doorzoekbare PDF maken en weer lezen: de tekst moet erin zitten.
                 let pdf = format!("{verslag}.pdf");
-                match crate::pdf_maken::schrijf(std::path::Path::new(&pdf), &d.beelden, &d.beeld_regels) {
+                match crate::pdf_maken::schrijf(std::path::Path::new(&pdf), &d.beelden, &d.beeld_regels, &[]) {
                     Ok(_) => match crate::lezen::open(std::path::Path::new(&pdf), &|_| {}) {
                         Ok(terug) => {
                             let woorden: Vec<&str> = terug.tekst.split_whitespace().collect();
@@ -263,6 +263,66 @@ pub fn proef_invullen(bron: &str, doel: &str, verslag: &str) -> i32 {
     }
     let _ = std::fs::write(verslag, format!("\u{feff}{uit}"));
     if fout { 1 } else { 0 }
+}
+
+/// Zoekt invulplekken in een formulier zonder invulvelden, vult ze in en slaat op (verslag + verslag.pdf).
+pub fn proef_plat(bestand: &str, verslag: &str) -> i32 {
+    crate::beeld::com_start();
+    let pad = std::path::Path::new(bestand);
+    let is_pdf = pad.extension().map(|e| e.eq_ignore_ascii_case("pdf")).unwrap_or(false);
+    let mut uit = String::new();
+    let (plekken, scan) = if is_pdf {
+        match crate::plat::zoek_pdf(pad) {
+            Ok(p) => (p, None),
+            Err(e) => {
+                let _ = std::fs::write(verslag, format!("FOUT: {e}"));
+                return 1;
+            }
+        }
+    } else {
+        match crate::lezen::open(pad, &|_| {}) {
+            Ok(d) => (crate::plat::zoek_beelden(&d.beelden, &d.beeld_regels), Some(d)),
+            Err(e) => {
+                let _ = std::fs::write(verslag, format!("FOUT: {e}"));
+                return 1;
+            }
+        }
+    };
+    uit.push_str(&format!("Plekken: {}\r\n", plekken.len()));
+    let mut paren = Vec::new();
+    for (i, p) in plekken.iter().enumerate() {
+        uit.push_str(&format!("Plek {}: {:?} '{}' (pagina {}, x {:.0}, onder {:.0}, breedte {:.0})\r\n", i + 1, p.soort, p.vraag, p.pagina + 1, p.x, p.onder, p.breedte));
+        let w = match p.soort {
+            crate::plat::Plaats::Tekst => format!("Proef {}", i + 1),
+            crate::plat::Plaats::Vinkje => if i % 2 == 0 { "1".into() } else { String::new() },
+        };
+        paren.push((p.clone(), w));
+    }
+    let doel = format!("{verslag}.pdf");
+    let r = match &scan {
+        None => crate::plat::vul_pdf_in(pad, &paren, std::path::Path::new(&doel)),
+        Some(d) => crate::pdf_maken::schrijf(std::path::Path::new(&doel), &d.beelden, &d.beeld_regels, &crate::plat::zichtbaar(&paren, d.beelden.len())),
+    };
+    let mut fout = false;
+    match r {
+        Ok(_) => {
+            uit.push_str(&format!("Ingevuld opgeslagen: {doel}\r\n"));
+            if scan.is_none() {
+                // De antwoorden staan nu als echte tekst op de pagina.
+                if let Ok(terug) = crate::lezen::open(std::path::Path::new(&doel), &|_| {}) {
+                    let ok = terug.tekst.contains("Proef 1");
+                    if !ok { fout = true; }
+                    uit.push_str(&format!("Teruggelezen: {}\r\n", if ok { "antwoorden staan op de pagina" } else { "FOUT: antwoorden niet gevonden" }));
+                }
+            }
+        }
+        Err(e) => {
+            fout = true;
+            uit.push_str(&format!("FOUT: opslaan: {e}\r\n"));
+        }
+    }
+    let _ = std::fs::write(verslag, format!("\u{feff}{uit}"));
+    if fout || plekken.is_empty() { 1 } else { 0 }
 }
 
 /// Zoekt scanners (ter informatie; op de bouwcomputer zijn er geen).

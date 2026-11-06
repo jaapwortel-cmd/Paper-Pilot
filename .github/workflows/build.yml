@@ -121,6 +121,23 @@ jobs:
           $t = Get-Content invullen.txt -Raw -Encoding utf8
           foreach ($v in "Velden: 7", "Vraag 1: Naam", "Mijn gegevens: bsn", "Goed Naam") { if (-not $t.Contains($v)) { throw "'$v' ontbreekt." } }
 
+      - name: Formulieren zonder invulvelden
+        shell: pwsh
+        run: |
+          $fouten = 0
+          $verwacht = @{
+            "plat-formulier.pdf" = @("'Voorletters'", "'Geslacht: Man'", "'Een voorleesapparaat'", "'Plaats'", "'Datum'", "'Handtekening'", "antwoorden staan op de pagina");
+            "plat-scan.png" = @("'Voorletters'", "'Een voorleesapparaat'", "'Handtekening'", "Ingevuld opgeslagen")
+          }
+          foreach ($f in $verwacht.Keys) {
+            $p = Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-plat", "tests\$f", "plat-$f.txt" -Wait -PassThru
+            $t = Get-Content "plat-$f.txt" -Raw -Encoding utf8
+            "==== $f"; $t
+            if ($t.Contains("E-mail")) { "FOUT: de regel met het e-mailadres werd een invulplek"; $fouten++ }
+            foreach ($v in $verwacht[$f]) { if (-not $t.Contains($v)) { "FOUT: $v ontbreekt bij $f"; $fouten++ } }
+          }
+          if ($fouten -gt 0) { throw "$fouten fout(en) bij formulieren zonder invulvelden." }
+
       - name: Echte formulieren van een zorgkantoor lezen (ter informatie)
         continue-on-error: true
         shell: pwsh
@@ -136,6 +153,9 @@ jobs:
             Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-lezen", $naam, "lezen-$naam.txt" -Wait
             "==== $naam"
             Get-Content "lezen-$naam.txt" -Encoding utf8 | Select-Object -First 60
+            Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-plat", $naam, "plat-$naam.txt" -Wait
+            "---- invulplekken in $naam"
+            Get-Content "plat-$naam.txt" -Encoding utf8
           }
 
       - name: Taalmodel voor beelden (klein model)
@@ -226,7 +246,7 @@ jobs:
         run: |
           New-Item -ItemType Directory uit | Out-Null
           Copy-Item "uitvoer\*.exe", "scherm-*.png", "proef.txt", "toegankelijkheid.txt" uit\
-          Copy-Item "lezen-*.txt", "beeldmodel*.txt", "invullen.txt", "ingevuld.pdf" uit\ -ErrorAction SilentlyContinue
+          Copy-Item "lezen-*.txt", "beeldmodel*.txt", "invullen.txt", "ingevuld.pdf", "plat-*.txt", "plat-*.pdf" uit\ -ErrorAction SilentlyContinue
           @"
           # Paper Pilot $env:VERSIE
 

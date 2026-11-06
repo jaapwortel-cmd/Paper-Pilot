@@ -6,6 +6,7 @@ Version 0.0.0.7 (November 2026)
 - Overview of all questions and answers (Ctrl+L), and save as a new PDF (Ctrl+S). The answers can be seen in every PDF reader.
 - New: My details (Settings menu). Name, address, date of birth, phone, email, BSN and IBAN are filled in for you in forms. Stored encrypted on your own computer.
 - After saving, Paper Pilot asks whether new details may be kept in My details.
+- Also forms without form fields: PDFs with only lines and boxes, and scanned forms. Paper Pilot finds the places itself: a question with a colon and empty space, lines, dots and boxes. The answers are put in the right place, with a cross in the checked boxes.
 
 Version 0.0.0.6 (November 2026)
 - New: recognising envelopes, also window envelopes. Paper Pilot tells you who the post is from (logo, return address or a known sender) and who it is addressed to.

@@ -14,7 +14,7 @@ Read and fill in: for blind and visually impaired people. Scan or open a letter 
 
 Check: for sighted people who make a PDF, Word document or website. Paper Pilot tells you in plain language what a screen reader cannot read well, and how to fix it.
 
-Please note: in this version you can open and read documents, scans and photos. Forms without fields, signing and Check are being built now and will come in the next versions. You will get updates automatically.
+Please note: in this version you can open and read documents, scans and photos. Signing and Check are being built now and will come in the next versions. You will get updates automatically.
 
 
 2. The main window
@@ -50,6 +50,8 @@ Use Tab to reach the buttons; the same commands are there as well.
 If the document is a PDF form with fields, Paper Pilot tells you how many fields it has. Then choose Fill in form (Ctrl+I).
 
 Filling in a form: Paper Pilot asks the questions one by one. First you hear "Question 3 of 12", then the question itself. Type or dictate the answer and press Enter for the next question. With a check box, Space turns it on or off. With a choice, use the arrow keys. Alt+Left arrow goes back to the previous question. Ctrl+L gives an overview of all questions and answers; choose one to change it. Ctrl+S saves the filled-in form as a new PDF. Required questions end with "(required)". For questions such as name, address or BSN, Paper Pilot fills in My details for you; if it is not right, type something else. Escape closes the form window.
+
+Forms without form fields: many forms only have lines and boxes, or are scanned. Choose Fill in form (Ctrl+I) in that case as well. Paper Pilot finds the places to fill in itself: a question with a colon and empty space after it, lines, dots and boxes to check. Filling in then works the same. When saving, Paper Pilot puts your answers in the right place, with a cross in the boxes you checked. This usually works well, but not always: check the filled-in form carefully, or ask someone to check it with you.
 
 Scans and photos: Paper Pilot recognises the printed text, using Windows text recognition and without the internet. If the scan is upside down, on its side or crooked, Paper Pilot tells you and straightens it. With Ctrl+Shift+S you save the straightened scan as a picture (PNG, JPG, TIFF with all pages, BMP or GIF). Handwriting and photos: choose Read handwriting (Ctrl+H) to have handwritten text read, such as a shopping list or postcard. Choose Describe (Ctrl+D) to hear what is on a photo, drawing or scan. This is done by a language model on your own computer, without the internet. The first time, Paper Pilot asks whether you want to download the model (once, about 3.5 GB). The answer appears in a separate window; read it with the arrow keys, Escape closes it. Neat handwriting usually works well, messy handwriting not always. With a graphics card it is fast; with only the processor it can take a few minutes. A word the model cannot read is shown as [unreadable].
 

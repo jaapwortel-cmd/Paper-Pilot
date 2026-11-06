@@ -19,6 +19,8 @@ pub struct Regel {
     pub hoogte: f32,
     pub links: f32,
     pub breedte: f32,
+    /// De woorden met hun plaats: (tekst, links, breedte).
+    pub woorden: Vec<(String, f32, f32)>,
 }
 
 pub struct Uitkomst {
@@ -63,6 +65,7 @@ fn een_keer(e: &OcrEngine, beeld: &Beeld) -> Result<(Vec<Regel>, f64), String> {
     for regel in uitkomst.Lines().map_err(fout)? {
         let tekst = regel.Text().map(|t| t.to_string()).unwrap_or_default();
         let (mut boven, mut onder, mut links, mut rechts) = (f32::MAX, f32::MIN, f32::MAX, f32::MIN);
+        let mut woordenlijst = Vec::new();
         if let Ok(woorden) = regel.Words() {
             for w in woorden {
                 if let Ok(r) = w.BoundingRect() {
@@ -70,12 +73,13 @@ fn een_keer(e: &OcrEngine, beeld: &Beeld) -> Result<(Vec<Regel>, f64), String> {
                     onder = onder.max(r.Y + r.Height);
                     links = links.min(r.X);
                     rechts = rechts.max(r.X + r.Width);
+                    woordenlijst.push((w.Text().map(|t| t.to_string()).unwrap_or_default(), r.X * schaal, r.Width * schaal));
                 }
             }
         }
         if !tekst.trim().is_empty() {
             regels.push(Regel { tekst, boven: boven * schaal, hoogte: (onder - boven).max(1.0) * schaal,
-                links: links * schaal, breedte: (rechts - links).max(1.0) * schaal });
+                links: links * schaal, breedte: (rechts - links).max(1.0) * schaal, woorden: woordenlijst });
         }
     }
     Ok((regels, hoek))
@@ -165,6 +169,10 @@ pub fn herken(beeld: &Beeld, fijn: bool) -> Result<Uitkomst, String> {
                 x.hoogte *= schaal;
                 x.links *= schaal;
                 x.breedte *= schaal;
+                for w in x.woorden.iter_mut() {
+                    w.1 *= schaal;
+                    w.2 *= schaal;
+                }
                 x
             }).collect();
         }

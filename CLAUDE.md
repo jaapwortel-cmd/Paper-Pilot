@@ -87,3 +87,8 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   FORM_SetIndexSelected voor lijsten, FPDF_SaveAsCopy; vraag = TU, anders tekst links/rechts/boven het veld, anders de naam),
   `invulvenster.rs` (vraag voor vraag; Enter, Alt+pijlen, Ctrl+L overzicht, Ctrl+S), `gegevens.rs` (DPAPI, soort_van op
   woorden in de vraag), `keuzevensters::formulier`. Proef `--proef-invullen`. Let op: pypdfium2 tekent velden pas na init_forms().
+  Ook in 0.0.0.7 (Jaap: "nog niks getest, zelfde versienummer"): formulieren zonder invulvelden. `plat.rs`: zoekt op een
+  paginabeeld + regels met woorden (PDF: eigen FFI FPDFText_GetCharBox; scan: OCR-woorden in Regel.woorden) naar
+  dubbele punt + lege ruimte (met kader: antwoord in het kader), □-tekens, ____/....., getekende lijnen (geen bovenrand van
+  een kader, erboven leeg) en getekende hokjes. Invullen: PDF met tekst = FPDFPageObj_NewTextObj(Helvetica) op de pagina;
+  scan = pdf_maken met zichtbare tekst. invulvenster::Bron (Velden/PlatPdf/PlatScan). Proef `--proef-plat`, tests/plat-*.

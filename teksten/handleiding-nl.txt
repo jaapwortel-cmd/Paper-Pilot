@@ -14,7 +14,7 @@ Lezen en invullen: voor blinden en slechtzienden. Je scant of opent een brief en
 
 Controleren: voor ziende mensen die een PDF, Word-bestand of website maken. Paper Pilot zegt in gewone taal wat een schermlezer niet goed kan lezen, en hoe je dat oplost.
 
-Let op: in deze versie kun je documenten, scans en foto's openen en lezen. Formulieren zonder invulvelden, ondertekenen en Controleren worden nu gebouwd en komen in de volgende versies. Updates krijg je vanzelf.
+Let op: in deze versie kun je documenten, scans en foto's openen en lezen. Ondertekenen en Controleren worden nu gebouwd en komen in de volgende versies. Updates krijg je vanzelf.
 
 
 2. Het hoofdvenster
@@ -50,6 +50,8 @@ Met Tab ga je naar de knoppen; dezelfde opdrachten staan daar ook.
 Is het document een PDF-formulier met invulvelden, dan zegt Paper Pilot hoeveel velden het heeft. Kies dan Formulier invullen (Ctrl+I).
 
 Formulier invullen: Paper Pilot stelt de vragen één voor één. Bovenaan hoor je "Vraag 3 van 12", daarna de vraag zelf. Typ of dicteer het antwoord en druk op Enter voor de volgende vraag. Bij een vinkje zet de spatiebalk het aan of uit. Bij een keuze kies je met de pijltjestoetsen. Alt+Pijl links gaat terug naar de vorige vraag. Met Ctrl+L krijg je een overzicht van alle vragen en antwoorden; kies er een om hem te veranderen. Met Ctrl+S sla je het ingevulde formulier op als nieuwe PDF. Verplichte vragen hoor je met "(verplicht)" erachter. Bij vragen als naam, adres of BSN vult Paper Pilot alvast Mijn gegevens in; klopt het niet, typ dan iets anders. Escape sluit het invulvenster.
+
+Formulieren zonder invulvelden: veel formulieren hebben alleen lijntjes en hokjes, of zijn gescand. Kies ook dan Formulier invullen (Ctrl+I). Paper Pilot zoekt zelf de plekken om in te vullen: een vraag met een dubbele punt en lege ruimte erachter, lijntjes, puntjes en hokjes om aan te vinken. Daarna gaat het invullen hetzelfde. Bij het opslaan zet Paper Pilot je antwoorden op de goede plek, en een kruisje in de hokjes die je aanvinkt. Dit gaat meestal goed, maar niet altijd: kijk het ingevulde formulier goed na, of laat iemand meekijken.
 
 Scans en foto's: Paper Pilot herkent de gedrukte tekst, met de tekstherkenning van Windows en zonder internet. Ligt de scan op zijn kop, op zijn kant of scheef, dan zegt Paper Pilot dat en zet hem zelf recht. Met Ctrl+Shift+S sla je de rechtgezette scan op als afbeelding (PNG, JPG, TIFF met alle pagina's, BMP of GIF). Handschrift en foto's: kies Handschrift lezen (Ctrl+H) om handgeschreven tekst te laten lezen, zoals een boodschappenlijstje of ansichtkaart. Kies Beschrijven (Ctrl+D) om te horen wat er op een foto, tekening of scan staat. Dit doet een taalmodel op je eigen computer, zonder internet. De eerste keer vraagt Paper Pilot of je het model wilt downloaden (eenmalig, ongeveer 3,5 GB). Het antwoord komt in een apart venster; lees het met de pijltjestoetsen, Escape sluit het. Netjes handschrift gaat meestal goed, slordig handschrift niet altijd. Met een videokaart gaat het snel, alleen met de processor kan het een paar minuten duren. Een woord dat het model niet kan lezen, staat er als [onleesbaar].
 

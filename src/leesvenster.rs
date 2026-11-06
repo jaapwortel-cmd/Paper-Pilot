@@ -654,7 +654,7 @@ fn opslaan_beeld() {
     if let Some(pad) = opslaan_als(s.hwnd, &naam, &filter, ext) {
         let is_pdf = pad.extension().map(|e| e.eq_ignore_ascii_case("pdf")).unwrap_or(false);
         let uitkomst = if is_pdf {
-            crate::pdf_maken::schrijf(&pad, &doc.beelden, &doc.beeld_regels)
+            crate::pdf_maken::schrijf(&pad, &doc.beelden, &doc.beeld_regels, &[])
         } else {
             crate::beeld::schrijf(&pad, &doc.beelden)
         };
@@ -741,6 +741,45 @@ pub fn model_downloaden(eigenaar: HWND) -> bool {
     }
 }
 
+/// Een formulier zonder invulvelden (PDF met tekst, of een scan of foto): Paper Pilot zoekt zelf de plekken.
+fn plat_invullen(hwnd: HWND, doc: &Document, pad: Option<PathBuf>) {
+    use crate::invulvenster::Bron;
+    let scan = !doc.beelden.is_empty();
+    let (beelden, regels) = (doc.beelden.clone(), doc.beeld_regels.clone());
+    let pad2 = pad.clone();
+    let gevonden = dialogen::werk(hwnd, &t("InvullenTitel"), &t("PlekkenZoeken"), move |_| {
+        if scan {
+            Ok(crate::plat::zoek_beelden(&beelden, &regels))
+        } else if let Some(p) = pad2 {
+            crate::plat::zoek_pdf(&p)
+        } else {
+            Ok(Vec::new())
+        }
+    });
+    let plekken = match gevonden {
+        Some(Ok(p)) => p,
+        Some(Err(e)) => {
+            dialogen::melding(hwnd, &t("InvullenMislukt"), &e, dialogen::ICOON_WAARSCHUWING);
+            return;
+        }
+        None => return,
+    };
+    if plekken.is_empty() {
+        dialogen::melding(hwnd, &t("GeenPlekken"), &t("GeenPlekkenTekst"), dialogen::ICOON_INFO);
+        return;
+    }
+    dialogen::melding(hwnd, &tf("PlekkenGevonden", &[&plekken.len().to_string()]), &t("PlekkenGevondenTekst"), dialogen::ICOON_INFO);
+    let bron = if scan {
+        Bron::PlatScan(doc.beelden.clone(), doc.beeld_regels.clone(), plekken)
+    } else {
+        match pad {
+            Some(p) => Bron::PlatPdf(p, plekken),
+            None => return,
+        }
+    };
+    crate::invulvenster::open_plat(hwnd, bron, &doc.naam);
+}
+
 fn opdracht(hwnd: HWND, id: i32) {
     let doc_open = lees().map(|s| s.doc.is_some()).unwrap_or(false);
     match id {
@@ -767,7 +806,8 @@ fn opdracht(hwnd: HWND, id: i32) {
             let pad = s.as_ref().and_then(|s| s.pad.clone()).filter(|p| p.extension().map(|e| e.eq_ignore_ascii_case("pdf")).unwrap_or(false));
             match (doc, pad) {
                 (Some(d), Some(p)) if d.invulvelden > 0 => crate::invulvenster::open(hwnd, &p, &d.naam),
-                _ => dialogen::melding(hwnd, &t("GeenFormulier"), &t("GeenFormulierTekst"), dialogen::ICOON_INFO),
+                (Some(d), pad) => plat_invullen(hwnd, &d, pad),
+                _ => dialogen::melding(hwnd, &t("LezenGeenDocument"), &t("LezenEerstOpenen"), dialogen::ICOON_INFO),
             }
         }
         ID_BESCHRIJF => kijk(crate::beeldmodel::Soort::Beschrijven),

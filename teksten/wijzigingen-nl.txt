@@ -6,6 +6,7 @@ Versie 0.0.0.7 (november 2026)
 - Overzicht van alle vragen en antwoorden (Ctrl+L), en opslaan als nieuwe PDF (Ctrl+S). De antwoorden zijn in elke PDF-lezer te zien.
 - Nieuw: Mijn gegevens (menu Instellingen). Naam, adres, geboortedatum, telefoon, e-mail, BSN en IBAN worden alvast ingevuld bij formulieren. Versleuteld bewaard op je eigen computer.
 - Na het opslaan vraagt Paper Pilot of nieuwe gegevens bewaard mogen worden in Mijn gegevens.
+- Ook formulieren zonder invulvelden: PDF's met alleen lijntjes en hokjes, en gescande formulieren. Paper Pilot zoekt zelf de plekken: een vraag met een dubbele punt en lege ruimte, lijntjes, puntjes en hokjes. De antwoorden komen op de goede plek, en een kruisje in de aangevinkte hokjes.
 
 Versie 0.0.0.6 (november 2026)
 - Nieuw: enveloppen herkennen, ook met een venster. Paper Pilot zegt van wie de post komt (logo, retouradres of bekende afzender) en aan wie hij is.

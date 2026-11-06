@@ -10,9 +10,9 @@ use std::path::Path;
 use std::sync::{Mutex, OnceLock};
 use windows_sys::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryW};
 
-type Doc = *mut c_void;
+pub(crate) type Doc = *mut c_void;
 type Form = *mut c_void;
-type Page = *mut c_void;
+pub(crate) type Page = *mut c_void;
 type Annot = *mut c_void;
 
 #[repr(C)]
@@ -31,24 +31,24 @@ struct Rect {
 }
 
 #[repr(C)]
-struct FileWrite {
-    version: i32,
-    write_block: unsafe extern "C" fn(*mut FileWrite, *const c_void, u32) -> i32,
-    data: Vec<u8>,
+pub(crate) struct FileWrite {
+    pub version: i32,
+    pub write_block: unsafe extern "C" fn(*mut FileWrite, *const c_void, u32) -> i32,
+    pub data: Vec<u8>,
 }
 
-unsafe extern "C" fn schrijf_blok(zelf: *mut FileWrite, data: *const c_void, n: u32) -> i32 {
+pub(crate) unsafe extern "C" fn schrijf_blok(zelf: *mut FileWrite, data: *const c_void, n: u32) -> i32 {
     (*zelf).data.extend_from_slice(std::slice::from_raw_parts(data as *const u8, n as usize));
     1
 }
 
 #[allow(non_snake_case)]
-struct Pdfium {
-    FPDF_LoadMemDocument: unsafe extern "C" fn(*const c_void, i32, *const i8) -> Doc,
-    FPDF_CloseDocument: unsafe extern "C" fn(Doc),
-    FPDF_GetPageCount: unsafe extern "C" fn(Doc) -> i32,
-    FPDF_LoadPage: unsafe extern "C" fn(Doc, i32) -> Page,
-    FPDF_ClosePage: unsafe extern "C" fn(Page),
+pub(crate) struct Pdfium {
+    pub FPDF_LoadMemDocument: unsafe extern "C" fn(*const c_void, i32, *const i8) -> Doc,
+    pub FPDF_CloseDocument: unsafe extern "C" fn(Doc),
+    pub FPDF_GetPageCount: unsafe extern "C" fn(Doc) -> i32,
+    pub FPDF_LoadPage: unsafe extern "C" fn(Doc, i32) -> Page,
+    pub FPDF_ClosePage: unsafe extern "C" fn(Page),
     FPDFDOC_InitFormFillEnvironment: unsafe extern "C" fn(Doc, *mut FormFillInfo) -> Form,
     FPDFDOC_ExitFormFillEnvironment: unsafe extern "C" fn(Form),
     FORM_OnAfterLoadPage: unsafe extern "C" fn(Page, Form),
@@ -75,16 +75,33 @@ struct Pdfium {
     FORM_ForceToKillFocus: unsafe extern "C" fn(Form) -> i32,
     FORM_OnLButtonDown: unsafe extern "C" fn(Form, Page, i32, f64, f64) -> i32,
     FORM_OnLButtonUp: unsafe extern "C" fn(Form, Page, i32, f64, f64) -> i32,
-    FPDF_SaveAsCopy: unsafe extern "C" fn(Doc, *mut FileWrite, u32) -> i32,
-    FPDFText_LoadPage: unsafe extern "C" fn(Page) -> *mut c_void,
-    FPDFText_ClosePage: unsafe extern "C" fn(*mut c_void),
+    pub FPDF_SaveAsCopy: unsafe extern "C" fn(Doc, *mut FileWrite, u32) -> i32,
+    pub FPDFText_LoadPage: unsafe extern "C" fn(Page) -> *mut c_void,
+    pub FPDFText_ClosePage: unsafe extern "C" fn(*mut c_void),
     FPDFText_GetBoundedText: unsafe extern "C" fn(*mut c_void, f64, f64, f64, f64, *mut u16, i32) -> i32,
+    // Voor formulieren zonder invulvelden (plat.rs):
+    pub FPDF_GetPageWidthF: unsafe extern "C" fn(Page) -> f32,
+    pub FPDF_GetPageHeightF: unsafe extern "C" fn(Page) -> f32,
+    pub FPDFText_CountChars: unsafe extern "C" fn(*mut c_void) -> i32,
+    pub FPDFText_GetUnicode: unsafe extern "C" fn(*mut c_void, i32) -> u32,
+    pub FPDFText_GetCharBox: unsafe extern "C" fn(*mut c_void, i32, *mut f64, *mut f64, *mut f64, *mut f64) -> i32,
+    pub FPDFBitmap_Create: unsafe extern "C" fn(i32, i32, i32) -> *mut c_void,
+    pub FPDFBitmap_FillRect: unsafe extern "C" fn(*mut c_void, i32, i32, i32, i32, u32) -> i32,
+    pub FPDFBitmap_GetBuffer: unsafe extern "C" fn(*mut c_void) -> *mut c_void,
+    pub FPDFBitmap_GetStride: unsafe extern "C" fn(*mut c_void) -> i32,
+    pub FPDFBitmap_Destroy: unsafe extern "C" fn(*mut c_void),
+    pub FPDF_RenderPageBitmap: unsafe extern "C" fn(*mut c_void, Page, i32, i32, i32, i32, i32, i32),
+    pub FPDFPageObj_NewTextObj: unsafe extern "C" fn(Doc, *const i8, f32) -> *mut c_void,
+    pub FPDFText_SetText: unsafe extern "C" fn(*mut c_void, *const u16) -> i32,
+    pub FPDFPageObj_Transform: unsafe extern "C" fn(*mut c_void, f64, f64, f64, f64, f64, f64),
+    pub FPDFPage_InsertObject: unsafe extern "C" fn(Page, *mut c_void),
+    pub FPDFPage_GenerateContent: unsafe extern "C" fn(Page) -> i32,
 }
 
 unsafe impl Send for Pdfium {}
 unsafe impl Sync for Pdfium {}
 
-fn pdfium() -> Result<&'static Pdfium, String> {
+pub(crate) fn pdfium() -> Result<&'static Pdfium, String> {
     static P: OnceLock<Option<Pdfium>> = OnceLock::new();
     // pdfium-render laadt de bibliotheek ook; zo weten we zeker dat dezelfde is geladen.
     let _ = crate::lezen::pdfium();
@@ -136,6 +153,22 @@ fn pdfium() -> Result<&'static Pdfium, String> {
             FPDFText_LoadPage: f!(FPDFText_LoadPage),
             FPDFText_ClosePage: f!(FPDFText_ClosePage),
             FPDFText_GetBoundedText: f!(FPDFText_GetBoundedText),
+            FPDF_GetPageWidthF: f!(FPDF_GetPageWidthF),
+            FPDF_GetPageHeightF: f!(FPDF_GetPageHeightF),
+            FPDFText_CountChars: f!(FPDFText_CountChars),
+            FPDFText_GetUnicode: f!(FPDFText_GetUnicode),
+            FPDFText_GetCharBox: f!(FPDFText_GetCharBox),
+            FPDFBitmap_Create: f!(FPDFBitmap_Create),
+            FPDFBitmap_FillRect: f!(FPDFBitmap_FillRect),
+            FPDFBitmap_GetBuffer: f!(FPDFBitmap_GetBuffer),
+            FPDFBitmap_GetStride: f!(FPDFBitmap_GetStride),
+            FPDFBitmap_Destroy: f!(FPDFBitmap_Destroy),
+            FPDF_RenderPageBitmap: f!(FPDF_RenderPageBitmap),
+            FPDFPageObj_NewTextObj: f!(FPDFPageObj_NewTextObj),
+            FPDFText_SetText: f!(FPDFText_SetText),
+            FPDFPageObj_Transform: f!(FPDFPageObj_Transform),
+            FPDFPage_InsertObject: f!(FPDFPage_InsertObject),
+            FPDFPage_GenerateContent: f!(FPDFPage_GenerateContent),
         })
     })
     .as_ref()
@@ -143,7 +176,7 @@ fn pdfium() -> Result<&'static Pdfium, String> {
 }
 
 /// PDFium mag maar door één draad tegelijk gebruikt worden.
-static SLOT: Mutex<()> = Mutex::new(());
+pub(crate) static SLOT: Mutex<()> = Mutex::new(());
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Soort {

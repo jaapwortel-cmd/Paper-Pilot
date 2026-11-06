@@ -26,6 +26,17 @@ const ID_OVERZICHT: i32 = 202;
 const ID_OPSLAAN: i32 = 203;
 const ID_INVOER: i32 = 210;
 
+/// Waar het formulier vandaan komt, en hoe het wordt opgeslagen.
+#[derive(Clone)]
+pub enum Bron {
+    /// Een PDF met echte invulvelden.
+    Velden(PathBuf),
+    /// Een PDF met tekst maar zonder invulvelden: de plekken heeft Paper Pilot zelf gevonden.
+    PlatPdf(PathBuf, Vec<crate::plat::Plek>),
+    /// Een scan of foto van een formulier.
+    PlatScan(Vec<crate::beeld::Beeld>, Vec<Vec<crate::herkennen::Regel>>, Vec<crate::plat::Plek>),
+}
+
 #[derive(Clone)]
 struct Staat {
     hwnd: HWND,
@@ -43,7 +54,7 @@ struct Staat {
     /// Bij elk veld: kwam de waarde uit Mijn gegevens?
     voorgesteld: Vec<bool>,
     nr: usize,
-    bron: PathBuf,
+    bron: Bron,
     naam: String,
     gewijzigd: bool,
 }
@@ -100,10 +111,40 @@ pub fn open(eigenaar: HWND, bron: &Path, naam: &str) {
         }
     }
     logboek::schrijf(&format!("Formulier invullen: {} velden, {} uit Mijn gegevens.", velden.len(), voorgesteld.iter().filter(|x| **x).count()));
-    maak(eigenaar, velden, voorgesteld, bron.to_path_buf(), naam);
+    maak(eigenaar, velden, voorgesteld, Bron::Velden(bron.to_path_buf()), naam);
 }
 
-fn maak(eigenaar: HWND, velden: Vec<Veld>, voorgesteld: Vec<bool>, bron: PathBuf, naam: &str) {
+/// Opent het invulvenster voor een formulier zonder invulvelden (plekken door Paper Pilot gevonden).
+pub fn open_plat(eigenaar: HWND, bron: Bron, naam: &str) {
+    if let Some(s) = lees() {
+        unsafe { SetForegroundWindow(s.hwnd) };
+        return;
+    }
+    let plekken = match &bron {
+        Bron::PlatPdf(_, p) | Bron::PlatScan(_, _, p) => p.clone(),
+        Bron::Velden(_) => return,
+    };
+    let gegevens = crate::gegevens::laad();
+    let mut voorgesteld = vec![false; plekken.len()];
+    let mut velden: Vec<Veld> = Vec::new();
+    for (i, p) in plekken.iter().enumerate() {
+        let vraag = if p.vraag.is_empty() { tf("VeldNummer", &[&t("VeldZonderNaam"), &(i + 1).to_string()]) } else { p.vraag.clone() };
+        let soort = if p.soort == crate::plat::Plaats::Vinkje { Soort::Vinkje } else { Soort::Tekst };
+        let mut waarde = String::new();
+        if soort == Soort::Tekst {
+            if let Some(w) = crate::gegevens::soort_van(&vraag).and_then(|s| crate::gegevens::waarde(&gegevens, s)) {
+                waarde = w;
+                voorgesteld[i] = true;
+            }
+        }
+        velden.push(Veld { pagina: p.pagina as i32, annots: Vec::new(), soort, naam: String::new(), vraag, opties: Vec::new(),
+            meerregelig: false, verplicht: false, waarde, links: p.x, boven: p.onder });
+    }
+    logboek::schrijf(&format!("Formulier zonder invulvelden: {} plekken gevonden.", velden.len()));
+    maak(eigenaar, velden, voorgesteld, bron, naam);
+}
+
+fn maak(eigenaar: HWND, velden: Vec<Veld>, voorgesteld: Vec<bool>, bron: Bron, naam: &str) {
     let klasse = w(KLASSE);
     let wc = WNDCLASSEXW {
         cbSize: std::mem::size_of::<WNDCLASSEXW>() as u32,
@@ -356,7 +397,18 @@ fn opslaan() {
         return;
     };
     let (bron, velden, d2) = (s.bron.clone(), s.velden.clone(), doel.clone());
-    let uitkomst = dialogen::werk(s.hwnd, &t("InvullenTitel"), &t("FormulierBewaren"), move |_| crate::formulier_pdf::vul_in(&bron, &velden, &d2));
+    let uitkomst = dialogen::werk(s.hwnd, &t("InvullenTitel"), &t("FormulierBewaren"), move |_| match bron {
+        Bron::Velden(pad) => crate::formulier_pdf::vul_in(&pad, &velden, &d2),
+        Bron::PlatPdf(pad, plekken) => {
+            let paren: Vec<_> = plekken.into_iter().zip(velden.into_iter().map(|v| v.waarde)).collect();
+            crate::plat::vul_pdf_in(&pad, &paren, &d2)
+        }
+        Bron::PlatScan(beelden, regels, plekken) => {
+            let paren: Vec<_> = plekken.into_iter().zip(velden.into_iter().map(|v| v.waarde)).collect();
+            let zichtbaar = crate::plat::zichtbaar(&paren, beelden.len());
+            crate::pdf_maken::schrijf(&d2, &beelden, &regels, &zichtbaar)
+        }
+    });
     match uitkomst {
         Some(Ok(())) => {
             met(|st| st.gewijzigd = false);

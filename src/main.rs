@@ -27,6 +27,7 @@ mod leesvenster;
 mod lezen;
 mod logboek;
 mod pdf_maken;
+mod plat;
 mod proef;
 mod scanner;
 mod tekstvenster;
@@ -74,6 +75,11 @@ fn main() {
         let doel = args.get(i + 2).cloned().unwrap_or_else(|| "ingevuld.pdf".into());
         let verslag = args.get(i + 3).cloned().unwrap_or_else(|| "invullen.txt".into());
         std::process::exit(proef::proef_invullen(&bron, &doel, &verslag));
+    }
+    if let Some(bestand) = waarde("--proef-plat") {
+        let i = args.iter().position(|a| a == "--proef-plat").unwrap_or(0);
+        let verslag = args.get(i + 2).cloned().unwrap_or_else(|| "plat.txt".into());
+        std::process::exit(proef::proef_plat(&bestand, &verslag));
     }
     if let Some(verslag) = waarde("--proef-scanners") {
         std::process::exit(proef::proef_scanners(&verslag));
