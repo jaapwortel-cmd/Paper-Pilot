@@ -55,6 +55,9 @@ bijvoorbeeld het wijzigingsformulier pgb en het budgetplan pgb Wlz.
   installatieprogramma op en start het met beheerdersrechten. Het installatieprogramma ruimt eerst alle
   oude programmabestanden op ([InstallDelete]) en zet de nieuwe ervoor in de plaats; eigen gegevens blijven.
   Daarna start Paper Pilot opnieuw.
+- Welkomstscherm met rondleiding: alleen bij de allereerste start (nieuwe gebruikers). Later terug te
+  vinden in het menu Help. Na een update: één keer "Wat is er nieuw", met de wijzigingen van de nieuwe
+  versie(s) sinds de vorige. Het menu Help heeft altijd het onderdeel Wijzigingen.
 - Altijd in het programma: handleiding (F1), privacyverklaring (ook in het installatieprogramma),
   wijzigingen, "Mail de maker" (mail aan Jaap, met de versie erbij) en "Meer programma's van Jaap"
   (korte naam en omschrijving van Jaaps andere programma's, met een knop om Jaap ernaar te mailen).
