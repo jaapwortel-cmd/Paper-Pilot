@@ -14,6 +14,7 @@ mod beeldmodel;
 mod afdrukken;
 mod bijwerken;
 mod dialogen;
+mod envelop;
 mod herkennen;
 mod hoofdvenster;
 mod http;

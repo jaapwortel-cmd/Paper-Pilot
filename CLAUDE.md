@@ -78,3 +78,7 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   (PrintDlgW + GDI: tekst met marges en voetregel, afbeeldingen passend), `pdf_maken.rs` (eigen PDF-schrijver: JPG per
   pagina + onzichtbare OCR-tekst, Tr 3). Leesvenster: Ctrl+N, Ctrl+P; Ctrl+Shift+S met PDF als eerste keuze; tegel vraagt
   openen of scannen. Niet te testen op GitHub: echte scanners en printers (Jaap test).
+- 0.0.0.6 (6 nov 2026, Jaaps wens): enveloppen (`envelop.rs`: adresblok aan de postcode, afzender uit bekende namen,
+  retouradres of linksboven; vanzelf bij liggend + weinig tekst + postcode, of als de gebruiker "envelop" kiest) en kleine
+  letters (`herkennen.rs`: vergroot2 en contrast als extra poging, beste score wint). Scannen: keuze brief/envelop/klein
+  (600 dpi). Testbeelden envelop.jpg, theezakje.png, bijsluiter.png.

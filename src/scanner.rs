@@ -69,11 +69,11 @@ fn windows_scanners() -> windows::core::Result<Vec<Scanner>> {
 }
 
 /// Scant. Met `invoer` alle pagina's uit de documentinvoer, anders één pagina van de glasplaat.
-pub fn scan(s: &Scanner, invoer: bool) -> Result<Vec<Beeld>, String> {
+pub fn scan(s: &Scanner, invoer: bool, dpi: u32) -> Result<Vec<Beeld>, String> {
     crate::beeld::com_start();
     let uitkomst = match &s.soort {
-        Soort::Windows(id) => windows_scan(id, invoer).map_err(|e| format!("{e}")),
-        Soort::Escl(basis) => escl_scan(basis, invoer),
+        Soort::Windows(id) => windows_scan(id, invoer, dpi).map_err(|e| format!("{e}")),
+        Soort::Escl(basis) => escl_scan(basis, invoer, dpi),
     };
     if let Err(e) = &uitkomst {
         crate::logboek::schrijf(&format!("Scannen met {}: {e}", s.naam));
@@ -81,9 +81,9 @@ pub fn scan(s: &Scanner, invoer: bool) -> Result<Vec<Beeld>, String> {
     uitkomst
 }
 
-fn windows_scan(id: &str, invoer: bool) -> windows::core::Result<Vec<Beeld>> {
+fn windows_scan(id: &str, invoer: bool, dpi: u32) -> windows::core::Result<Vec<Beeld>> {
     let scanner = ImageScanner::FromIdAsync(&HSTRING::from(id))?.join()?;
-    let dpi = ImageScannerResolution { DpiX: 300.0, DpiY: 300.0 };
+    let dpi = ImageScannerResolution { DpiX: dpi as f32, DpiY: dpi as f32 };
     let bron = if invoer {
         let c = scanner.FeederConfiguration()?;
         let _ = c.SetDesiredResolution(dpi);
@@ -281,7 +281,7 @@ fn escl_mogelijkheden(basis: &str) -> (bool, bool) {
     }
 }
 
-fn escl_scan(basis: &str, invoer: bool) -> Result<Vec<Beeld>, String> {
+fn escl_scan(basis: &str, invoer: bool, dpi: u32) -> Result<Vec<Beeld>, String> {
     let bron = if invoer { "Feeder" } else { "Platen" };
     // A4 in 1/300 inch.
     let instellingen = format!(r#"<?xml version="1.0" encoding="UTF-8"?>
@@ -291,8 +291,8 @@ fn escl_scan(basis: &str, invoer: bool) -> Result<Vec<Beeld>, String> {
 <pwg:ScanRegions><pwg:ScanRegion><pwg:ContentRegionUnits>escl:ThreeHundredthsOfInches</pwg:ContentRegionUnits><pwg:XOffset>0</pwg:XOffset><pwg:YOffset>0</pwg:YOffset><pwg:Width>2480</pwg:Width><pwg:Height>3508</pwg:Height></pwg:ScanRegion></pwg:ScanRegions>
 <pwg:InputSource>{bron}</pwg:InputSource>
 <scan:ColorMode>Grayscale8</scan:ColorMode>
-<scan:XResolution>300</scan:XResolution>
-<scan:YResolution>300</scan:YResolution>
+<scan:XResolution>{dpi}</scan:XResolution>
+<scan:YResolution>{dpi}</scan:YResolution>
 <pwg:DocumentFormat>image/jpeg</pwg:DocumentFormat>
 <scan:DocumentFormatExt>image/jpeg</scan:DocumentFormatExt>
 </scan:ScanSettings>"#);

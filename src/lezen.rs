@@ -86,6 +86,16 @@ impl Bouwer {
     }
 }
 
+/// Wat er gescand of gefotografeerd is (de gebruiker kiest het bij het scannen).
+#[derive(Clone, Copy, PartialEq)]
+pub enum Inhoud {
+    /// Een brief of document; een envelop wordt ook vanzelf herkend.
+    Gewoon,
+    Envelop,
+    /// Iets kleins met kleine letters: etiket, bijsluiter, label van een theezakje.
+    Klein,
+}
+
 /// Opent een document. `voortgang` krijgt korte berichten tijdens het herkennen van scans.
 pub fn open(pad: &Path, voortgang: &dyn Fn(String)) -> Result<Document, String> {
     let ext = pad.extension().map(|e| e.to_string_lossy().to_lowercase()).unwrap_or_default();
@@ -221,7 +231,7 @@ fn pdf(pad: &Path, naam: &str, voortgang: &dyn Fn(String)) -> Result<Document, S
                 })
             });
             match beeld {
-                Some(beeld) => scan_pagina(&mut b, &beeld, i + 1),
+                Some(beeld) => scan_pagina(&mut b, &beeld, i + 1, Inhoud::Gewoon),
                 None => {
                     b.doc.zonder_tekst.push(i + 1);
                     b.alinea(&crate::teksten::t("LezenPaginaZonderTekst"));
@@ -278,9 +288,9 @@ fn pdf(pad: &Path, naam: &str, voortgang: &dyn Fn(String)) -> Result<Document, S
 // ---------------------------------------------------------------- Scans en foto's
 
 /// Herkent de tekst op een gescande pagina of foto en zet die in de tekst, met wat er met de stand was.
-fn scan_pagina(b: &mut Bouwer, beeld: &crate::beeld::Beeld, nr: usize) {
+fn scan_pagina(b: &mut Bouwer, beeld: &crate::beeld::Beeld, nr: usize, inhoud: Inhoud) {
     use crate::teksten::{t, tf};
-    let u = match crate::herkennen::herken(beeld) {
+    let u = match crate::herkennen::herken(beeld, inhoud == Inhoud::Klein) {
         Ok(u) => u,
         Err(e) => {
             crate::logboek::schrijf(&format!("Tekstherkenning: {e}"));
@@ -305,6 +315,23 @@ fn scan_pagina(b: &mut Bouwer, beeld: &crate::beeld::Beeld, nr: usize) {
         let zin = tf("StandMelding", &[&nr.to_string(), &stand.join(" en ")]);
         b.alinea(&zin);
         b.doc.meldingen.push(zin);
+    }
+    // Een envelop: eerst kort van wie en aan wie.
+    if let Some(env) = crate::envelop::bekijk(&u.regels, u.beeld.breed, u.beeld.hoog, inhoud == Inhoud::Envelop) {
+        b.kop(&t("EnvelopKop"));
+        if let Some(van) = &env.van {
+            b.alinea(&tf("EnvelopVan", &[van]));
+        }
+        if !env.aan.is_empty() {
+            b.alinea(&tf("EnvelopAan", &[&env.aan.join(", ")]));
+        }
+        let zin = match (&env.van, env.aan.is_empty()) {
+            (Some(v), false) => tf("EnvelopMeldingVanAan", &[v, &env.aan.join(", ")]),
+            (Some(v), true) => tf("EnvelopMeldingVan", &[v]),
+            (None, _) => tf("EnvelopMeldingAan", &[&env.aan.join(", ")]),
+        };
+        b.doc.meldingen.push(zin);
+        b.kop(&t("EnvelopAlleTekst"));
     }
     if u.regels.is_empty() {
         b.doc.zonder_tekst.push(nr);
@@ -355,11 +382,11 @@ fn ocr_alineas(b: &mut Bouwer, regels: &[crate::herkennen::Regel]) {
 
 fn afbeelding(pad: &Path, naam: &str, voortgang: &dyn Fn(String)) -> Result<Document, String> {
     let beelden = crate::beeld::lees(pad)?;
-    Ok(van_beelden(naam, &beelden, voortgang))
+    Ok(van_beelden(naam, &beelden, voortgang, Inhoud::Gewoon))
 }
 
 /// Een document van gescande pagina's of foto's: elke pagina wordt herkend en rechtgezet.
-pub fn van_beelden(naam: &str, beelden: &[crate::beeld::Beeld], voortgang: &dyn Fn(String)) -> Document {
+pub fn van_beelden(naam: &str, beelden: &[crate::beeld::Beeld], voortgang: &dyn Fn(String), inhoud: Inhoud) -> Document {
     let mut b = Bouwer::nieuw(naam);
     let totaal = beelden.len();
     for (i, beeld) in beelden.iter().enumerate() {
@@ -367,7 +394,7 @@ pub fn van_beelden(naam: &str, beelden: &[crate::beeld::Beeld], voortgang: &dyn 
         if totaal > 1 {
             b.pagina(i + 1, totaal);
         }
-        scan_pagina(&mut b, beeld, i + 1);
+        scan_pagina(&mut b, beeld, i + 1, inhoud);
     }
     b.klaar()
 }

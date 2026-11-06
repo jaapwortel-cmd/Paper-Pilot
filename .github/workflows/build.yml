@@ -97,7 +97,10 @@ jobs:
             "scan-kant.png" = @("op zijn kant", "persoonsgebonden budget");
             "scan-scheef.png" = @("graden scheef", "persoonsgebonden budget");
             "scan.pdf" = @("op zijn kop", "persoonsgebonden budget");
-            "twee-paginas.tif" = @("Pagina's: 2", "Pagina 2 van 2", "op zijn kop")
+            "twee-paginas.tif" = @("Pagina's: 2", "Pagina 2 van 2", "op zijn kop");
+            "envelop.jpg" = @("envelop van Belastingdienst", "1234 AB Zeist", "Kop: Envelop");
+            "theezakje.png" = @("bergamot", "minuten");
+            "bijsluiter.png" = @("Paracetamol", "hooguit 6 tabletten", "bijwerkingen")
           }
           foreach ($f in $verwacht.Keys) {
             $p = Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-lezen", "tests\$f", "lezen-$f.txt" -Wait -PassThru

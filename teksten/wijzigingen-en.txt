@@ -1,5 +1,10 @@
 ﻿Changes in Paper Pilot
 
+Version 0.0.0.6 (November 2026)
+- New: recognising envelopes, also window envelopes. Paper Pilot tells you who the post is from (logo, return address or a known sender) and who it is addressed to.
+- Small print is read better, such as medicine leaflets, labels and tea bag tags: Paper Pilot enlarges the picture and increases the contrast when that works better.
+- When scanning you choose what you scan: a letter, an envelope, or something small with small print (then Paper Pilot scans at high resolution, 600 dpi).
+
 Version 0.0.0.5 (November 2026)
 - New: scanning (Ctrl+N). Paper Pilot finds scanners itself: connected, on the network, and the scanner in your printer. Also network printers with a scanner that Windows does not know yet (eSCL/AirScan).
 - Scan from the glass (page by page) or from the document feeder (all pages at once). Paper Pilot then recognises the text.

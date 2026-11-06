@@ -1,5 +1,10 @@
 ﻿Wijzigingen in Paper Pilot
 
+Versie 0.0.0.6 (november 2026)
+- Nieuw: enveloppen herkennen, ook met een venster. Paper Pilot zegt van wie de post komt (logo, retouradres of bekende afzender) en aan wie hij is.
+- Kleine letters beter gelezen, zoals bijsluiters, etiketten en labels van theezakjes: Paper Pilot vergroot de afbeelding en maakt hem contrastrijker als dat beter werkt.
+- Bij het scannen kies je wat je scant: een brief, een envelop, of iets kleins met kleine letters (dan scant Paper Pilot op hoge resolutie, 600 dpi).
+
 Versie 0.0.0.5 (november 2026)
 - Nieuw: scannen (Ctrl+N). Paper Pilot zoekt zelf scanners: aangesloten, in het netwerk, en de scanner in je printer. Ook netwerkprinters met scanner die Windows nog niet kent (eSCL/AirScan).
 - Scannen van de glasplaat (pagina voor pagina) of uit de documentinvoer (alle pagina's in één keer). Daarna herkent Paper Pilot de tekst.

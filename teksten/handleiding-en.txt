@@ -1,5 +1,5 @@
 ﻿Paper Pilot manual
-Version 0.0.0.5
+Version 0.0.0.6
 
 Paper Pilot helps you with letters and forms, all by yourself. The program is free and open source, made by Jaap Wortel. It works with NVDA, JAWS and Narrator, with the keyboard and with the mouse.
 
@@ -50,11 +50,13 @@ If the document is a form, Paper Pilot tells you how many fields it has. Filling
 
 Scans and photos: Paper Pilot recognises the printed text, using Windows text recognition and without the internet. If the scan is upside down, on its side or crooked, Paper Pilot tells you and straightens it. With Ctrl+Shift+S you save the straightened scan as a picture (PNG, JPG, TIFF with all pages, BMP or GIF). Handwriting and photos: choose Read handwriting (Ctrl+H) to have handwritten text read, such as a shopping list or postcard. Choose Describe (Ctrl+D) to hear what is on a photo, drawing or scan. This is done by a language model on your own computer, without the internet. The first time, Paper Pilot asks whether you want to download the model (once, about 3.5 GB). The answer appears in a separate window; read it with the arrow keys, Escape closes it. Neat handwriting usually works well, messy handwriting not always. With a graphics card it is fast; with only the processor it can take a few minutes. A word the model cannot read is shown as [unreadable].
 
+Envelopes: Paper Pilot recognises an envelope by itself, also a window envelope, and tells you at the top who the post is from and who it is addressed to. All the text of the envelope follows below. Small print, such as on a medicine leaflet or a tea bag tag: Paper Pilot enlarges the picture and increases the contrast when that reads better. If it still does not work well, try Read handwriting (Ctrl+H): the language model often reads small and curved letters better.
+
 Does Paper Pilot say that text recognition is not available? In Windows, go to Settings, Time and language, Language and region. Choose your language, then Language options, and install Optical character recognition (OCR).
 
 For HEIC photos (iPhone) and WebP, Windows needs a free extension from the Microsoft Store: HEIF Image Extensions and WebP Image Extensions.
 
-Scanning: choose Scan (Ctrl+N). Paper Pilot looks for scanners: connected scanners, scanners on the network, and the scanner in your printer. If there are several, you choose one; Paper Pilot remembers your choice. If the scanner has both a glass plate and a document feeder, you choose where the letter is. With the glass you scan page by page: after each page Paper Pilot asks whether there is another page. Paper Pilot then recognises the text, and tells you if a page was crooked or upside down. Save the scan with Ctrl+Shift+S; choose PDF and the text is included invisibly, so the PDF can be searched later.
+Scanning: choose Scan (Ctrl+N). Paper Pilot looks for scanners: connected scanners, scanners on the network, and the scanner in your printer. If there are several, you choose one; Paper Pilot remembers your choice. Then you choose what you are scanning: a letter or document, an envelope, or something small with small print (a label, medicine leaflet or tea bag tag). For small print Paper Pilot scans at high resolution. If the scanner has both a glass plate and a document feeder, you choose where the letter is. With the glass you scan page by page: after each page Paper Pilot asks whether there is another page. Paper Pilot then recognises the text, and tells you if a page was crooked or upside down. Save the scan with Ctrl+Shift+S; choose PDF and the text is included invisibly, so the PDF can be searched later.
 
 Paper Pilot does not find a scanner? Check that the scanner or printer is switched on and connected to the computer or on the same network. Add a new scanner in Windows first: Settings, Bluetooth and devices, Printers and scanners.
 

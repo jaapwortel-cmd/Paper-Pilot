@@ -143,6 +143,16 @@ fn scannen() {
         }
     };
     instellingen::zet("scanner", &scanner.naam);
+    // Wat ga je scannen? (Kleine letters: hoge resolutie. Envelop: van wie en aan wie.)
+    let soorten = vec![t("InhoudBrief"), t("InhoudEnvelop"), t("InhoudKlein")];
+    let vorige = instellingen::get("scan_inhoud").and_then(|v| v.parse::<usize>().ok()).unwrap_or(0).min(2);
+    let Some(keuze) = keuzevensters::kies_uit_lijst(hwnd, &t("ScanTitel"), &t("InhoudKiezen"), &soorten, vorige) else { return terug() };
+    instellingen::zet("scan_inhoud", &keuze.to_string());
+    let (inhoud, dpi) = match keuze {
+        1 => (crate::lezen::Inhoud::Envelop, 300),
+        2 => (crate::lezen::Inhoud::Klein, 600),
+        _ => (crate::lezen::Inhoud::Gewoon, 300),
+    };
     let invoer = if scanner.glasplaat && scanner.invoer {
         let keuzes = vec![t("BronGlasplaat"), t("BronInvoer")];
         let vorige = if instellingen::aan("scan_invoer", false) { 1 } else { 0 };
@@ -159,7 +169,7 @@ fn scannen() {
         let sc = scanner.clone();
         let uitkomst = dialogen::werk(hwnd, &t("ScanTitel"), &t("ScanBezig"), move |v| {
             v.meld(tf("ScanBezigTekst", &[&sc.naam]), 0);
-            crate::scanner::scan(&sc, invoer)
+            crate::scanner::scan(&sc, invoer, dpi)
         });
         match uitkomst {
             Some(Ok(b)) if !b.is_empty() => beelden.extend(b),
@@ -181,7 +191,7 @@ fn scannen() {
     let naam = format!("{} {}", t("ScanNaam"), crate::logboek::nu().replace(':', ".").chars().take(16).collect::<String>());
     let n = naam.clone();
     let doc = dialogen::werk(hwnd, &t("ScanTitel"), &t("ScanHerkennen"), move |v| {
-        crate::lezen::van_beelden(&n, &beelden, &|tekst| v.meld(tekst, 0))
+        crate::lezen::van_beelden(&n, &beelden, &|tekst| v.meld(tekst, 0), inhoud)
     });
     if let Some(doc) = doc {
         logboek::schrijf(&format!("Gescand: {} pagina('s).", doc.beelden.len()));

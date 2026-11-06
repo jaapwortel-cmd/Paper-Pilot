@@ -1,5 +1,5 @@
 ﻿Handleiding Paper Pilot
-Versie 0.0.0.5
+Versie 0.0.0.6
 
 Paper Pilot helpt je met brieven en formulieren, helemaal zelf. Het programma is gratis en open source, gemaakt door Jaap Wortel. Het werkt met NVDA, JAWS en Verteller, met het toetsenbord en met de muis.
 
@@ -50,11 +50,13 @@ Is het document een formulier, dan zegt Paper Pilot hoeveel invulvelden het heef
 
 Scans en foto's: Paper Pilot herkent de gedrukte tekst, met de tekstherkenning van Windows en zonder internet. Ligt de scan op zijn kop, op zijn kant of scheef, dan zegt Paper Pilot dat en zet hem zelf recht. Met Ctrl+Shift+S sla je de rechtgezette scan op als afbeelding (PNG, JPG, TIFF met alle pagina's, BMP of GIF). Handschrift en foto's: kies Handschrift lezen (Ctrl+H) om handgeschreven tekst te laten lezen, zoals een boodschappenlijstje of ansichtkaart. Kies Beschrijven (Ctrl+D) om te horen wat er op een foto, tekening of scan staat. Dit doet een taalmodel op je eigen computer, zonder internet. De eerste keer vraagt Paper Pilot of je het model wilt downloaden (eenmalig, ongeveer 3,5 GB). Het antwoord komt in een apart venster; lees het met de pijltjestoetsen, Escape sluit het. Netjes handschrift gaat meestal goed, slordig handschrift niet altijd. Met een videokaart gaat het snel, alleen met de processor kan het een paar minuten duren. Een woord dat het model niet kan lezen, staat er als [onleesbaar].
 
+Enveloppen: Paper Pilot ziet zelf dat het een envelop is, ook met een venster, en zegt bovenaan van wie de post komt en aan wie hij is. Daaronder staat alle tekst van de envelop. Kleine letters, zoals op een bijsluiter of het label van een theezakje: Paper Pilot vergroot de afbeelding en maakt hem contrastrijker als dat beter leest. Lukt het toch niet goed, probeer dan Handschrift lezen (Ctrl+H): het taalmodel leest kleine en gebogen letters vaak beter.
+
 Zegt Paper Pilot dat de tekstherkenning niet beschikbaar is? Ga dan in Windows naar Instellingen, Tijd en taal, Taal en regio. Kies Nederlands, dan Taalopties, en installeer Optische tekenherkenning (OCR).
 
 Voor HEIC-foto's (iPhone) en WebP heeft Windows een gratis extensie nodig uit de Microsoft Store: HEIF-afbeeldingsextensies en WebP-afbeeldingsextensies.
 
-Scannen: kies Scannen (Ctrl+N). Paper Pilot zoekt scanners: aangesloten scanners, scanners in het netwerk, en de scanner in je printer. Zijn er meer, dan kies je er een; Paper Pilot onthoudt je keuze. Heeft de scanner een glasplaat en een documentinvoer, dan kies je waar de brief ligt. Bij de glasplaat scan je pagina voor pagina: na elke pagina vraagt Paper Pilot of er nog een pagina is. Daarna herkent Paper Pilot de tekst, en hoor je of een pagina scheef of op zijn kop lag. Bewaar de scan met Ctrl+Shift+S; kies PDF, dan staat de tekst er onzichtbaar in en is de PDF later te doorzoeken.
+Scannen: kies Scannen (Ctrl+N). Paper Pilot zoekt scanners: aangesloten scanners, scanners in het netwerk, en de scanner in je printer. Zijn er meer, dan kies je er een; Paper Pilot onthoudt je keuze. Daarna kies je wat je scant: een brief of document, een envelop, of iets kleins met kleine letters (een etiket, bijsluiter of het label van een theezakje). Voor kleine letters scant Paper Pilot op hoge resolutie. Heeft de scanner een glasplaat en een documentinvoer, dan kies je waar de brief ligt. Bij de glasplaat scan je pagina voor pagina: na elke pagina vraagt Paper Pilot of er nog een pagina is. Daarna herkent Paper Pilot de tekst, en hoor je of een pagina scheef of op zijn kop lag. Bewaar de scan met Ctrl+Shift+S; kies PDF, dan staat de tekst er onzichtbaar in en is de PDF later te doorzoeken.
 
 Vindt Paper Pilot geen scanner? Kijk of de scanner of printer aan staat en aan de computer of in hetzelfde netwerk zit. Een nieuwe scanner voeg je eerst toe in Windows: Instellingen, Bluetooth en apparaten, Printers en scanners.
 

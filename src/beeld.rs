@@ -102,6 +102,57 @@ impl Beeld {
         uit
     }
 
+    /// Twee keer zo groot (voor kleine letters), met zachte overgangen.
+    pub fn vergroot2(&self) -> Beeld {
+        let (b, h) = (self.breed * 2, self.hoog * 2);
+        let mut uit = Beeld::nieuw(b, h);
+        for y in 0..h {
+            for x in 0..b {
+                let (sx, sy) = (x as f32 / 2.0, y as f32 / 2.0);
+                let (x0, y0) = ((sx as u32).min(self.breed - 1), (sy as u32).min(self.hoog - 1));
+                let (x1, y1) = ((x0 + 1).min(self.breed - 1), (y0 + 1).min(self.hoog - 1));
+                let (fx, fy) = (sx - x0 as f32, sy - y0 as f32);
+                let p = [self.punt(x0, y0), self.punt(x1, y0), self.punt(x0, y1), self.punt(x1, y1)];
+                let i = ((y * b + x) * 4) as usize;
+                for k in 0..4 {
+                    let v = p[0][k] as f32 * (1.0 - fx) * (1.0 - fy) + p[1][k] as f32 * fx * (1.0 - fy)
+                        + p[2][k] as f32 * (1.0 - fx) * fy + p[3][k] as f32 * fx * fy;
+                    uit.punten[i + k] = v.round() as u8;
+                }
+            }
+        }
+        uit
+    }
+
+    /// Grijs en met meer contrast: het donkerste deel wordt zwart, het lichtste wit.
+    /// Helpt bij gekleurde of glanzende etiketten en bij een envelopvenster.
+    pub fn contrast(&self) -> Beeld {
+        let grijs: Vec<u8> = self.punten.chunks_exact(4)
+            .map(|p| ((p[0] as u32 * 29 + p[1] as u32 * 150 + p[2] as u32 * 77) >> 8) as u8).collect();
+        let mut telling = [0usize; 256];
+        for g in &grijs {
+            telling[*g as usize] += 1;
+        }
+        let totaal = grijs.len().max(1);
+        let grens = |deel: usize| {
+            let mut som = 0;
+            for (i, n) in telling.iter().enumerate() {
+                som += n;
+                if som * 100 >= totaal * deel {
+                    return i as f32;
+                }
+            }
+            255.0
+        };
+        let (laag, hoog) = (grens(2), grens(60).max(grens(2) + 1.0));
+        let mut uit = Beeld::nieuw(self.breed, self.hoog);
+        for (i, g) in grijs.iter().enumerate() {
+            let v = (((*g as f32 - laag) / (hoog - laag)).clamp(0.0, 1.0) * 255.0) as u8;
+            uit.punten[i * 4..i * 4 + 3].copy_from_slice(&[v, v, v]);
+        }
+        uit
+    }
+
     /// Kleiner maken zodat de langste kant hooguit `max` beeldpunten is.
     pub fn verklein(&self, max: u32) -> Beeld {
         let langst = self.breed.max(self.hoog);

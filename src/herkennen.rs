@@ -117,7 +117,7 @@ pub fn goede_woorden(regels: &[Regel]) -> usize {
 }
 
 /// Herkent de tekst op een afbeelding en zet de afbeelding zo nodig recht.
-pub fn herken(beeld: &Beeld) -> Result<Uitkomst, String> {
+pub fn herken(beeld: &Beeld, fijn: bool) -> Result<Uitkomst, String> {
     let e = engine()?;
     // Rechtop en op zijn kop: allebei proberen, de stand met de meeste echte tekst wint.
     let mut beste: Option<(Vec<Regel>, f64, u32, Beeld, usize)> = None;
@@ -137,7 +137,39 @@ pub fn herken(beeld: &Beeld) -> Result<Uitkomst, String> {
         probeer(1, &mut beste)?;
         probeer(3, &mut beste)?;
     }
-    let (mut regels, hoek, kwartslagen, mut recht, _) = beste.ok_or("OCR")?;
+    let (mut regels, hoek, kwartslagen, mut recht, mut score) = beste.ok_or("OCR")?;
+    // Kleine letters (etiket, bijsluiter, theezakje): vergroten en opnieuw proberen.
+    // Weinig echte tekst (gekleurd of glanzend etiket, envelopvenster): meer contrast en opnieuw proberen.
+    let mut hoogtes: Vec<f32> = regels.iter().map(|r| r.hoogte).collect();
+    hoogtes.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    let klein = fijn || hoogtes.get(hoogtes.len() / 2).map(|h| *h < 24.0).unwrap_or(true);
+    let totaal: usize = regels.iter().map(|r| r.tekst.split_whitespace().count()).sum();
+    let zwak = score < 12 || score * 10 < totaal * 12;
+    let mut varianten: Vec<(Beeld, f32)> = Vec::new();
+    if klein && recht.breed.max(recht.hoog) <= 5000 {
+        varianten.push((recht.vergroot2(), 0.5));
+    }
+    if zwak {
+        varianten.push((recht.contrast(), 1.0));
+        if klein && recht.breed.max(recht.hoog) <= 5000 {
+            varianten.push((recht.contrast().vergroot2(), 0.5));
+        }
+    }
+    for (variant, schaal) in varianten {
+        let (r, _) = een_keer(&e, &variant)?;
+        let s = goede_woorden(&r);
+        if s > score + score / 10 + 1 {
+            score = s;
+            regels = r.into_iter().map(|mut x| {
+                x.boven *= schaal;
+                x.hoogte *= schaal;
+                x.links *= schaal;
+                x.breedte *= schaal;
+                x
+            }).collect();
+        }
+    }
+    let _ = score;
     // Scheef: rechtzetten en opnieuw herkennen; houden als dat niet slechter is.
     let mut scheef = 0.0;
     if hoek.abs() >= 1.5 && hoek.abs() <= 45.0 {
