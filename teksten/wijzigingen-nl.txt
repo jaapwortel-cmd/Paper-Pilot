@@ -1,5 +1,12 @@
 ﻿Wijzigingen in Paper Pilot
 
+Versie 0.0.0.3 (november 2026)
+- Nieuw: tekstherkenning. Gescande brieven en foto's worden tekst, zonder internet (met de tekstherkenning van Windows).
+- Gescande PDF's worden nu ook gelezen.
+- Paper Pilot zegt het als een scan op zijn kop, op zijn kant of scheef ligt, en zet hem zelf recht.
+- Alle gangbare fotobestanden openen: JPG, PNG, BMP, GIF, TIFF (ook met meer pagina's), en HEIC en WebP als de extensie van Windows er is.
+- De rechtgezette scan opslaan als afbeelding (Ctrl+Shift+S): PNG, JPG, TIFF, BMP of GIF.
+
 Versie 0.0.0.2 (november 2026)
 - Nieuw: documenten lezen. Kies Lezen en invullen en open een PDF, een Word-bestand (.docx) of een tekstbestand.
 - Paper Pilot maakt er nette tekst van, met de pagina's en de koppen. Afgebroken woorden worden weer heel.

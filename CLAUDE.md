@@ -64,3 +64,7 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   Word via quick-xml; tekst), `leesvenster.rs` (Ctrl+O/F/K/G/S, F3, Escape; openen op de achtergrond),
   `keuzevensters.rs` (vraag_tekst, kies_uit_lijst). Testbestanden in `tests/` (gemaakt met reportlab en python-docx).
   "Openen met" voor .pdf/.docx/.txt in de installer. Insert/Caps Lock: geen sneltoetsen (Jaap).
+- 0.0.0.3 (6 nov 2026): stap 3a, tekstherkenning. `beeld.rs` (WIC lezen/schrijven, EXIF-stand, kwartslag, draaien),
+  `herkennen.rs` (Windows.Media.Ocr via de `windows`-crate; vier standen proberen bij weinig echte woorden; TextAngle >= 1,5
+  graad = rechtzetten). Gescande PDF-pagina's via pdfium renderen (300 dpi). Testscans in `tests/` (PIL). Wine heeft geen OCR;
+  de bouwcomputer alleen Engelse OCR. Volgende: 0.0.0.4 beeldtaalmodel (handschrift, beschrijven), 0.0.0.5 scannen en afdrukken.

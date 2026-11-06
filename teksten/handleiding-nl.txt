@@ -1,5 +1,5 @@
 ﻿Handleiding Paper Pilot
-Versie 0.0.0.2
+Versie 0.0.0.3
 
 Paper Pilot helpt je met brieven en formulieren, helemaal zelf. Het programma is gratis en open source, gemaakt door Jaap Wortel. Het werkt met NVDA, JAWS en Verteller, met het toetsenbord en met de muis.
 
@@ -14,7 +14,7 @@ Lezen en invullen: voor blinden en slechtzienden. Je scant of opent een brief en
 
 Controleren: voor ziende mensen die een PDF, Word-bestand of website maken. Paper Pilot zegt in gewone taal wat een schermlezer niet goed kan lezen, en hoe je dat oplost.
 
-Let op: in deze versie kun je documenten openen en lezen. Scannen, formulieren invullen en Controleren worden nu gebouwd en komen in de volgende versies. Updates krijg je vanzelf.
+Let op: in deze versie kun je documenten, scans en foto's openen en lezen. Handschrift, beschrijven wat er op een foto staat, scannen, formulieren invullen en Controleren worden nu gebouwd en komen in de volgende versies. Updates krijg je vanzelf.
 
 
 2. Het hoofdvenster
@@ -28,7 +28,7 @@ Met Tab of de pijltjes ga je van de ene knop naar de andere. Enter of spatie kie
 
 3. Een document lezen
 
-Kies Lezen en invullen (Alt+L). Het venster Document openen komt meteen. Kies een PDF, een Word-bestand (.docx) of een tekstbestand en kies Openen.
+Kies Lezen en invullen (Alt+L). Het venster Document openen komt meteen. Kies een PDF, een Word-bestand (.docx), een tekstbestand of een foto of scan (JPG, PNG, TIFF, BMP, GIF, HEIC of WebP) en kies Openen.
 
 Paper Pilot maakt er nette tekst van. Bovenaan staat de naam van het document, en een regel met het aantal pagina's, koppen en invulvelden. De tekst lees je met de pijltjestoetsen, net als in Kladblok. Elke pagina begint met een regel als "Pagina 1 van 3". Koppen staan op een eigen regel.
 
@@ -38,12 +38,19 @@ Sneltoetsen in het leesvenster:
 - Ctrl+K: een lijst met alle koppen. Kies een kop met de pijltjes en druk op Enter.
 - Ctrl+G: naar een pagina.
 - Ctrl+S: de tekst opslaan als tekstbestand.
+- Ctrl+Shift+S: een scan of foto (rechtgezet) opslaan als afbeelding.
 - Escape: het leesvenster sluiten.
 Met Tab ga je naar de knoppen; dezelfde opdrachten staan daar ook.
 
-Is het document een formulier, dan zegt Paper Pilot hoeveel invulvelden het heeft. Invullen komt in een volgende versie. Heeft een pagina geen tekst, dan is dat waarschijnlijk een scan. Tekstherkenning komt ook in een volgende versie.
+Is het document een formulier, dan zegt Paper Pilot hoeveel invulvelden het heeft. Invullen komt in een volgende versie.
 
-Je kunt ook in de Verkenner op een PDF of Word-bestand gaan staan en kiezen: Openen met, Paper Pilot.
+Scans en foto's: Paper Pilot herkent de gedrukte tekst, met de tekstherkenning van Windows en zonder internet. Ligt de scan op zijn kop, op zijn kant of scheef, dan zegt Paper Pilot dat en zet hem zelf recht. Met Ctrl+Shift+S sla je de rechtgezette scan op als afbeelding (PNG, JPG, TIFF met alle pagina's, BMP of GIF). Handschrift en beschrijven wat er op een tekening of foto staat komen in een volgende versie.
+
+Zegt Paper Pilot dat de tekstherkenning niet beschikbaar is? Ga dan in Windows naar Instellingen, Tijd en taal, Taal en regio. Kies Nederlands, dan Taalopties, en installeer Optische tekenherkenning (OCR).
+
+Voor HEIC-foto's (iPhone) en WebP heeft Windows een gratis extensie nodig uit de Microsoft Store: HEIF-afbeeldingsextensies en WebP-afbeeldingsextensies.
+
+Je kunt ook in de Verkenner op een PDF, Word-bestand of foto gaan staan en kiezen: Openen met, Paper Pilot.
 
 
 4. De menu's

@@ -86,13 +86,20 @@ jobs:
           $verwacht = @{
             "voorbeeld-brief.pdf" = @("Pagina's: 2", "Kop: Uw budget voor 2027", "Kop: Vragen?", "gegevens controleren en");
             "voorbeeld-formulier.pdf" = @("Invulvelden: 7", "Kop: Wijzigingsformulier pgb", "Telefoonnummer:");
-            "voorbeeld-brief.docx" = @("Kop: Brief van de gemeente", "Kop: Afspraken", "Datum | 12 november 2026")
+            "voorbeeld-brief.docx" = @("Kop: Brief van de gemeente", "Kop: Afspraken", "Datum | 12 november 2026");
+            "scan-recht.png" = @("persoonsgebonden budget", "Kop: Zorgkantoor Voorbeeld", "Afbeelding opgeslagen");
+            "scan-kop.jpg" = @("op zijn kop", "persoonsgebonden budget");
+            "scan-kant.png" = @("op zijn kant", "persoonsgebonden budget");
+            "scan-scheef.png" = @("graden scheef", "persoonsgebonden budget");
+            "scan.pdf" = @("op zijn kop", "persoonsgebonden budget");
+            "twee-paginas.tif" = @("Pagina's: 2", "Pagina 2 van 2", "op zijn kop")
           }
           foreach ($f in $verwacht.Keys) {
             $p = Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-lezen", "tests\$f", "lezen-$f.txt" -Wait -PassThru
             $t = Get-Content "lezen-$f.txt" -Raw -Encoding utf8
             "==== $f"; $t.Substring(0, [Math]::Min(1500, $t.Length))
             if ($p.ExitCode -ne 0) { "FOUT: $f gaf foutcode $($p.ExitCode)"; $fouten++ }
+            if ($f -eq "scan-recht.png" -and $t.Contains("Melding:")) { "FOUT: de rechte scan kreeg toch een melding"; $fouten++ }
             foreach ($v in $verwacht[$f]) { if (-not $t.Contains($v)) { "FOUT: '$v' ontbreekt in $f"; $fouten++ } }
           }
           if ($fouten -gt 0) { throw "$fouten fout(en) bij het lezen." }

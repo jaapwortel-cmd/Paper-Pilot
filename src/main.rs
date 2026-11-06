@@ -9,8 +9,10 @@
 
 #![windows_subsystem = "windows"]
 
+mod beeld;
 mod bijwerken;
 mod dialogen;
+mod herkennen;
 mod hoofdvenster;
 mod instellingen;
 mod keuzevensters;

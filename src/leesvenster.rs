@@ -29,15 +29,18 @@ const ID_VORIGE: i32 = 104;
 const ID_KOPPEN: i32 = 105;
 const ID_PAGINA: i32 = 106;
 const ID_OPSLAAN: i32 = 107;
+const ID_BEELD: i32 = 108;
 const ID_SLUITEN: i32 = IDCANCEL;
 const WM_GELADEN: u32 = WM_APP + 10;
+const WM_VOORTGANG: u32 = WM_APP + 11;
 
-const KNOPPEN: [(i32, &str); 6] = [
+const KNOPPEN: [(i32, &str); 7] = [
     (ID_OPENEN, "KnopOpenen"),
     (ID_ZOEKEN, "KnopZoeken"),
     (ID_KOPPEN, "KnopKoppen"),
     (ID_PAGINA, "KnopPagina"),
     (ID_OPSLAAN, "KnopOpslaanTekst"),
+    (ID_BEELD, "KnopOpslaanBeeld"),
     (ID_SLUITEN, "KnopSluitenEsc"),
 ];
 
@@ -162,6 +165,7 @@ fn maak(eigenaar: HWND) -> HWND {
             ACCEL { fVirt: ctrl, key: b'K' as u16, cmd: ID_KOPPEN as u16 },
             ACCEL { fVirt: ctrl, key: b'G' as u16, cmd: ID_PAGINA as u16 },
             ACCEL { fVirt: ctrl, key: b'S' as u16, cmd: ID_OPSLAAN as u16 },
+            ACCEL { fVirt: (FVIRTKEY | FCONTROL | FSHIFT) as u8, key: b'S' as u16, cmd: ID_BEELD as u16 },
         ];
         CreateAcceleratorTableW(a.as_ptr(), a.len() as i32)
     };
@@ -224,8 +228,9 @@ fn kies_bestand() {
 
 /// Het gewone Windows-venster "Openen".
 fn open_venster(eigenaar: HWND, map: &str) -> Option<PathBuf> {
-    let filter: Vec<u16> = format!("{}\0*.pdf;*.docx;*.txt\0PDF\0*.pdf\0Word (.docx)\0*.docx\0{}\0*.txt\0{}\0*.*\0\0",
-        t("FilterDocumenten"), t("FilterTekst"), t("FilterAlles")).encode_utf16().collect();
+    let beelden = crate::beeld::EXTENSIES.iter().map(|e| format!("*.{e}")).collect::<Vec<_>>().join(";");
+    let filter: Vec<u16> = format!("{}\0*.pdf;*.docx;*.txt;{beelden}\0PDF\0*.pdf\0Word (.docx)\0*.docx\0{}\0{beelden}\0{}\0*.txt\0{}\0*.*\0\0",
+        t("FilterDocumenten"), t("FilterAfbeeldingen"), t("FilterTekst"), t("FilterAlles")).encode_utf16().collect();
     let mut buf = vec![0u16; 32768];
     let titel = w(&t("OpenenTitel"));
     let begin = w(map);
@@ -249,12 +254,17 @@ fn open_venster(eigenaar: HWND, map: &str) -> Option<PathBuf> {
 
 /// Het gewone Windows-venster "Opslaan als".
 fn opslaan_venster(eigenaar: HWND, naam: &str) -> Option<PathBuf> {
-    let filter: Vec<u16> = format!("{}\0*.txt\0\0", t("FilterTekst")).encode_utf16().collect();
+    let filter = format!("{}\0*.txt\0\0", t("FilterTekst"));
+    opslaan_als(eigenaar, naam, &filter, "txt")
+}
+
+fn opslaan_als(eigenaar: HWND, naam: &str, filter: &str, standaard_ext: &str) -> Option<PathBuf> {
+    let filter: Vec<u16> = filter.encode_utf16().collect();
     let mut buf = vec![0u16; 32768];
     for (i, c) in naam.encode_utf16().take(buf.len() - 1).enumerate() {
         buf[i] = c;
     }
-    let ext = w("txt");
+    let ext = w(standaard_ext);
     let mut ofn: OPENFILENAMEW = unsafe { std::mem::zeroed() };
     ofn.lStructSize = std::mem::size_of::<OPENFILENAMEW>() as u32;
     ofn.hwndOwner = eigenaar;
@@ -286,7 +296,16 @@ fn laad(pad: PathBuf) {
     logboek::schrijf(&format!("Document openen: {naam}"));
     let hwnd = s.hwnd as isize;
     std::thread::spawn(move || {
-        let uitkomst = crate::lezen::open(&pad).map(|d| (d, pad));
+        crate::beeld::com_start();
+        let voortgang = move |tekst: String| {
+            let doos = Box::into_raw(Box::new(tekst));
+            unsafe {
+                if PostMessageW(hwnd as HWND, WM_VOORTGANG, 0, doos as isize) == 0 {
+                    drop(Box::from_raw(doos));
+                }
+            }
+        };
+        let uitkomst = crate::lezen::open(&pad, &voortgang).map(|d| (d, pad));
         let doos = Box::into_raw(Box::new(uitkomst));
         unsafe {
             if PostMessageW(hwnd as HWND, WM_GELADEN, 0, doos as isize) == 0 {
@@ -317,6 +336,7 @@ fn geladen(uitkomst: Result<(Document, PathBuf), String>) {
             logboek::schrijf(&format!("Document geopend: {} ({} pagina's, {} koppen, {} invulvelden).", doc.naam,
                 doc.paginas.len(), doc.koppen.len(), doc.invulvelden));
             let zonder = doc.zonder_tekst.clone();
+            let meldingen = doc.meldingen.clone();
             let velden = doc.invulvelden;
             met(|st| {
                 st.doc = Some(doc);
@@ -326,6 +346,9 @@ fn geladen(uitkomst: Result<(Document, PathBuf), String>) {
                 SetFocus(s.vak);
                 SendMessageW(s.vak, EM_SETSEL, 0, 0);
                 SendMessageW(s.vak, EM_SCROLLCARET, 0, 0);
+            }
+            if !meldingen.is_empty() {
+                dialogen::melding(s.hwnd, &t("StandKop"), &meldingen.join("\n"), dialogen::ICOON_INFO);
             }
             if !zonder.is_empty() {
                 let lijst = zonder.iter().map(|n| n.to_string()).collect::<Vec<_>>().join(", ");
@@ -463,6 +486,31 @@ fn opslaan() {
     unsafe { SetFocus(s.vak) };
 }
 
+/// De gescande pagina's of foto, rechtgezet, als afbeelding opslaan (PNG, JPG, TIFF met alle pagina's, BMP).
+fn opslaan_beeld() {
+    let Some(s) = lees() else { return };
+    let Some(doc) = s.doc.clone() else { return };
+    if doc.beelden.is_empty() {
+        dialogen::melding(s.hwnd, &t("GeenBeeld"), &t("GeenBeeldTekst"), dialogen::ICOON_INFO);
+        unsafe { SetFocus(s.vak) };
+        return;
+    }
+    let ext = if doc.beelden.len() > 1 { "tif" } else { "png" };
+    let naam = Path::new(&doc.naam).with_extension(ext).to_string_lossy().to_string();
+    let filter = if doc.beelden.len() > 1 {
+        format!("TIFF ({})\0*.tif\0PNG\0*.png\0JPG\0*.jpg\0BMP\0*.bmp\0\0", t("FilterAllePaginas"))
+    } else {
+        "PNG\0*.png\0JPG\0*.jpg\0TIFF\0*.tif\0BMP\0*.bmp\0GIF\0*.gif\0\0".to_string()
+    };
+    if let Some(pad) = opslaan_als(s.hwnd, &naam, &filter, ext) {
+        match crate::beeld::schrijf(&pad, &doc.beelden) {
+            Ok(_) => dialogen::melding(s.hwnd, &t("Opgeslagen"), &tf("BeeldOpgeslagenTekst", &[&pad.to_string_lossy()]), dialogen::ICOON_INFO),
+            Err(e) => dialogen::melding(s.hwnd, &t("OpslaanMislukt"), &e, dialogen::ICOON_WAARSCHUWING),
+        }
+    }
+    unsafe { SetFocus(s.vak) };
+}
+
 fn opdracht(hwnd: HWND, id: i32) {
     let doc_open = lees().map(|s| s.doc.is_some()).unwrap_or(false);
     match id {
@@ -479,6 +527,7 @@ fn opdracht(hwnd: HWND, id: i32) {
         ID_KOPPEN => naar_kop(),
         ID_PAGINA => naar_pagina(),
         ID_OPSLAAN => opslaan(),
+        ID_BEELD => opslaan_beeld(),
         _ => {}
     }
 }
@@ -493,6 +542,13 @@ unsafe extern "system" fn venster_proc(hwnd: HWND, msg: u32, wp: WPARAM, lp: LPA
             let id = (wp & 0xFFFF) as i32;
             if id != ID_TEKST {
                 opdracht(hwnd, id);
+            }
+            0
+        }
+        WM_VOORTGANG => {
+            let tekst = Box::from_raw(lp as *mut String);
+            if let Some(s) = lees() {
+                zet_tekst(s.status, &tekst);
             }
             0
         }

@@ -1,5 +1,12 @@
 ﻿Changes in Paper Pilot
 
+Version 0.0.0.3 (November 2026)
+- New: text recognition. Scanned letters and photos become text, without the internet (using Windows text recognition).
+- Scanned PDF files can now be read as well.
+- Paper Pilot tells you when a scan is upside down, on its side or crooked, and straightens it.
+- Open all common picture files: JPG, PNG, BMP, GIF, TIFF (also with several pages), and HEIC and WebP when the Windows extension is installed.
+- Save the straightened scan as a picture (Ctrl+Shift+S): PNG, JPG, TIFF, BMP or GIF.
+
 Version 0.0.0.2 (November 2026)
 - New: reading documents. Choose Read and fill in and open a PDF, a Word document (.docx) or a text file.
 - Paper Pilot turns it into clean text, with the pages and the headings. Hyphenated words are joined again.

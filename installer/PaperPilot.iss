@@ -81,6 +81,15 @@ Root: HKA; Subkey: "Software\Classes\Applications\PaperPilot.exe\shell\open\comm
 Root: HKA; Subkey: "Software\Classes\Applications\PaperPilot.exe\SupportedTypes"; ValueType: string; ValueName: ".pdf"; ValueData: ""
 Root: HKA; Subkey: "Software\Classes\Applications\PaperPilot.exe\SupportedTypes"; ValueType: string; ValueName: ".docx"; ValueData: ""
 Root: HKA; Subkey: "Software\Classes\Applications\PaperPilot.exe\SupportedTypes"; ValueType: string; ValueName: ".txt"; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\Applications\PaperPilot.exe\SupportedTypes"; ValueType: string; ValueName: ".jpg"; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\Applications\PaperPilot.exe\SupportedTypes"; ValueType: string; ValueName: ".jpeg"; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\Applications\PaperPilot.exe\SupportedTypes"; ValueType: string; ValueName: ".png"; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\Applications\PaperPilot.exe\SupportedTypes"; ValueType: string; ValueName: ".tif"; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\Applications\PaperPilot.exe\SupportedTypes"; ValueType: string; ValueName: ".tiff"; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\Applications\PaperPilot.exe\SupportedTypes"; ValueType: string; ValueName: ".bmp"; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\Applications\PaperPilot.exe\SupportedTypes"; ValueType: string; ValueName: ".gif"; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\Applications\PaperPilot.exe\SupportedTypes"; ValueType: string; ValueName: ".heic"; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\Applications\PaperPilot.exe\SupportedTypes"; ValueType: string; ValueName: ".webp"; ValueData: ""
 Root: HKA; Subkey: "Software\Classes\.pdf\OpenWithList\PaperPilot.exe"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\Classes\.docx\OpenWithList\PaperPilot.exe"; Flags: uninsdeletekey
 

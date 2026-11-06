@@ -23,10 +23,14 @@ pub struct Document {
     /// Paginanummers (vanaf 1) zonder tekst: waarschijnlijk een scan.
     pub zonder_tekst: Vec<usize>,
     pub invulvelden: usize,
+    /// Wat Paper Pilot de gebruiker wil vertellen (scheef, op zijn kop, geen tekst gevonden).
+    pub meldingen: Vec<String>,
+    /// Gescande pagina's en foto's, rechtgezet (om als afbeelding op te slaan).
+    pub beelden: Vec<crate::beeld::Beeld>,
 }
 
 /// Bouwt de tekst op en houdt de plaatsen bij.
-struct Bouwer {
+pub(crate) struct Bouwer {
     doc: Document,
     lengte: usize,
 }
@@ -78,11 +82,15 @@ impl Bouwer {
     }
 }
 
-pub fn open(pad: &Path) -> Result<Document, String> {
+/// Opent een document. `voortgang` krijgt korte berichten tijdens het herkennen van scans.
+pub fn open(pad: &Path, voortgang: &dyn Fn(String)) -> Result<Document, String> {
     let ext = pad.extension().map(|e| e.to_string_lossy().to_lowercase()).unwrap_or_default();
     let naam = pad.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
+    if crate::beeld::is_afbeelding(pad) {
+        return afbeelding(pad, &naam, voortgang);
+    }
     match ext.as_str() {
-        "pdf" => pdf(pad, &naam),
+        "pdf" => pdf(pad, &naam, voortgang),
         "docx" => docx(pad, &naam),
         "txt" | "text" | "md" | "csv" => txt(pad, &naam),
         _ => Err(crate::teksten::t("LezenSoortOnbekend")),
@@ -118,7 +126,7 @@ struct Regel {
     rechts: f32,
 }
 
-fn pdf(pad: &Path, naam: &str) -> Result<Document, String> {
+fn pdf(pad: &Path, naam: &str, voortgang: &dyn Fn(String)) -> Result<Document, String> {
     let pdfium = pdfium()?;
     let doc = pdfium.load_pdf_from_file(pad, None).map_err(|e| match e {
         PdfiumError::PdfiumLibraryInternalError(PdfiumInternalError::PasswordError) => crate::teksten::t("LezenWachtwoord"),
@@ -200,8 +208,21 @@ fn pdf(pad: &Path, naam: &str) -> Result<Document, String> {
     for (i, regels) in paginas.iter().enumerate() {
         b.pagina(i + 1, totaal);
         if regels.is_empty() {
-            b.doc.zonder_tekst.push(i + 1);
-            b.alinea(&crate::teksten::t("LezenPaginaZonderTekst"));
+            // Een gescande pagina: als afbeelding maken (ongeveer 300 dpi) en de tekst herkennen.
+            voortgang(crate::teksten::tf("OcrBezig", &[&(i + 1).to_string(), &totaal.to_string()]));
+            let beeld = doc.pages().get(i as i32).ok().and_then(|p| {
+                let breed = ((p.width().value / 72.0 * 300.0) as i32).clamp(800, 3600);
+                p.render_with_config(&PdfRenderConfig::new().set_target_width(breed).render_form_data(true)).ok().map(|bm| {
+                    crate::beeld::Beeld { breed: bm.width() as u32, hoog: bm.height() as u32, punten: bm.as_raw_bytes() }
+                })
+            });
+            match beeld {
+                Some(beeld) => scan_pagina(&mut b, &beeld, i + 1),
+                None => {
+                    b.doc.zonder_tekst.push(i + 1);
+                    b.alinea(&crate::teksten::t("LezenPaginaZonderTekst"));
+                }
+            }
             continue;
         }
         let mut alinea = String::new();
@@ -248,6 +269,94 @@ fn pdf(pad: &Path, naam: &str) -> Result<Document, String> {
     let mut d = b.klaar();
     d.invulvelden = velden;
     Ok(d)
+}
+
+// ---------------------------------------------------------------- Scans en foto's
+
+/// Herkent de tekst op een gescande pagina of foto en zet die in de tekst, met wat er met de stand was.
+fn scan_pagina(b: &mut Bouwer, beeld: &crate::beeld::Beeld, nr: usize) {
+    use crate::teksten::{t, tf};
+    let u = match crate::herkennen::herken(beeld) {
+        Ok(u) => u,
+        Err(e) => {
+            crate::logboek::schrijf(&format!("Tekstherkenning: {e}"));
+            b.doc.zonder_tekst.push(nr);
+            b.alinea(&e);
+            b.doc.beelden.push(beeld.clone());
+            return;
+        }
+    };
+    let mut stand = Vec::new();
+    match u.kwartslagen {
+        2 => stand.push(t("StandOpKop")),
+        1 | 3 => stand.push(t("StandOpKant")),
+        _ => {}
+    }
+    if u.scheef.abs() >= 1.5 {
+        stand.push(tf("StandScheef", &[&format!("{:.0}", u.scheef.abs())]));
+    }
+    if !stand.is_empty() {
+        let zin = tf("StandMelding", &[&nr.to_string(), &stand.join(" en ")]);
+        b.alinea(&zin);
+        b.doc.meldingen.push(zin);
+    }
+    if u.regels.is_empty() {
+        b.doc.zonder_tekst.push(nr);
+        b.alinea(&t("OcrNiets"));
+    } else {
+        ocr_alineas(b, &u.regels);
+    }
+    b.doc.beelden.push(u.beeld);
+}
+
+/// Herkende regels netjes in alinea's en koppen zetten.
+fn ocr_alineas(b: &mut Bouwer, regels: &[crate::herkennen::Regel]) {
+    let mut hoogtes: Vec<f32> = regels.iter().map(|r| r.hoogte).collect();
+    hoogtes.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    let gewoon = hoogtes[hoogtes.len() / 2].max(1.0);
+    let mut alinea = String::new();
+    let mut vorige: Option<&crate::herkennen::Regel> = None;
+    for r in regels {
+        let tekst = r.tekst.trim();
+        let kop = r.hoogte >= gewoon * 1.35 && tekst.split_whitespace().count() <= 12;
+        let gat = vorige.map(|v| r.boven - (v.boven + v.hoogte) > gewoon * 0.9 || r.boven < v.boven).unwrap_or(true);
+        if kop {
+            b.alinea(&alinea);
+            alinea.clear();
+            b.kop(tekst);
+        } else {
+            if gat && !alinea.is_empty() {
+                b.alinea(&alinea);
+                alinea.clear();
+            }
+            if alinea.is_empty() {
+                alinea.push_str(tekst);
+            } else if alinea.ends_with('-') && tekst.chars().next().map(|c| c.is_lowercase()).unwrap_or(false) {
+                alinea.pop();
+                alinea.push_str(tekst);
+            } else {
+                // Gescande brieven: elke regel blijft een regel (adressen, lijstjes), binnen dezelfde alinea.
+                alinea.push_str("\r\n");
+                alinea.push_str(tekst);
+            }
+        }
+        vorige = Some(r);
+    }
+    b.alinea(&alinea);
+}
+
+fn afbeelding(pad: &Path, naam: &str, voortgang: &dyn Fn(String)) -> Result<Document, String> {
+    let beelden = crate::beeld::lees(pad)?;
+    let mut b = Bouwer::nieuw(naam);
+    let totaal = beelden.len();
+    for (i, beeld) in beelden.iter().enumerate() {
+        voortgang(crate::teksten::tf("OcrBezig", &[&(i + 1).to_string(), &totaal.to_string()]));
+        if totaal > 1 {
+            b.pagina(i + 1, totaal);
+        }
+        scan_pagina(&mut b, beeld, i + 1);
+    }
+    Ok(b.klaar())
 }
 
 // ---------------------------------------------------------------- Word

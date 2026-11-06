@@ -112,6 +112,12 @@ pub fn proefstart(verslag: &str) -> i32 {
         }
     }
 
+    // Tekstherkenning van Windows (ter informatie: de bouwcomputer heeft alleen Engels).
+    crate::beeld::com_start();
+    match crate::herkennen::beschikbaar() {
+        Ok(taal) => { let _ = writeln!(uit, "Tekstherkenning: beschikbaar ({taal})"); }
+        Err(e) => { let _ = writeln!(uit, "Tekstherkenning: niet beschikbaar ({e})"); }
+    }
     let _ = writeln!(uit, "{}", if fouten == 0 { "GESLAAGD".to_string() } else { format!("MISLUKT: {fouten} fout(en)") });
     let _ = std::fs::write(verslag, uit);
     if fouten == 0 { 0 } else { 1 }
@@ -119,9 +125,13 @@ pub fn proefstart(verslag: &str) -> i32 {
 
 /// Leest een document zoals Paper Pilot het toont, en schrijft de tekst, de koppen en de pagina's op.
 pub fn proef_lezen(bestand: &str, verslag: &str) -> i32 {
-    let uit = match crate::lezen::open(std::path::Path::new(bestand)) {
+    crate::beeld::com_start();
+    let uit = match crate::lezen::open(std::path::Path::new(bestand), &|_| {}) {
         Ok(d) => {
-            let mut s = format!("Bestand: {}\r\nPagina's: {}\r\nZonder tekst: {:?}\r\nInvulvelden: {}\r\n", d.naam, d.paginas.len(), d.zonder_tekst, d.invulvelden);
+            let mut s = format!("Bestand: {}\r\nPagina's: {}\r\nZonder tekst: {:?}\r\nInvulvelden: {}\r\nAfbeeldingen: {}\r\n", d.naam, d.paginas.len(), d.zonder_tekst, d.invulvelden, d.beelden.len());
+            for m in &d.meldingen {
+                s.push_str(&format!("Melding: {m}\r\n"));
+            }
             for (k, b, e) in &d.koppen {
                 s.push_str(&format!("Kop: {k} ({b}-{e})\r\n"));
             }
@@ -130,6 +140,13 @@ pub fn proef_lezen(bestand: &str, verslag: &str) -> i32 {
             for (k, b, e) in &d.koppen {
                 if String::from_utf16_lossy(&utf16[*b..*e]) != *k {
                     s.push_str(&format!("FOUT: kop '{k}' staat niet op zijn plaats\r\n"));
+                }
+            }
+            if !d.beelden.is_empty() {
+                let doel = format!("{verslag}.png");
+                match crate::beeld::schrijf(std::path::Path::new(&doel), &d.beelden) {
+                    Ok(_) => s.push_str(&format!("Afbeelding opgeslagen: {doel}\r\n")),
+                    Err(e) => s.push_str(&format!("FOUT: afbeelding opslaan: {e}\r\n")),
                 }
             }
             s.push_str("----\r\n");

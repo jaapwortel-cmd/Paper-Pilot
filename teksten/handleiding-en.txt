@@ -1,5 +1,5 @@
 ﻿Paper Pilot manual
-Version 0.0.0.2
+Version 0.0.0.3
 
 Paper Pilot helps you with letters and forms, all by yourself. The program is free and open source, made by Jaap Wortel. It works with NVDA, JAWS and Narrator, with the keyboard and with the mouse.
 
@@ -14,7 +14,7 @@ Read and fill in: for blind and visually impaired people. Scan or open a letter 
 
 Check: for sighted people who make a PDF, Word document or website. Paper Pilot tells you in plain language what a screen reader cannot read well, and how to fix it.
 
-Please note: in this version you can open and read documents. Scanning, filling in forms and Check are being built now and will come in the next versions. You will get updates automatically.
+Please note: in this version you can open and read documents, scans and photos. Handwriting, describing what is on a photo, scanning, filling in forms and Check are being built now and will come in the next versions. You will get updates automatically.
 
 
 2. The main window
@@ -28,7 +28,7 @@ Use Tab or the arrow keys to move between the buttons. Enter or Space chooses a 
 
 3. Reading a document
 
-Choose Read and fill in (Alt+R). The Open document window appears right away. Choose a PDF, a Word document (.docx) or a text file and choose Open.
+Choose Read and fill in (Alt+R). The Open document window appears right away. Choose a PDF, a Word document (.docx), a text file or a photo or scan (JPG, PNG, TIFF, BMP, GIF, HEIC or WebP) and choose Open.
 
 Paper Pilot turns it into clean text. At the top is the name of the document, and a line with the number of pages, headings and form fields. Read the text with the arrow keys, just like in Notepad. Each page starts with a line such as "Page 1 of 3". Headings are on a line of their own.
 
@@ -38,12 +38,19 @@ Shortcut keys in the reading window:
 - Ctrl+K: a list of all headings. Choose a heading with the arrow keys and press Enter.
 - Ctrl+G: go to a page.
 - Ctrl+S: save the text as a text file.
+- Ctrl+Shift+S: save a scan or photo (straightened) as a picture.
 - Escape: close the reading window.
 Use Tab to reach the buttons; the same commands are there as well.
 
-If the document is a form, Paper Pilot tells you how many fields it has. Filling it in will come in a next version. If a page has no text, it is probably a scan. Text recognition will also come in a next version.
+If the document is a form, Paper Pilot tells you how many fields it has. Filling it in will come in a next version.
 
-In File Explorer you can also select a PDF or Word document and choose: Open with, Paper Pilot.
+Scans and photos: Paper Pilot recognises the printed text, using Windows text recognition and without the internet. If the scan is upside down, on its side or crooked, Paper Pilot tells you and straightens it. With Ctrl+Shift+S you save the straightened scan as a picture (PNG, JPG, TIFF with all pages, BMP or GIF). Handwriting and describing what is on a drawing or photo will come in a next version.
+
+Does Paper Pilot say that text recognition is not available? In Windows, go to Settings, Time and language, Language and region. Choose your language, then Language options, and install Optical character recognition (OCR).
+
+For HEIC photos (iPhone) and WebP, Windows needs a free extension from the Microsoft Store: HEIF Image Extensions and WebP Image Extensions.
+
+In File Explorer you can also select a PDF, Word document or photo and choose: Open with, Paper Pilot.
 
 
 4. The menus
