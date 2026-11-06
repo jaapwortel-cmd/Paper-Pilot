@@ -33,22 +33,28 @@ bijvoorbeeld het wijzigingsformulier pgb en het budgetplan pgb Wlz.
   tekenen, invulvelden lezen en invullen, tekst en handtekening op de pagina zetten, opslaan.
 - Tekstherkenning (OCR): de ingebouwde tekstherkenning van Windows (`Windows.Media.Ocr`), zonder internet.
   Valt die tegen of ontbreekt de taal, dan Tesseract als reserve.
-- Scannen: WIA (Windows Image Acquisition), werkt met bijna elke scanner.
+- Scannen: Paper Pilot zoekt zelf naar scanners: aangesloten (USB) en in het netwerk.
+  WIA (Windows Image Acquisition) voor alle scanners die Windows kent, ook netwerkscanners (WSD).
+  Daarnaast eSCL/AirScan (mDNS `_uscan._tcp`): de meeste netwerkprinters met scanner werken daarmee
+  zonder stuurprogramma. Vond hij er één, dan wordt die onthouden.
 - Gegevens versleutelen: DPAPI van Windows (alleen leesbaar voor de eigen gebruiker).
 - Mailen met bijlage: Simple MAPI (het eigen mailprogramma), anders map openen en mailto.
 - Bouwen: GitHub Actions op Windows (openbare repository: geen kosten voor bouwminuten).
   De workflow bouwt, doet een proef met echte zorgkantoorformulieren en maakt schermafbeeldingen.
-- Verspreiden: een installatieprogramma (Inno Setup, Nederlands en Engels) op GitHub (Releases), en de
-  Microsoft Store (gratis). Later ook winget. Ondertekenen via SignPath (gratis voor open source).
+- Verspreiden: een installatieprogramma (Inno Setup, Nederlands en Engels) op GitHub (Releases).
+  Later misschien winget. Ondertekenen via SignPath (gratis voor open source).
+  Microsoft Store: voorlopig niet (Jaap, 6 nov 2026).
 - Installeren in Program Files (met beheerdersrechten, één UAC-vraag). Een eigen verwijderprogramma
   (Startmenu en Windows Instellingen, Apps); bij verwijderen de vraag of je eigen gegevens ook weg moeten.
 - Updates via Jaaps Dropbox-map `Paper Pilot updates` (in `/Updates van mijn programma's`): daarin staan
   `versie.txt` en het installatieprogramma. Paper Pilot kijkt of er een nieuwere versie is, haalt het
   installatieprogramma op en start het met beheerdersrechten. Het installatieprogramma ruimt eerst alle
   oude programmabestanden op ([InstallDelete]) en zet de nieuwe ervoor in de plaats; eigen gegevens blijven.
-  Daarna start Paper Pilot opnieuw. De Store-versie wordt door de Store bijgewerkt (geen eigen updates).
-- Altijd in het programma: handleiding (F1), privacyverklaring, wijzigingen, en "Mail de maker"
-  (mail aan Jaap, met de versie erbij). Alles in het Nederlands en Engels.
+  Daarna start Paper Pilot opnieuw.
+- Altijd in het programma: handleiding (F1), privacyverklaring (ook in het installatieprogramma),
+  wijzigingen, "Mail de maker" (mail aan Jaap, met de versie erbij) en "Meer programma's van Jaap"
+  (korte naam en omschrijving van Jaaps andere programma's, met een knop om Jaap ernaar te mailen).
+  Alles in het Nederlands en Engels. De privacyverklaring schrijft Claude in eenvoudige taal; Jaap leest hem na.
 
 ## De stappen
 
@@ -63,7 +69,8 @@ Elke stap eindigt met een testversie voor Jaap. Pas als Jaap zegt dat het werkt,
    leesvak waar je met de schermlezer doorheen gaat. Ook Word (.docx) en gewone tekst. Zoeken in de tekst.
 3. **Tekstherkenning.** Gescande PDF's en foto's (jpg, png) worden tekst. Paper Pilot ziet zelf of
    een pagina een plaatje is.
-4. **Scannen.** Rechtstreeks van de scanner, ook meerdere pagina's. Bewaren als PDF met tekst erin.
+4. **Scannen.** Paper Pilot zoekt zelf aangesloten scanners en netwerkscanners. Rechtstreeks scannen,
+   ook meerdere pagina's. Bewaren als PDF met tekst erin.
 5. **Formulieren invullen (invulbare PDF).** Paper Pilot vindt alle velden en vraagt ze één voor één:
    "Wat is je naam?". Vakjes aanvinken, keuzes maken. Overzicht van alles wat je hebt ingevuld,
    daarna opslaan als nieuwe PDF.
@@ -79,7 +86,7 @@ Elke stap eindigt met een testversie voor Jaap. Pas als Jaap zegt dat het werkt,
     met per punt hoe je het oplost.
 11. **Controleren: Word.** Koppen, beschrijvingen bij plaatjes, taal, tabellen, kleurcontrast.
 12. **Controleren: website.** Adres invullen: plaatjes, knoppen, links, formulieren, koppen, taal, contrast.
-13. **Verspreiden.** Ondertekenen (SignPath), Microsoft Store, winget. Jaap brengt Paper Pilot zelf onder
+13. **Verspreiden.** Ondertekenen (SignPath), winget. Jaap brengt Paper Pilot zelf onder
     de aandacht op sociale media.
 
 ## Later misschien
