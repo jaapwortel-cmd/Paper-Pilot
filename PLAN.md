@@ -81,10 +81,20 @@ Elke stap eindigt met een nieuwe versie voor Jaap (0.0.0.1, 0.0.0.2 enz.). Pas a
    schermafbeeldingen. Zo is elke versie meteen klaar om te verspreiden.
 2. **PDF openen en lezen.** Een PDF met tekst wordt nette tekst met koppen en pagina's, in een
    leesvak waar je met de schermlezer doorheen gaat. Ook Word (.docx) en gewone tekst. Zoeken in de tekst.
-3. **Tekstherkenning.** Gescande PDF's en foto's (jpg, png) worden tekst. Paper Pilot ziet zelf of
-   een pagina een plaatje is.
-4. **Scannen.** Paper Pilot zoekt zelf aangesloten scanners en netwerkscanners. Rechtstreeks scannen,
-   ook meerdere pagina's. Bewaren als PDF met tekst erin.
+3. **Tekstherkenning en foto's (Jaap, 6 nov 2026).** Gescande PDF's en fotobestanden worden tekst, zonder internet.
+   - Gedrukte tekst: de tekstherkenning van Windows (`Windows.Media.Ocr`).
+   - Paper Pilot zegt het als een scan scheef ligt (hoek van de tekst) of op zijn kop (herkenning op 0 en 180 graden
+     vergelijken), en draait hem zelf recht.
+   - Alle gangbare fotobestanden lezen en schrijven via WIC van Windows: JPG, PNG, BMP, GIF, TIFF (ook met meer
+     pagina's), HEIC en WebP (als de extensie van Windows er is), JPEG XR.
+   - Handschrift (boodschappenlijstje, ansichtkaart) en beschrijven wat er op een tekening of foto staat: een
+     beeldtaalmodel op de eigen computer (zoals de assistent van Computerhulp Maatje: llama.cpp + een open model met
+     beeld), pas downloaden als de gebruiker dat kiest. Netjes handschrift gaat goed, slordig handschrift niet altijd;
+     Paper Pilot zegt eerlijk als het twijfelt.
+4. **Scannen en afdrukken.** Paper Pilot zoekt zelf scanners: aangesloten (USB), netwerkscanners die Windows kent
+   (WIA, ook de scanner in een printer), en netwerkprinters met scanner zonder stuurprogramma (eSCL/AirScan).
+   Rechtstreeks scannen, ook meerdere pagina's; bewaren als PDF met tekst erin of als foto. Afdrukken op elke
+   printer die Windows kent (gewoon afdrukvenster van Windows).
 5. **Formulieren invullen (invulbare PDF).** Paper Pilot vindt alle velden en vraagt ze één voor één:
    "Wat is je naam?". Vakjes aanvinken, keuzes maken. Overzicht van alles wat je hebt ingevuld,
    daarna opslaan als nieuwe PDF.
