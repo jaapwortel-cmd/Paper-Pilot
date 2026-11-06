@@ -29,6 +29,35 @@ try {
         }
     }
     Boom $venster 1
+    "Programma reageert: $((Get-Process -Id $p.Id).Responding)"
+    # Tweede manier: MSAA (IAccessible), zoals JAWS en NVDA het ook opvragen.
+    Add-Type -AssemblyName Accessibility
+    Add-Type -TypeDefinition @"
+using System; using System.Runtime.InteropServices;
+public static class Msaa {
+  [DllImport("oleacc.dll")] public static extern int AccessibleObjectFromWindow(IntPtr hwnd, uint id, ref Guid iid, [MarshalAs(UnmanagedType.IUnknown)] out object acc);
+  [DllImport("user32.dll")] public static extern IntPtr FindWindowEx(IntPtr parent, IntPtr after, string klasse, string titel);
+}
+"@
+    $iid = [Guid]"618736E0-3C3D-11CF-810C-00AA00389B71"
+    $hwnd = [IntPtr]$venster.Current.NativeWindowHandle
+    foreach ($soort in @(@("venster", [uint32]0xFFFFFFFC), @("menubalk", [uint32]0xFFFFFFFD))) {
+        $acc = $null
+        $r = [Msaa]::AccessibleObjectFromWindow($hwnd, $soort[1], [ref]$iid, [ref]$acc)
+        if ($r -ne 0 -or -not $acc) { "MSAA $($soort[0]): niet gelukt ($r)"; continue }
+        $acc = [Accessibility.IAccessible]$acc
+        "MSAA $($soort[0]): rol $($acc.accRole(0)), kinderen $($acc.accChildCount)"
+        for ($i = 1; $i -le $acc.accChildCount; $i++) {
+            try { "  - rol $($acc.accRole($i)) | $($acc.accName($i))" } catch { "  - kind ${i}: $_" }
+        }
+    }
+    $knop = [Msaa]::FindWindowEx($hwnd, [IntPtr]::Zero, "Button", $null)
+    if ($knop -ne [IntPtr]::Zero) {
+        $acc = $null
+        $r = [Msaa]::AccessibleObjectFromWindow($knop, [uint32]0xFFFFFFFC, [ref]$iid, [ref]$acc)
+        if ($r -eq 0 -and $acc) { $acc = [Accessibility.IAccessible]$acc; "MSAA eerste knop: rol $($acc.accRole(0)) (43 = knop), status $($acc.accState(0)), naam $($acc.accName(0))" }
+        else { "MSAA eerste knop: niet gelukt ($r)" }
+    }
     $alles = $venster.FindAll([System.Windows.Automation.TreeScope]::Descendants, [System.Windows.Automation.Condition]::TrueCondition)
     "Onderdelen gevonden: $($alles.Count)"
     $menubalk = 0
