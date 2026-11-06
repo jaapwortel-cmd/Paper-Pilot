@@ -22,6 +22,7 @@ Als je in Paper Pilot persoonlijke gegevens bewaart, zoals je naam, adres, geboo
 Paper Pilot gebruikt alleen internet:
 - om te kijken of er een nieuwe versie is (in een map van de maker bij Dropbox). Dat kun je uitzetten in het menu Instellingen. Daarbij gaan geen persoonlijke gegevens mee. Dropbox ziet wel, zoals elke website, het internetadres (IP-adres) van je computer.
 - als je zelf een website laat controleren. Paper Pilot haalt dan die website op.
+- als je zelf kiest om het taalmodel voor handschrift en foto's te downloaden (eenmalig, bij Hugging Face en GitHub). Daarna werkt het taalmodel op je eigen computer, zonder internet: je brieven en foto's gaan nooit naar het internet. Ook bij deze download gaan geen persoonlijke gegevens mee.
 
 
 4. Geen reclame, geen tracking

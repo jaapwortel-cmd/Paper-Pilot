@@ -68,3 +68,8 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   `herkennen.rs` (Windows.Media.Ocr via de `windows`-crate; vier standen proberen bij weinig echte woorden; TextAngle >= 1,5
   graad = rechtzetten). Gescande PDF-pagina's via pdfium renderen (300 dpi). Testscans in `tests/` (PIL). Wine heeft geen OCR;
   de bouwcomputer alleen Engelse OCR. Volgende: 0.0.0.4 beeldtaalmodel (handschrift, beschrijven), 0.0.0.5 scannen en afdrukken.
+- 0.0.0.4 (6 nov 2026): stap 3b, beeldtaalmodel. `beeldmodel.rs` (llama.cpp b11669 Vulkan + Qwen3-VL-4B Q4_K_M + mmproj,
+  bestanden gekozen via de Hugging Face-API, in %LOCALAPPDATA%\Paper Pilot\Taalmodel; motor in een taakgroep, stopt na
+  10 min; -ngl 99, anders 0), `http.rs` (WinHTTP, hervatten met Range), `dialogen::werk` (TaskDialog met voortgangsbalk en
+  Annuleren). Leesvenster: Ctrl+H handschrift, Ctrl+D beschrijven; menu Instellingen, Taalmodel. Proef: `--proef-beeldmodel`
+  met SmolVLM-256M bij elke bouwronde; het echte model via Run workflow met groot_model aangevinkt.

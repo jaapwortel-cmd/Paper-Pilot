@@ -33,69 +33,9 @@ pub fn ruim_op() {
     let _ = fs::remove_dir_all(tijdelijke_map());
 }
 
-/// Haalt een bestand op met WinHTTP (volgt doorverwijzingen, zoals die van Dropbox; gebruikt de proxy van Windows).
 fn download(adres: &str, doel: &Path) -> Result<(), String> {
-    use std::io::Write;
-    use windows_sys::Win32::Networking::WinHttp::*;
-    let rest = adres.strip_prefix("https://").ok_or("alleen https")?;
-    let (host, pad) = match rest.find('/') {
-        Some(i) => (&rest[..i], &rest[i..]),
-        None => (rest, "/"),
-    };
-    struct Greep(*mut core::ffi::c_void);
-    impl Drop for Greep {
-        fn drop(&mut self) {
-            if !self.0.is_null() {
-                unsafe { WinHttpCloseHandle(self.0) };
-            }
-        }
-    }
-    let fout = |wat: &str| format!("{wat} mislukt ({})", unsafe { GetLastError() });
-    unsafe {
-        let agent = w(&format!("PaperPilot/{}", crate::VERSIE));
-        let sessie = Greep(WinHttpOpen(agent.as_ptr(), WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY, std::ptr::null(), std::ptr::null(), 0));
-        if sessie.0.is_null() {
-            return Err(fout("WinHttpOpen"));
-        }
-        let h = w(host);
-        let verbinding = Greep(WinHttpConnect(sessie.0, h.as_ptr(), 443, 0));
-        if verbinding.0.is_null() {
-            return Err(fout("verbinden"));
-        }
-        let get = w("GET");
-        let p = w(pad);
-        let verzoek = Greep(WinHttpOpenRequest(verbinding.0, get.as_ptr(), p.as_ptr(), std::ptr::null(), std::ptr::null(),
-            std::ptr::null(), WINHTTP_FLAG_SECURE));
-        if verzoek.0.is_null() {
-            return Err(fout("verzoek"));
-        }
-        if WinHttpSendRequest(verzoek.0, std::ptr::null(), 0, std::ptr::null(), 0, 0, 0) == 0 {
-            return Err(fout("versturen"));
-        }
-        if WinHttpReceiveResponse(verzoek.0, std::ptr::null_mut()) == 0 {
-            return Err(fout("antwoord"));
-        }
-        let mut status = 0u32;
-        let mut lengte = 4u32;
-        WinHttpQueryHeaders(verzoek.0, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, std::ptr::null(),
-            &mut status as *mut u32 as *mut _, &mut lengte, std::ptr::null_mut());
-        if status != 200 {
-            return Err(format!("de server antwoordde {status}"));
-        }
-        let mut bestand = fs::File::create(doel).map_err(|e| e.to_string())?;
-        let mut buf = vec![0u8; 64 * 1024];
-        loop {
-            let mut gelezen = 0u32;
-            if WinHttpReadData(verzoek.0, buf.as_mut_ptr() as *mut _, buf.len() as u32, &mut gelezen) == 0 {
-                return Err(fout("lezen"));
-            }
-            if gelezen == 0 {
-                break;
-            }
-            bestand.write_all(&buf[..gelezen as usize]).map_err(|e| e.to_string())?;
-        }
-    }
-    Ok(())
+    static NOOIT: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+    crate::http::download(adres, doel, false, &mut |_, _| {}, &NOOIT)
 }
 
 /// Leest het versienummer uit een .exe (de versie-informatie van Windows).

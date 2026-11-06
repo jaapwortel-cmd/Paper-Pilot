@@ -153,3 +153,109 @@ pub fn over(eigenaar: HWND) {
     v.gewone_knoppen = TDCBF_OK_BUTTON;
     v.toon(eigenaar);
 }
+
+// ------------------------------------------------------------------ werk met een voortgangsbalk
+
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex};
+
+/// Gedeelde stand tussen het werk (op een eigen draad) en het voortgangsvenster.
+pub struct Voortgang {
+    pub gestopt: AtomicBool,
+    stand: Mutex<(String, u32, bool)>,
+    getoond: Mutex<(String, u32)>,
+}
+
+impl Voortgang {
+    pub fn nieuw() -> Voortgang {
+        Voortgang { gestopt: AtomicBool::new(false), stand: Mutex::new((String::from("\u{a0}"), 0, false)), getoond: Mutex::new((String::new(), 0)) }
+    }
+
+    pub fn meld(&self, tekst: String, procent: u32) {
+        let mut s = self.stand.lock().unwrap();
+        s.0 = tekst;
+        s.1 = procent.min(100);
+    }
+}
+
+const TDN_TIMER: u32 = 4;
+const TDN_BUTTON_CLICKED: u32 = 2;
+const TDM_SET_ELEMENT_TEXT: u32 = 0x0400 + 108;
+const TDM_SET_PROGRESS_BAR_POS: u32 = 0x0400 + 106;
+const TDM_SET_PROGRESS_BAR_MARQUEE: u32 = 0x0400 + 107;
+
+unsafe extern "system" fn werk_terug(hwnd: HWND, msg: u32, wp: WPARAM, _lp: LPARAM, data: isize) -> windows_sys::core::HRESULT {
+    use windows_sys::Win32::UI::WindowsAndMessaging::{PostMessageW, SendMessageW, WM_CLOSE};
+    let v = &*(data as *const Voortgang);
+    match msg {
+        TDN_TIMER => {
+            let (tekst, pct, klaar) = v.stand.lock().unwrap().clone();
+            let mut getoond = v.getoond.lock().unwrap();
+            if tekst != getoond.0 {
+                let t = w(&tekst);
+                SendMessageW(hwnd, TDM_SET_ELEMENT_TEXT, 0, t.as_ptr() as LPARAM);
+                getoond.0 = tekst;
+            }
+            if pct != getoond.1 && pct > 0 {
+                SendMessageW(hwnd, TDM_SET_PROGRESS_BAR_MARQUEE, 0, 0);
+                SendMessageW(hwnd, TDM_SET_PROGRESS_BAR_POS, pct as WPARAM, 0);
+                getoond.1 = pct;
+            }
+            if klaar {
+                PostMessageW(hwnd, WM_CLOSE, 0, 0);
+            }
+        }
+        TDN_BUTTON_CLICKED => {
+            if wp as i32 == IDCANCEL {
+                v.gestopt.store(true, Ordering::Relaxed);
+            }
+        }
+        _ => {}
+    }
+    0
+}
+
+/// Voert werk uit op een eigen draad en toont zolang een venster met een voortgangsbalk en Annuleren.
+/// Geeft None als de gebruiker annuleert.
+pub fn werk<T: Send + 'static>(eigenaar: HWND, titel: &str, kop: &str, taak: impl FnOnce(&Voortgang) -> T + Send + 'static) -> Option<T> {
+    let v = Arc::new(Voortgang::nieuw());
+    let uitkomst: Arc<Mutex<Option<T>>> = Arc::new(Mutex::new(None));
+    {
+        let v = v.clone();
+        let uitkomst = uitkomst.clone();
+        std::thread::spawn(move || {
+            crate::beeld::com_start();
+            let r = taak(&v);
+            *uitkomst.lock().unwrap() = Some(r);
+            v.stand.lock().unwrap().2 = true;
+        });
+    }
+    let titel_w = w(titel);
+    let kop_w = w(kop);
+    let tekst_w = w("\u{a0}");
+    let mut c: TASKDIALOGCONFIG = unsafe { std::mem::zeroed() };
+    c.cbSize = std::mem::size_of::<TASKDIALOGCONFIG>() as u32;
+    c.hwndParent = eigenaar;
+    c.hInstance = crate::win::instantie();
+    c.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW | TDF_SHOW_MARQUEE_PROGRESS_BAR
+        | TDF_SHOW_PROGRESS_BAR | TDF_CALLBACK_TIMER;
+    c.dwCommonButtons = TDCBF_CANCEL_BUTTON;
+    c.pszWindowTitle = titel_w.as_ptr();
+    c.pszMainInstruction = kop_w.as_ptr();
+    c.pszContent = tekst_w.as_ptr();
+    c.Anonymous1.pszMainIcon = ICOON_INFO as usize as *const u16;
+    c.pfCallback = Some(werk_terug);
+    c.lpCallbackData = Arc::as_ptr(&v) as isize;
+    // Is het werk al klaar voordat het venster verschijnt, dan sluit de timer het meteen.
+    unsafe { TaskDialogIndirect(&c, std::ptr::null_mut(), std::ptr::null_mut(), std::ptr::null_mut()) };
+    if v.gestopt.load(Ordering::Relaxed) {
+        return None;
+    }
+    // Het venster is dicht: wachten op het werk (meestal al klaar).
+    loop {
+        if let Some(r) = uitkomst.lock().unwrap().take() {
+            return Some(r);
+        }
+        std::thread::sleep(std::time::Duration::from_millis(50));
+    }
+}

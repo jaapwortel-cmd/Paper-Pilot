@@ -21,6 +21,11 @@ on:
       - ".github/workflows/build.yml"
   pull_request:
   workflow_dispatch:
+    inputs:
+      groot_model:
+        description: "Ook het echte taalmodel (Qwen3-VL 4B, ongeveer 3,5 GB) testen"
+        type: boolean
+        default: false
 
 concurrency:
   group: bouwen-${{ github.ref }}
@@ -32,7 +37,7 @@ permissions:
 jobs:
   windows:
     runs-on: windows-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
@@ -121,6 +126,26 @@ jobs:
             Get-Content "lezen-$naam.txt" -Encoding utf8 | Select-Object -First 60
           }
 
+      - name: Taalmodel voor beelden (klein model)
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $env:PAPERPILOT_TAALMODEL = "$env:RUNNER_TEMP\pp-klein"
+          $p = Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-beeldmodel", "ggml-org/SmolVLM-256M-Instruct-GGUF", "tests\boodschappen.png", "beeldmodel-klein.txt" -Wait -PassThru
+          Get-Content beeldmodel-klein.txt -Encoding utf8
+          if ($p.ExitCode -ne 0) { throw "Het kleine taalmodel werkt niet." }
+
+      - name: Taalmodel voor beelden (het echte model)
+        if: github.event.inputs.groot_model == 'true'
+        shell: pwsh
+        run: |
+          $env:PAPERPILOT_TAALMODEL = "$env:RUNNER_TEMP\pp-groot"
+          foreach ($f in "boodschappen.png", "scan-kop.jpg") {
+            $p = Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-beeldmodel", "Qwen/Qwen3-VL-4B-Instruct-GGUF", "tests\$f", "beeldmodel-groot-$f.txt" -Wait -PassThru
+            Get-Content "beeldmodel-groot-$f.txt" -Encoding utf8
+            if ($p.ExitCode -ne 0) { throw "Het taalmodel werkt niet ($f)." }
+          }
+
       - name: Toegankelijkheid (UI Automation)
         shell: powershell
         run: tools\toegankelijkheid.ps1 | Tee-Object -FilePath toegankelijkheid.txt
@@ -182,7 +207,7 @@ jobs:
         run: |
           New-Item -ItemType Directory uit | Out-Null
           Copy-Item "uitvoer\*.exe", "scherm-*.png", "proef.txt", "toegankelijkheid.txt" uit\
-          Copy-Item "lezen-*.txt" uit\ -ErrorAction SilentlyContinue
+          Copy-Item "lezen-*.txt", "beeldmodel*.txt" uit\ -ErrorAction SilentlyContinue
           @"
           # Paper Pilot $env:VERSIE
 

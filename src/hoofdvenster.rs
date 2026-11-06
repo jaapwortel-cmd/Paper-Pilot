@@ -28,6 +28,7 @@ const ID_THEMA_AUTO: i32 = 210;
 const ID_THEMA_LICHT: i32 = 211;
 const ID_THEMA_DONKER: i32 = 212;
 const ID_UPDATES_START: i32 = 220;
+const ID_TAALMODEL: i32 = 221;
 const ID_HANDLEIDING: i32 = 300;
 const ID_RONDLEIDING: i32 = 301;
 const ID_WIJZIGINGEN: i32 = 302;
@@ -247,6 +248,7 @@ fn maak_menu() -> HMENU {
         voeg(weergave, ID_THEMA_DONKER, "MenuThemaDonker");
         sub(inst, weergave, "MenuWeergave");
         streep(inst);
+        voeg(inst, ID_TAALMODEL, "MenuTaalmodel");
         voeg(inst, ID_UPDATES_START, "MenuUpdatesBijStart");
         sub(balk, inst, "MenuInstellingen");
 
@@ -570,6 +572,19 @@ fn opdracht(hwnd: HWND, id: i32) {
             let aan = !instellingen::aan("updates_bij_start", true);
             instellingen::zet_aan("updates_bij_start", aan);
             vink_menu();
+        }
+        ID_TAALMODEL => {
+            if crate::beeldmodel::geinstalleerd() {
+                let gb = format!("{:.1}", crate::beeldmodel::grootte_gb());
+                if dialogen::ja_nee(hwnd, &t("ModelAanwezig"), &tf("ModelVerwijderenVraag", &[&gb]), false) {
+                    match crate::beeldmodel::verwijder() {
+                        Ok(_) => dialogen::melding(hwnd, &t("ModelVerwijderd"), &t("ModelVerwijderdTekst"), dialogen::ICOON_INFO),
+                        Err(e) => dialogen::melding(hwnd, &t("ModelMislukt"), &e, dialogen::ICOON_WAARSCHUWING),
+                    }
+                }
+            } else {
+                crate::leesvenster::model_downloaden(hwnd);
+            }
         }
         ID_HANDLEIDING => tekst_tonen("MenuHandleidingTitel", crate::teksten::document("handleiding")),
         ID_PRIVACY => tekst_tonen("MenuPrivacyTitel", crate::teksten::document("privacy")),

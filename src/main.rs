@@ -10,10 +10,12 @@
 #![windows_subsystem = "windows"]
 
 mod beeld;
+mod beeldmodel;
 mod bijwerken;
 mod dialogen;
 mod herkennen;
 mod hoofdvenster;
+mod http;
 mod instellingen;
 mod keuzevensters;
 mod leesvenster;
@@ -52,6 +54,13 @@ fn main() {
     if let Some(bestand) = waarde("--proef-lezen") {
         let verslag = args.iter().position(|a| a == "--proef-lezen").and_then(|i| args.get(i + 2)).cloned().unwrap_or_else(|| "lezen.txt".into());
         std::process::exit(proef::proef_lezen(&bestand, &verslag));
+    }
+    if let Some(hfmap) = waarde("--proef-beeldmodel") {
+        // --proef-beeldmodel <map op Hugging Face> <afbeelding> <verslag>
+        let i = args.iter().position(|a| a == "--proef-beeldmodel").unwrap_or(0);
+        let beeld = args.get(i + 2).cloned().unwrap_or_default();
+        let verslag = args.get(i + 3).cloned().unwrap_or_else(|| "beeldmodel.txt".into());
+        std::process::exit(proef::proef_beeldmodel(&hfmap, &beeld, &verslag));
     }
     if let Some(verslag) = waarde("--proef-updates") {
         std::process::exit(proef::proef_updates(&verslag));

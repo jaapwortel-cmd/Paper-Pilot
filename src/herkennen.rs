@@ -116,7 +116,7 @@ pub fn herken(beeld: &Beeld) -> Result<Uitkomst, String> {
     let e = engine()?;
     // Rechtop en op zijn kop: allebei proberen, de stand met de meeste echte tekst wint.
     let mut beste: Option<(Vec<Regel>, f64, u32, Beeld, usize)> = None;
-    let mut probeer = |k: u32, beste: &mut Option<(Vec<Regel>, f64, u32, Beeld, usize)>| -> Result<(), String> {
+    let probeer = |k: u32, beste: &mut Option<(Vec<Regel>, f64, u32, Beeld, usize)>| -> Result<(), String> {
         let gedraaid = beeld.kwartslag(k);
         let (r, h) = een_keer(&e, &gedraaid)?;
         let s = goede_woorden(&r);

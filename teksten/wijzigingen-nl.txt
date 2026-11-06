@@ -1,5 +1,12 @@
 ﻿Wijzigingen in Paper Pilot
 
+Versie 0.0.0.4 (november 2026)
+- Nieuw: handschrift lezen (Ctrl+H), zoals boodschappenlijstjes en ansichtkaarten.
+- Nieuw: beschrijven wat er op een foto, tekening of scan staat (Ctrl+D).
+- Dit gebeurt met een taalmodel op je eigen computer, zonder internet. Het model download je eenmalig (ongeveer 3,5 GB), als je dat zelf kiest. Verwijderen kan via Instellingen.
+- Het downloaden toont een voortgangsbalk, kan worden gestopt, en gaat later verder waar het was.
+- De privacyverklaring noemt nu ook de download van het taalmodel.
+
 Versie 0.0.0.3 (november 2026)
 - Nieuw: tekstherkenning. Gescande brieven en foto's worden tekst, zonder internet (met de tekstherkenning van Windows).
 - Gescande PDF's worden nu ook gelezen.

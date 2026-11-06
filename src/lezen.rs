@@ -27,6 +27,8 @@ pub struct Document {
     pub meldingen: Vec<String>,
     /// Gescande pagina's en foto's, rechtgezet (om als afbeelding op te slaan).
     pub beelden: Vec<crate::beeld::Beeld>,
+    /// Bij elk beeld: het paginanummer (vanaf 1).
+    pub beeld_paginas: Vec<usize>,
 }
 
 /// Bouwt de tekst op en houdt de plaatsen bij.
@@ -283,6 +285,7 @@ fn scan_pagina(b: &mut Bouwer, beeld: &crate::beeld::Beeld, nr: usize) {
             b.doc.zonder_tekst.push(nr);
             b.alinea(&e);
             b.doc.beelden.push(beeld.clone());
+            b.doc.beeld_paginas.push(nr);
             return;
         }
     };
@@ -307,6 +310,7 @@ fn scan_pagina(b: &mut Bouwer, beeld: &crate::beeld::Beeld, nr: usize) {
         ocr_alineas(b, &u.regels);
     }
     b.doc.beelden.push(u.beeld);
+    b.doc.beeld_paginas.push(nr);
 }
 
 /// Herkende regels netjes in alinea's en koppen zetten.

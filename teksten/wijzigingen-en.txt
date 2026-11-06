@@ -1,5 +1,12 @@
 ﻿Changes in Paper Pilot
 
+Version 0.0.0.4 (November 2026)
+- New: read handwriting (Ctrl+H), such as shopping lists and postcards.
+- New: describe what is on a photo, drawing or scan (Ctrl+D).
+- This is done by a language model on your own computer, without the internet. You download the model once (about 3.5 GB), if you choose to. You can remove it via Settings.
+- The download shows a progress bar, can be stopped, and later continues where it stopped.
+- The privacy statement now also mentions the language model download.
+
 Version 0.0.0.3 (November 2026)
 - New: text recognition. Scanned letters and photos become text, without the internet (using Windows text recognition).
 - Scanned PDF files can now be read as well.

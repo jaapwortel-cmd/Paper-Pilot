@@ -160,6 +160,49 @@ pub fn proef_lezen(bestand: &str, verslag: &str) -> i32 {
     if fout { 1 } else { 0 }
 }
 
+/// Downloadt de motor en een (klein) beeldmodel naar een tijdelijke map en laat het een afbeelding lezen en beschrijven.
+pub fn proef_beeldmodel(hfmap: &str, afbeelding: &str, verslag: &str) -> i32 {
+    crate::beeld::com_start();
+    std::env::set_var("PAPERPILOT_HFMAP", hfmap);
+    if std::env::var_os("PAPERPILOT_TAALMODEL").is_none() {
+        std::env::set_var("PAPERPILOT_TAALMODEL", std::env::temp_dir().join("pp-taalmodel"));
+    }
+    let mut uit = String::new();
+    let v = crate::dialogen::Voortgang::nieuw();
+    let begin = std::time::Instant::now();
+    match crate::beeldmodel::installeer(&v) {
+        Ok(_) => uit.push_str(&format!("Downloaden gelukt in {} s\r\n", begin.elapsed().as_secs())),
+        Err(e) => {
+            let _ = std::fs::write(verslag, format!("FOUT: downloaden: {e}"));
+            return 1;
+        }
+    }
+    let beelden = match crate::beeld::lees(std::path::Path::new(afbeelding)) {
+        Ok(b) => b,
+        Err(e) => {
+            let _ = std::fs::write(verslag, format!("FOUT: afbeelding: {e}"));
+            return 1;
+        }
+    };
+    let mut fout = false;
+    for (naam, soort) in [("Handschrift", crate::beeldmodel::Soort::Handschrift), ("Beschrijven", crate::beeldmodel::Soort::Beschrijven)] {
+        let begin = std::time::Instant::now();
+        match crate::beeldmodel::vraag(&beelden[0], soort) {
+            Ok(t) => uit.push_str(&format!("== {naam} ({} s)\r\n{t}\r\n", begin.elapsed().as_secs())),
+            Err(e) => {
+                fout = true;
+                uit.push_str(&format!("FOUT: {naam}: {e}\r\n"));
+            }
+        }
+    }
+    crate::beeldmodel::stop();
+    let log = std::fs::read_to_string(crate::beeldmodel::map().join("motor.log")).unwrap_or_default();
+    uit.push_str("== motor.log (einde)\r\n");
+    uit.push_str(&log.chars().rev().take(3000).collect::<Vec<_>>().into_iter().rev().collect::<String>());
+    let _ = std::fs::write(verslag, format!("\u{feff}{uit}"));
+    if fout { 1 } else { 0 }
+}
+
 /// Alleen ter informatie: wat staat er nu in de Dropbox-map?
 pub fn proef_updates(verslag: &str) -> i32 {
     let mut tekst = match crate::bijwerken::zoek_in(crate::bijwerken::ADRES) {

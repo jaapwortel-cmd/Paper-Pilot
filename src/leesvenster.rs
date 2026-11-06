@@ -30,12 +30,16 @@ const ID_KOPPEN: i32 = 105;
 const ID_PAGINA: i32 = 106;
 const ID_OPSLAAN: i32 = 107;
 const ID_BEELD: i32 = 108;
+const ID_HANDSCHRIFT: i32 = 109;
+const ID_BESCHRIJF: i32 = 110;
 const ID_SLUITEN: i32 = IDCANCEL;
 const WM_GELADEN: u32 = WM_APP + 10;
 const WM_VOORTGANG: u32 = WM_APP + 11;
 
-const KNOPPEN: [(i32, &str); 7] = [
+const KNOPPEN: [(i32, &str); 9] = [
     (ID_OPENEN, "KnopOpenen"),
+    (ID_HANDSCHRIFT, "KnopHandschrift"),
+    (ID_BESCHRIJF, "KnopBeschrijven"),
     (ID_ZOEKEN, "KnopZoeken"),
     (ID_KOPPEN, "KnopKoppen"),
     (ID_PAGINA, "KnopPagina"),
@@ -164,6 +168,8 @@ fn maak(eigenaar: HWND) -> HWND {
             ACCEL { fVirt: (FVIRTKEY | FSHIFT) as u8, key: VK_F3, cmd: ID_VORIGE as u16 },
             ACCEL { fVirt: ctrl, key: b'K' as u16, cmd: ID_KOPPEN as u16 },
             ACCEL { fVirt: ctrl, key: b'G' as u16, cmd: ID_PAGINA as u16 },
+            ACCEL { fVirt: ctrl, key: b'H' as u16, cmd: ID_HANDSCHRIFT as u16 },
+            ACCEL { fVirt: ctrl, key: b'D' as u16, cmd: ID_BESCHRIJF as u16 },
             ACCEL { fVirt: ctrl, key: b'S' as u16, cmd: ID_OPSLAAN as u16 },
             ACCEL { fVirt: (FVIRTKEY | FCONTROL | FSHIFT) as u8, key: b'S' as u16, cmd: ID_BEELD as u16 },
         ];
@@ -511,6 +517,81 @@ fn opslaan_beeld() {
     unsafe { SetFocus(s.vak) };
 }
 
+/// Welke scan of foto hoort bij de plek van de cursor? (Bij meer pagina's met een scan: die van deze pagina.)
+fn huidig_beeld(s: &Staat, doc: &Document) -> Option<crate::beeld::Beeld> {
+    if doc.beelden.is_empty() {
+        return None;
+    }
+    if doc.beelden.len() == 1 || doc.paginas.is_empty() {
+        return doc.beelden.first().cloned();
+    }
+    let mut begin = 0u32;
+    unsafe { SendMessageW(s.vak, EM_GETSEL, &mut begin as *mut u32 as WPARAM, 0) };
+    let pagina = doc.paginas.iter().rposition(|b| *b <= begin as usize).map(|i| i + 1).unwrap_or(1);
+    let i = doc.beeld_paginas.iter().position(|p| *p == pagina).unwrap_or(0);
+    doc.beelden.get(i).cloned()
+}
+
+/// Handschrift lezen of beschrijven wat er op de afbeelding staat, met het taalmodel op deze computer.
+fn kijk(soort: crate::beeldmodel::Soort) {
+    use crate::beeldmodel::Soort;
+    let Some(s) = lees() else { return };
+    let Some(doc) = s.doc.clone() else { return };
+    let Some(beeld) = huidig_beeld(&s, &doc) else {
+        dialogen::melding(s.hwnd, &t("GeenBeeld"), &t("KijkAlleenBeeld"), dialogen::ICOON_INFO);
+        unsafe { SetFocus(s.vak) };
+        return;
+    };
+    if !crate::beeldmodel::geinstalleerd() && !model_downloaden(s.hwnd) {
+        unsafe { SetFocus(s.vak) };
+        return;
+    }
+    let (titel, kop) = match soort {
+        Soort::Handschrift => (t("HandschriftTitel"), t("HandschriftBezig")),
+        Soort::Beschrijven => (t("BeschrijvenTitel"), t("BeschrijvenBezig")),
+    };
+    let uitkomst = dialogen::werk(s.hwnd, &titel, &kop, move |v| {
+        v.meld(t("KijkDuurt"), 0);
+        crate::beeldmodel::vraag(&beeld, soort)
+    });
+    match uitkomst {
+        Some(Ok(tekst)) => {
+            logboek::schrijf(&format!("Taalmodel: {} tekens antwoord.", tekst.chars().count()));
+            crate::tekstvenster::toon(s.hwnd, &format!("{titel} - {}", doc.naam), &tekst);
+        }
+        Some(Err(e)) => {
+            dialogen::melding(s.hwnd, &t("ModelMislukt"), &e, dialogen::ICOON_WAARSCHUWING);
+            unsafe { SetFocus(s.vak) };
+        }
+        None => unsafe {
+            SetFocus(s.vak);
+        },
+    }
+}
+
+/// Vraagt of het taalmodel gedownload mag worden, en doet dat. Geeft true als het er daarna is.
+pub fn model_downloaden(eigenaar: HWND) -> bool {
+    if !dialogen::ja_nee(eigenaar, &t("ModelNodig"), &t("ModelNodigTekst"), true) {
+        return false;
+    }
+    let uitkomst = dialogen::werk(eigenaar, &t("ModelDownloadTitel"), &t("ModelDownloadKop"), |v| crate::beeldmodel::installeer(v));
+    match uitkomst {
+        Some(Ok(())) => {
+            dialogen::melding(eigenaar, &t("ModelKlaar"), &t("ModelKlaarTekst"), dialogen::ICOON_INFO);
+            true
+        }
+        Some(Err(e)) => {
+            logboek::schrijf(&format!("Taalmodel downloaden: {e}"));
+            dialogen::melding(eigenaar, &t("ModelDownloadMislukt"), &crate::teksten::tf("ModelDownloadMisluktTekst", &[&e]), dialogen::ICOON_WAARSCHUWING);
+            false
+        }
+        None => {
+            dialogen::melding(eigenaar, &t("ModelDownloadGestopt"), &t("ModelDownloadGestoptTekst"), dialogen::ICOON_INFO);
+            false
+        }
+    }
+}
+
 fn opdracht(hwnd: HWND, id: i32) {
     let doc_open = lees().map(|s| s.doc.is_some()).unwrap_or(false);
     match id {
@@ -528,6 +609,8 @@ fn opdracht(hwnd: HWND, id: i32) {
         ID_PAGINA => naar_pagina(),
         ID_OPSLAAN => opslaan(),
         ID_BEELD => opslaan_beeld(),
+        ID_HANDSCHRIFT => kijk(crate::beeldmodel::Soort::Handschrift),
+        ID_BESCHRIJF => kijk(crate::beeldmodel::Soort::Beschrijven),
         _ => {}
     }
 }
