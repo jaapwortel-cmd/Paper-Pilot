@@ -86,12 +86,12 @@ jobs:
             "$naam.png gemaakt"
           }
 
-      - name: Updatemap bekijken (ter informatie)
-        continue-on-error: true
+      - name: Updates zoeken in de Dropbox-map
         shell: pwsh
         run: |
           Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-updates", "updates.txt" -Wait
           Get-Content updates.txt
+          if ((Get-Content updates.txt -Raw) -match "^Fout") { throw "Zoeken naar updates werkt niet." }
 
       - name: Installatieprogramma maken
         shell: pwsh
