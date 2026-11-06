@@ -28,3 +28,20 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   en de wijzigingen bijwerken.
 - Wijzigingen verzamelen en samen pushen; altijd pushen voordat Jaap moet testen of de sessie stopt.
 - Tekstbestanden: UTF-8 met BOM en CRLF (zie `.gitattributes`).
+
+## Bouwen
+
+- Rust (windows-sys 0.61, zip 2). `versie.txt` is het enige versienummer (vier delen); build.rs zet het in de exe
+  (versie-informatie), het manifest (comctl32 v6, PerMonitorV2) en `PP_VERSIE`. Bij elke nieuwe versie: versie.txt
+  ophogen en een blok "Versie x.x.x.x" bovenaan in teksten/wijzigingen-nl.txt en -en.txt.
+- Code in `src/`: hoofdvenster (tegels zelf getekend, BS_OWNERDRAW), tekstvenster (alleen-lezen tekstvak),
+  dialogen (TaskDialog: rondleiding, meer programma's), bijwerken (Dropbox-zip, versie uit het installatieprogramma,
+  runas /SILENT), thema, teksten, instellingen (%APPDATA%\Paper Pilot), logboek, proef.
+- In de staat van het hoofdvenster (`met`) nooit Windows-functies aanroepen die berichten sturen; gebruik `lees()`.
+- Teksten in `teksten/nl.txt` en `en.txt` (Sleutel = tekst); de proefstart faalt als een sleutel in één taal ontbreekt.
+- Lokaal: `cargo build --release --target x86_64-pc-windows-gnu` (mingw-w64) en proberen met Wine + Xvfb
+  (`wine PaperPilot.exe --proefstart proef.txt`, `--schermafbeelding foto.bmp --thema licht --taal nl`).
+  Wine heeft geen Segoe MDL2 Assets (symbolen op de tegels zijn daar vierkantjes).
+- GitHub (`.github/workflows/build.yml`, windows-latest, gratis voor openbare repo's): bouwen, proefstart,
+  `tools/toegankelijkheid.ps1` (UI Automation: elk focusbaar onderdeel heeft een naam), schermafbeeldingen,
+  Inno Setup (`installer/PaperPilot.iss`), proef installeren/bijwerken/verwijderen, daarna naar de tak `exe-builds`.
