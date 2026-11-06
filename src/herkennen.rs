@@ -76,42 +76,64 @@ fn een_keer(e: &OcrEngine, beeld: &Beeld) -> Result<(Vec<Regel>, f64), String> {
     Ok((regels, hoek))
 }
 
-/// Hoeveel woorden lijken echte woorden? (Op zijn kop gelezen tekst geeft vooral rommel.)
+/// Veel voorkomende korte woorden (Nederlands en Engels). Tekst die op zijn kop wordt gelezen, bevat ze bijna nooit.
+const GEWOON: [&str; 60] = [
+    "de", "het", "een", "en", "van", "in", "is", "op", "te", "dat", "die", "voor", "met", "u", "uw", "wij", "we", "je",
+    "niet", "aan", "er", "zijn", "of", "bij", "naar", "om", "ook", "als", "maar", "dan", "kunt", "wordt", "deze", "dit",
+    "the", "and", "to", "a", "you", "your", "for", "on", "with", "that", "this", "are", "be", "at", "by", "from", "it",
+    "datum", "naam", "adres", "geachte", "beste", "groet", "brief", "dear", "date",
+];
+
+/// Hoe goed lijkt deze tekst op echte tekst? Gewone woorden tellen zwaar, nette woorden een beetje,
+/// woorden met letters en cijfers of rare tekens door elkaar tellen niet.
 pub fn goede_woorden(regels: &[Regel]) -> usize {
-    regels
-        .iter()
-        .flat_map(|r| r.tekst.split_whitespace())
-        .filter(|w| {
-            let letters = w.chars().filter(|c| c.is_alphabetic()).count();
-            let totaal = w.chars().count();
-            let klinker = w.chars().any(|c| "aeiouyAEIOUYàáâäèéêëìíîïòóôöùúûüÀÁÂÄÈÉÊËÌÍÎÏÒÓÔÖÙÚÛÜ".contains(c));
-            let cijfers = w.chars().filter(|c| c.is_ascii_digit()).count();
-            (letters >= 2 && klinker && letters * 10 >= totaal * 7) || (cijfers >= 2 && cijfers * 10 >= totaal * 6)
-        })
-        .count()
+    let mut score = 0;
+    for w in regels.iter().flat_map(|r| r.tekst.split_whitespace()) {
+        let kern = w.trim_matches(|c: char| !c.is_alphanumeric());
+        if kern.is_empty() {
+            continue;
+        }
+        let klein = kern.to_lowercase();
+        if GEWOON.contains(&klein.as_str()) {
+            score += 3;
+            continue;
+        }
+        let letters: Vec<char> = kern.chars().collect();
+        let alles_letters = letters.iter().all(|c| c.is_alphabetic());
+        let klinker = klein.chars().any(|c| "aeiouyàáâäèéêëìíîïòóôöùúûü".contains(c));
+        let net = alles_letters && letters.len() >= 2 && klinker
+            && (letters[1..].iter().all(|c| c.is_lowercase()) || letters.iter().all(|c| c.is_uppercase()));
+        let getal = kern.chars().any(|c| c.is_ascii_digit()) && kern.chars().all(|c| c.is_ascii_digit() || ".,:/-".contains(c));
+        if net || getal {
+            score += 1;
+        }
+    }
+    score
 }
 
 /// Herkent de tekst op een afbeelding en zet de afbeelding zo nodig recht.
 pub fn herken(beeld: &Beeld) -> Result<Uitkomst, String> {
     let e = engine()?;
-    let (regels, hoek) = een_keer(&e, beeld)?;
-    let mut beste = (regels, hoek, 0u32, beeld.clone());
-    let mut score = goede_woorden(&beste.0);
-    let totaal: usize = beste.0.iter().map(|r| r.tekst.split_whitespace().count()).sum();
-    // Weinig echte woorden: de andere drie standen proberen.
-    if score < 8 || score * 10 < totaal * 6 {
-        for k in [2u32, 1, 3] {
-            let gedraaid = beeld.kwartslag(k);
-            let (r, h) = een_keer(&e, &gedraaid)?;
-            let s = goede_woorden(&r);
-            if s > score + 2 && s * 10 > score * 15 {
-                score = s;
-                beste = (r, h, k, gedraaid);
-            }
+    // Rechtop en op zijn kop: allebei proberen, de stand met de meeste echte tekst wint.
+    let mut beste: Option<(Vec<Regel>, f64, u32, Beeld, usize)> = None;
+    let mut probeer = |k: u32, beste: &mut Option<(Vec<Regel>, f64, u32, Beeld, usize)>| -> Result<(), String> {
+        let gedraaid = beeld.kwartslag(k);
+        let (r, h) = een_keer(&e, &gedraaid)?;
+        let s = goede_woorden(&r);
+        if beste.as_ref().map(|b| s > b.4).unwrap_or(true) {
+            *beste = Some((r, h, k, gedraaid, s));
         }
+        Ok(())
+    };
+    probeer(0, &mut beste)?;
+    probeer(2, &mut beste)?;
+    // Weinig tekst gevonden: misschien ligt hij op zijn kant.
+    if beste.as_ref().map(|b| b.4 < 12).unwrap_or(true) {
+        probeer(1, &mut beste)?;
+        probeer(3, &mut beste)?;
     }
-    let (mut regels, hoek, kwartslagen, mut recht) = beste;
-    // Scheef: rechtzetten en opnieuw herkennen; houden als dat beter is.
+    let (mut regels, hoek, kwartslagen, mut recht, _) = beste.ok_or("OCR")?;
+    // Scheef: rechtzetten en opnieuw herkennen; houden als dat niet slechter is.
     let mut scheef = 0.0;
     if hoek.abs() >= 1.5 && hoek.abs() <= 45.0 {
         scheef = hoek;
