@@ -50,7 +50,8 @@ public static class Msaa {
     return lijst.ToArray();
   }
   [DllImport("user32.dll")] static extern int GetWindowLong(IntPtr h, int i);
-  [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr FindWindow(string klasse, string titel);
+  [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern IntPtr FindWindow(string klasse, string titel);
+  public static IntPtr ZoekKlasse(string klasse) { return FindWindow(klasse, null); }
   public static string[] Tabstops(IntPtr hwnd) {
     var lijst = new System.Collections.Generic.List<string>(); IntPtr k = IntPtr.Zero;
     while ((k = FindWindowEx(hwnd, k, null, null)) != IntPtr.Zero) {
@@ -90,7 +91,7 @@ public static class Msaa {
     Start-Sleep 1
     $p = Start-Process $Exe -ArgumentList "--demo", "--taal", "nl", "tests\voorbeeld-brief.pdf" -PassThru
     $lees = [IntPtr]::Zero
-    for ($i = 0; $i -lt 40 -and $lees -eq [IntPtr]::Zero; $i++) { Start-Sleep -Milliseconds 250; $lees = [Msaa]::FindWindow("PaperPilotLezen", $null) }
+    for ($i = 0; $i -lt 40 -and $lees -eq [IntPtr]::Zero; $i++) { Start-Sleep -Milliseconds 250; $lees = [Msaa]::ZoekKlasse("PaperPilotLezen") }
     if ($lees -eq [IntPtr]::Zero) { "FOUT: het leesvenster is niet gevonden"; $fouten++ }
     else {
         Start-Sleep 2
