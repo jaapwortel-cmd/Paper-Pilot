@@ -36,7 +36,6 @@ UninstallDisplayName=Paper Pilot
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
-AppMutex=PaperPilotDraait
 CloseApplications=yes
 RestartApplications=no
 ShowLanguageDialog=yes
@@ -85,6 +84,35 @@ Filename: "{app}\PaperPilot.exe"; Description: "{cm:Starten}"; Flags: nowait pos
 Type: filesandordirs; Name: "{app}\onderdelen"
 
 [Code]
+// Bij een update sluit Paper Pilot zichzelf net na het starten van dit installatieprogramma.
+// Daarom eerst even wachten tot Paper Pilot echt dicht is (hooguit 15 seconden).
+function WachtOpPaperPilot(): Boolean;
+var
+  Pogingen: Integer;
+begin
+  Pogingen := 0;
+  while CheckForMutexes('PaperPilotDraait') and (Pogingen < 30) do
+  begin
+    Sleep(500);
+    Pogingen := Pogingen + 1;
+  end;
+  Result := not CheckForMutexes('PaperPilotDraait');
+end;
+
+function InitializeSetup(): Boolean;
+begin
+  WachtOpPaperPilot();
+  Result := True;
+end;
+
+function InitializeUninstall(): Boolean;
+begin
+  Result := True;
+  if not WachtOpPaperPilot() then
+    if not UninstallSilent then
+      Result := MsgBox(CustomMessage('NogOpen'), mbError, MB_RETRYCANCEL) = IDRETRY;
+end;
+
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
   if (CurUninstallStep = usPostUninstall) and (not UninstallSilent) then
