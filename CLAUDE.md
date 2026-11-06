@@ -19,6 +19,8 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
 - Privé: brieven en gegevens blijven op de computer. Geen Microsoft Edge of WebView2; iets met een
   browser gaat naar Firefox of de standaardbrowser.
 - Licentie: GPL-3.0.
+- "Mail de maker" gaat naar jaap.wortel@gmail.com (Jaaps keuze, 6 nov 2026; kan later een ander adres worden).
+- Updates: Dropbox-map `/Updates van mijn programma's/Paper Pilot updates` (link volgt van Jaap).
 - Werkwijze: testversies, pas een echte versie als Jaap zegt dat alles werkt. Bij elke stap de handleiding
   en de wijzigingen bijwerken.
 - Wijzigingen verzamelen en samen pushen; altijd pushen voordat Jaap moet testen of de sessie stopt.
