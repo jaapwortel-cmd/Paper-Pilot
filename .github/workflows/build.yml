@@ -67,8 +67,10 @@ jobs:
           Get-Content proef.txt
           if ($p.ExitCode -ne 0) { throw "De proefstart is mislukt." }
 
+      # Windows PowerShell 5.1 (.NET Framework): die heeft de UIA-proxy's voor gewone Windows-onderdelen,
+      # net als schermlezers. PowerShell 7 ziet knoppen en menu's alleen als "Pane".
       - name: Toegankelijkheid (UI Automation)
-        shell: pwsh
+        shell: powershell
         run: tools\toegankelijkheid.ps1 | Tee-Object -FilePath toegankelijkheid.txt
 
       - name: Schermafbeeldingen
