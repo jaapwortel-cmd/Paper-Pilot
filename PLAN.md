@@ -62,7 +62,7 @@ bijvoorbeeld het wijzigingsformulier pgb en het budgetplan pgb Wlz.
 
 ## De stappen
 
-Elke stap eindigt met een testversie voor Jaap. Pas als Jaap zegt dat het werkt, gaan we verder.
+Elke stap eindigt met een nieuwe versie voor Jaap (0.0.0.1, 0.0.0.2 enz.). Pas als Jaap zegt dat het werkt, gaan we verder.
 
 1. **De basis.** Venster met menubalk, startscherm met de twee delen, mooie kleuren (licht, donker,
    hoog contrast), meldingen voor de schermlezer, Nederlands en Engels (menu Taal), handleiding (F1),

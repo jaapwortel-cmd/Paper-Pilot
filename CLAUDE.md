@@ -23,7 +23,8 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
 - Updates: Dropbox-map `/Updates van mijn programma's/Paper Pilot updates` 
   Link (alleen bekijken, 6 nov 2026): https://www.dropbox.com/scl/fo/dgj0om0qkz4al43owg91c/AENyj6dSYBH7sdMj1VOE96I?rlkey=vhtmwomkhbzgvhb0kaffpyeex&dl=0
   Nooit een link met bewerkrechten gebruiken: updates draaien met beheerdersrechten.
-- Werkwijze: testversies, pas een echte versie als Jaap zegt dat alles werkt. Bij elke stap de handleiding
+- Versies: de eerste is 0.0.0.1, daarna 0.0.0.2, 0.0.0.3 enz. Geen "PROEF" in de naam (Jaap, 6 nov 2026).
+- Werkwijze: Jaap test elke versie; pas verder als Jaap zegt dat het werkt. Bij elke stap de handleiding
   en de wijzigingen bijwerken.
 - Wijzigingen verzamelen en samen pushen; altijd pushen voordat Jaap moet testen of de sessie stopt.
 - Tekstbestanden: UTF-8 met BOM en CRLF (zie `.gitattributes`).
