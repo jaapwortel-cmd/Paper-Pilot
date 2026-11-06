@@ -19,6 +19,8 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
 - Privé: brieven en gegevens blijven op de computer. Geen Microsoft Edge of WebView2; iets met een
   browser gaat naar Firefox of de standaardbrowser.
 - Licentie: GPL-3.0.
+- Niet ondertekenen (geen SignPath, geen certificaat): Jaap vindt dat te veel handelingen (6 nov 2026).
+- Alleen de naam Jaap Wortel als maker in het programma (geen andere namen of organisaties).
 - "Mail de maker" gaat naar jaap.wortel@gmail.com (Jaaps keuze, 6 nov 2026; kan later een ander adres worden).
 - Updates: Dropbox-map `/Updates van mijn programma's/Paper Pilot updates` 
   Link (alleen bekijken, 6 nov 2026): https://www.dropbox.com/scl/fo/dgj0om0qkz4al43owg91c/AENyj6dSYBH7sdMj1VOE96I?rlkey=vhtmwomkhbzgvhb0kaffpyeex&dl=0
@@ -52,5 +54,4 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
 ## Stand van zaken
 
 - 0.0.0.1 (6 nov 2026): stap 1, de basis. Bouwronde helemaal groen (proefstart, MSAA, schermafbeeldingen,
-  installeren/bijwerken/verwijderen). Download: tak exe-builds. Jaap test nu. Daarna: GitHub Release maken en
-  SignPath aanvragen (Jaap), en Jaap zet het installatieprogramma in de Dropbox-updatemap.
+  installeren/bijwerken/verwijderen). Download: tak exe-builds. Jaap test nu, en zet het installatieprogramma in de Dropbox-updatemap.

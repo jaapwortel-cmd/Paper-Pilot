@@ -25,8 +25,3 @@ The latest setup program is on the [`exe-builds`](../../tree/exe-builds) branch.
 Paper Pilot is geschreven in Rust. `cargo build --release` maakt `PaperPilot.exe` (Windows 10 en 11, 64-bit).
 Het installatieprogramma wordt gemaakt met Inno Setup 6 (`installer/PaperPilot.iss`). GitHub Actions bouwt en test alles
 (`.github/workflows/build.yml`).
-
-## Ondertekening / Code signing policy
-
-Free code signing provided by SignPath.io, certificate by SignPath Foundation.
-(Wordt aangevraagd na de eerste versie. / Will be applied for after the first release.)

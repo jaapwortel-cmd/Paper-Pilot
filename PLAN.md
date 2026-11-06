@@ -50,7 +50,8 @@ bijvoorbeeld het wijzigingsformulier pgb en het budgetplan pgb Wlz.
 - Bouwen: GitHub Actions op Windows (openbare repository: geen kosten voor bouwminuten).
   De workflow bouwt, doet een proef met echte zorgkantoorformulieren en maakt schermafbeeldingen.
 - Verspreiden: een installatieprogramma (Inno Setup, Nederlands en Engels) op GitHub (Releases).
-  Later misschien winget. Ondertekenen via SignPath (gratis voor open source).
+  Later misschien winget. Niet ondertekenen (Jaap, 6 nov 2026): de SmartScreen-waarschuwing blijft
+  ("Meer info", "Toch uitvoeren").
   Microsoft Store: voorlopig niet (Jaap, 6 nov 2026).
 - Installeren in Program Files (met beheerdersrechten, één UAC-vraag). Een eigen verwijderprogramma
   (Startmenu en Windows Instellingen, Apps); bij verwijderen de vraag of je eigen gegevens ook weg moeten.
@@ -78,9 +79,6 @@ Elke stap eindigt met een nieuwe versie voor Jaap (0.0.0.1, 0.0.0.2 enz.). Pas a
    privacyverklaring, Mail de maker, logboek, instellingen. Installatieprogramma (Program Files),
    verwijderprogramma en updates via Dropbox. GitHub bouwt alles, doet een proefstart en maakt
    schermafbeeldingen. Zo is elke versie meteen klaar om te verspreiden.
-   Meteen na 0.0.0.1 (als GitHub Release): aanvraag bij SignPath Foundation voor gratis ondertekenen
-   (voorwaarde: het project is al uitgebracht in de vorm die ondertekend wordt). Jaap vraagt het aan;
-   daarna ondertekent de workflow elke versie.
 2. **PDF openen en lezen.** Een PDF met tekst wordt nette tekst met koppen en pagina's, in een
    leesvak waar je met de schermlezer doorheen gaat. Ook Word (.docx) en gewone tekst. Zoeken in de tekst.
 3. **Tekstherkenning.** Gescande PDF's en foto's (jpg, png) worden tekst. Paper Pilot ziet zelf of
