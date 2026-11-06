@@ -41,7 +41,7 @@ public static class Msaa {
 "@
     $iid = [Guid]"618736E0-3C3D-11CF-810C-00AA00389B71"
     $hwnd = [IntPtr]$venster.Current.NativeWindowHandle
-    foreach ($soort in @(@("venster", [uint32]0xFFFFFFFC), @("menubalk", [uint32]0xFFFFFFFD))) {
+    foreach ($soort in @(@("venster", [uint32]4294967292), @("menubalk", [uint32]4294967293))) {
         $acc = $null
         $r = [Msaa]::AccessibleObjectFromWindow($hwnd, $soort[1], [ref]$iid, [ref]$acc)
         if ($r -ne 0 -or -not $acc) { "MSAA $($soort[0]): niet gelukt ($r)"; continue }
@@ -54,7 +54,7 @@ public static class Msaa {
     $knop = [Msaa]::FindWindowEx($hwnd, [IntPtr]::Zero, "Button", $null)
     if ($knop -ne [IntPtr]::Zero) {
         $acc = $null
-        $r = [Msaa]::AccessibleObjectFromWindow($knop, [uint32]0xFFFFFFFC, [ref]$iid, [ref]$acc)
+        $r = [Msaa]::AccessibleObjectFromWindow($knop, [uint32]4294967292, [ref]$iid, [ref]$acc)
         if ($r -eq 0 -and $acc) { $acc = [Accessibility.IAccessible]$acc; "MSAA eerste knop: rol $($acc.accRole(0)) (43 = knop), status $($acc.accState(0)), naam $($acc.accName(0))" }
         else { "MSAA eerste knop: niet gelukt ($r)" }
     }
