@@ -1,0 +1,49 @@
+﻿Privacyverklaring Paper Pilot
+
+Datum: 6 november 2026
+Maker: Jaap Wortel
+Contact: jaap.wortel@gmail.com
+
+Paper Pilot is een gratis programma dat je helpt met brieven en formulieren. In deze verklaring lees je wat Paper Pilot wel en niet doet met je gegevens.
+
+
+1. Je brieven en formulieren blijven op je eigen computer
+
+Brieven, formulieren en scans die je met Paper Pilot opent, maakt of invult, blijven op je eigen computer. Paper Pilot stuurt ze nergens naartoe. Ook de tekstherkenning gebeurt op je eigen computer.
+
+
+2. Je persoonlijke gegevens
+
+Als je in Paper Pilot persoonlijke gegevens bewaart, zoals je naam, adres, geboortedatum, telefoonnummer, BSN of IBAN, dan staan die versleuteld op je eigen computer. Alleen jij kunt ze openen, met je eigen Windows-account. Ze gaan nooit naar internet.
+
+
+3. Wanneer Paper Pilot internet gebruikt
+
+Paper Pilot gebruikt alleen internet:
+- om te kijken of er een nieuwe versie is (in een map van de maker bij Dropbox). Dat kun je uitzetten in het menu Instellingen. Daarbij gaan geen persoonlijke gegevens mee. Dropbox ziet wel, zoals elke website, het internetadres (IP-adres) van je computer.
+- als je zelf een website laat controleren. Paper Pilot haalt dan die website op.
+
+
+4. Geen reclame, geen tracking
+
+Paper Pilot heeft geen reclame en houdt niet bij wie het programma gebruikt of wat je ermee doet. De maker weet niet wie Paper Pilot gebruikt.
+
+
+5. Mail de maker
+
+Als je zelf via Mail de maker een mail stuurt, krijgt de maker je e-mailadres en wat je schrijft. Die mail gebruikt hij alleen om je te antwoorden en Paper Pilot beter te maken. Hij geeft je gegevens aan niemand anders.
+
+
+6. Het logboek
+
+Paper Pilot houdt een logboek bij op je eigen computer (in de map %APPDATA%\Paper Pilot). Daarin staat bijvoorbeeld wanneer het programma startte en welke fouten er waren. Het logboek gaat nooit vanzelf naar iemand toe. Alleen als jij het zelf meestuurt, kan de maker het lezen.
+
+
+7. Verwijderen
+
+Als je Paper Pilot verwijdert, vraagt het programma of je eigen gegevens en instellingen ook weg moeten.
+
+
+8. Vragen
+
+Heb je een vraag over je privacy? Mail naar jaap.wortel@gmail.com.

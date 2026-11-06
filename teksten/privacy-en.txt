@@ -1,0 +1,49 @@
+﻿Paper Pilot privacy statement
+
+Date: 6 November 2026
+Maker: Jaap Wortel
+Contact: jaap.wortel@gmail.com
+
+Paper Pilot is a free program that helps you with letters and forms. This statement explains what Paper Pilot does and does not do with your data.
+
+
+1. Your letters and forms stay on your own computer
+
+Letters, forms and scans that you open, make or fill in with Paper Pilot stay on your own computer. Paper Pilot does not send them anywhere. Text recognition also happens on your own computer.
+
+
+2. Your personal data
+
+If you store personal data in Paper Pilot, such as your name, address, date of birth, phone number, citizen service number (BSN) or IBAN, it is stored encrypted on your own computer. Only you can open it, with your own Windows account. It never goes to the internet.
+
+
+3. When Paper Pilot uses the internet
+
+Paper Pilot only uses the internet:
+- to check whether there is a new version (in a folder of the maker on Dropbox). You can turn this off in the Settings menu. No personal data is sent. Like any website, Dropbox does see the internet address (IP address) of your computer.
+- when you choose to check a website yourself. Paper Pilot then fetches that website.
+
+
+4. No ads, no tracking
+
+Paper Pilot has no advertising and does not track who uses the program or what you do with it. The maker does not know who uses Paper Pilot.
+
+
+5. Mail the maker
+
+If you send an email yourself via Mail the maker, the maker receives your email address and what you write. He only uses it to answer you and to improve Paper Pilot. He does not give your data to anyone else.
+
+
+6. The log file
+
+Paper Pilot keeps a log file on your own computer (in the folder %APPDATA%\Paper Pilot). It records, for example, when the program started and which errors occurred. The log file is never sent to anyone by itself. The maker can only read it if you send it yourself.
+
+
+7. Uninstalling
+
+When you uninstall Paper Pilot, the program asks whether your own data and settings should be removed too.
+
+
+8. Questions
+
+Do you have a question about your privacy? Email jaap.wortel@gmail.com.

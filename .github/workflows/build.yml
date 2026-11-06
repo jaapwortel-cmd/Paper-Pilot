@@ -1,0 +1,144 @@
+# Paper Pilot bouwen en testen op Windows.
+# De repository is openbaar: de gewone bouwcomputers van GitHub kosten dan geen bouwminuten.
+# Het installatieprogramma en de schermafbeeldingen komen op de tak exe-builds.
+name: Bouwen
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "teksten/**"
+      - "res/**"
+      - "installer/**"
+      - "tools/**"
+      - "build.rs"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "versie.txt"
+      - ".cargo/**"
+      - ".github/workflows/build.yml"
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: bouwen-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Versie lezen
+        shell: pwsh
+        run: |
+          $v = (Get-Content versie.txt -Raw).Trim()
+          "VERSIE=$v" | Out-File -Append $env:GITHUB_ENV
+          "Versie $v"
+
+      - name: Rust klaarzetten
+        shell: pwsh
+        run: |
+          rustup update stable --no-self-update
+          rustup default stable
+          rustc --version
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+
+      - name: Bouwen
+        run: cargo build --release --locked
+
+      - name: Proefstart
+        shell: pwsh
+        run: |
+          $p = Start-Process target\release\PaperPilot.exe -ArgumentList "--proefstart", "proef.txt" -Wait -PassThru
+          Get-Content proef.txt
+          if ($p.ExitCode -ne 0) { throw "De proefstart is mislukt." }
+
+      - name: Toegankelijkheid (UI Automation)
+        shell: pwsh
+        run: tools\toegankelijkheid.ps1 | Tee-Object -FilePath toegankelijkheid.txt
+
+      - name: Schermafbeeldingen
+        shell: pwsh
+        run: |
+          Add-Type -AssemblyName System.Drawing
+          foreach ($x in @(@("nl", "licht"), @("nl", "donker"), @("en", "licht"))) {
+            $naam = "scherm-$($x[0])-$($x[1])"
+            Start-Process target\release\PaperPilot.exe -ArgumentList "--schermafbeelding", "$naam.bmp", "--taal", $x[0], "--thema", $x[1] -Wait
+            $img = [System.Drawing.Image]::FromFile((Resolve-Path "$naam.bmp"))
+            $img.Save("$PWD\$naam.png", [System.Drawing.Imaging.ImageFormat]::Png)
+            $img.Dispose()
+            "$naam.png gemaakt"
+          }
+
+      - name: Updatemap bekijken (ter informatie)
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-updates", "updates.txt" -Wait
+          Get-Content updates.txt
+
+      - name: Installatieprogramma maken
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress | Out-Null }
+          & $iscc "/DVersie=$env:VERSIE" installer\PaperPilot.iss
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup is mislukt." }
+          Get-ChildItem uitvoer
+
+      - name: Proef installeren, bijwerken en verwijderen
+        shell: pwsh
+        run: |
+          $setup = (Get-Item "uitvoer\Paper Pilot $env:VERSIE installatie.exe").FullName
+          $exe = "$env:ProgramFiles\Paper Pilot\PaperPilot.exe"
+          foreach ($ronde in 1, 2) {
+            $p = Start-Process $setup -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/LANG=dutch" -Wait -PassThru
+            if ($p.ExitCode -ne 0) { throw "Installeren (ronde $ronde) is mislukt: $($p.ExitCode)" }
+            Start-Sleep 3
+            Stop-Process -Name PaperPilot -Force -ErrorAction SilentlyContinue
+            if (-not (Test-Path $exe)) { throw "PaperPilot.exe staat niet in Program Files." }
+            "Ronde ${ronde}: geinstalleerd, versie $((Get-Item $exe).VersionInfo.FileVersion)"
+          }
+          if (-not (Test-Path "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Paper Pilot.lnk")) { throw "Geen snelkoppeling in het Startmenu." }
+          $p = Start-Process "$env:ProgramFiles\Paper Pilot\unins000.exe" -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" -Wait -PassThru
+          Start-Sleep 5
+          if (Test-Path $exe) { throw "Verwijderen is niet gelukt." }
+          "Verwijderd: GESLAAGD"
+
+      - name: Naar de tak exe-builds
+        if: github.event_name != 'pull_request'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory uit | Out-Null
+          Copy-Item "uitvoer\*.exe", "scherm-*.png", "proef.txt", "toegankelijkheid.txt" uit\
+          @"
+          # Paper Pilot $env:VERSIE
+
+          Gebouwd uit commit $env:GITHUB_SHA.
+
+          - Installatieprogramma: Paper Pilot $env:VERSIE installatie.exe
+          - Schermafbeeldingen: scherm-nl-licht.png, scherm-nl-donker.png, scherm-en-licht.png
+          - Proeven: proef.txt en toegankelijkheid.txt
+          "@ | Set-Content uit\README.md -Encoding utf8
+          cd uit
+          git init -q
+          git checkout -q -b exe-builds
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Paper Pilot $env:VERSIE ($env:GITHUB_SHA)"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" exe-builds

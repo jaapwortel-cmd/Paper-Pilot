@@ -1,0 +1,12 @@
+﻿Changes in Paper Pilot
+
+Version 0.0.0.1 (November 2026)
+- The first version: the basics of Paper Pilot.
+- Main window with the two parts Read and fill in and Check (these will come in the next versions).
+- Menu bar; everything works with the keyboard and with the mouse.
+- Dutch and English (Settings menu, Language / Taal).
+- Appearance: automatic (like Windows), light or dark; Windows high contrast is followed.
+- Manual (F1), guided tour, changes and privacy statement in the Help menu.
+- Mail the maker and More programs by Jaap.
+- Updates: Paper Pilot checks once a day for a new version and installs it if you want.
+- Installed in Program Files; uninstall via the Start menu or Windows Settings.

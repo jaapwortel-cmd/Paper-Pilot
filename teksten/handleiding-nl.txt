@@ -1,0 +1,85 @@
+﻿Handleiding Paper Pilot
+Versie 0.0.0.1
+
+Paper Pilot helpt je met brieven en formulieren, helemaal zelf. Het programma is gratis en open source, gemaakt door Jaap Wortel. Het werkt met NVDA, JAWS en Verteller, met het toetsenbord en met de muis.
+
+Je leest deze handleiding met de pijltjestoetsen. Met Tab ga je naar de knop Sluiten. Escape sluit de handleiding.
+
+
+1. Wat Paper Pilot kan
+
+Paper Pilot heeft twee delen.
+
+Lezen en invullen: voor blinden en slechtzienden. Je scant of opent een brief en leest hem met je schermlezer. Formulieren vul je vraag voor vraag in, en daarna onderteken en verstuur je ze.
+
+Controleren: voor ziende mensen die een PDF, Word-bestand of website maken. Paper Pilot zegt in gewone taal wat een schermlezer niet goed kan lezen, en hoe je dat oplost.
+
+Let op: in deze eerste versie (0.0.0.1) staat de basis klaar: het venster, de menu's, de handleiding, de privacyverklaring, de updates en het installeren en verwijderen. Lezen en invullen en Controleren worden nu gebouwd en komen in de volgende versies. Updates krijg je vanzelf.
+
+
+2. Het hoofdvenster
+
+Bovenaan staat de naam Paper Pilot. Daaronder staan twee grote knoppen:
+- Lezen en invullen (sneltoets Alt+L)
+- Controleren (sneltoets Alt+C)
+
+Met Tab of de pijltjes ga je van de ene knop naar de andere. Enter of spatie kiest de knop. Met de muis klik je op een knop.
+
+
+3. De menu's
+
+Druk op Alt om naar de menubalk te gaan.
+
+Bestand
+- Afsluiten (Alt+F4): Paper Pilot sluiten.
+
+Instellingen
+- Taal / Language: Nederlands of English. Paper Pilot wisselt meteen van taal.
+- Weergave: Automatisch (zoals Windows), Licht of Donker. Staat hoog contrast van Windows aan, dan gebruikt Paper Pilot altijd de kleuren van Windows.
+- Bij het starten naar updates zoeken: staat dit aan, dan kijkt Paper Pilot één keer per dag of er een nieuwe versie is.
+
+Help
+- Handleiding (F1): deze handleiding.
+- Rondleiding: een korte rondleiding langs de onderdelen.
+- Wijzigingen: wat er in elke versie veranderd is.
+- Privacyverklaring: wat Paper Pilot wel en niet doet met je gegevens.
+- Mail de maker: een mail aan Jaap Wortel in je eigen mailprogramma, met het versienummer erbij.
+- Meer programma's van Jaap: andere programma's van de maker. Kies er een om Jaap er een mail over te sturen.
+- Zoeken naar updates: nu kijken of er een nieuwe versie is.
+- Over Paper Pilot: versie en maker.
+
+
+4. Dicteren
+
+In elk invulveld van Paper Pilot kun je ook dicteren met een dicteerprogramma, zoals Spraak naar tekst, Wispr Flow, Dragon NaturallySpeaking of dicteren van Windows (Windows+H). Paper Pilot springt nooit vanzelf naar een ander veld, dus je dictaat komt altijd in het veld waar je staat.
+
+
+5. De eerste keer en na een update
+
+De eerste keer dat je Paper Pilot start, zie je een korte rondleiding. Na een update zie je één keer wat er nieuw is. Beide vind je later terug in het menu Help.
+
+
+6. Updates
+
+Paper Pilot kijkt één keer per dag of er een nieuwe versie is (dat kun je uitzetten in het menu Instellingen). Is er een nieuwe versie, dan vraagt Paper Pilot of je hem wilt installeren. Kies je Ja, dan vraagt Windows om toestemming. Paper Pilot sluit even, de nieuwe versie wordt geïnstalleerd en Paper Pilot start vanzelf opnieuw. De oude programmabestanden worden opgeruimd. Je eigen gegevens en instellingen blijven bewaard.
+
+
+7. Installeren en verwijderen
+
+Paper Pilot wordt geïnstalleerd in de map Program Files. Windows vraagt daarbij één keer om toestemming.
+
+Verwijderen kan op twee manieren:
+- Start, Paper Pilot verwijderen.
+- Windows Instellingen, Apps, Paper Pilot, Verwijderen.
+
+Bij het verwijderen vraagt Paper Pilot of je eigen gegevens en instellingen ook weg moeten.
+
+
+8. Waar Paper Pilot iets bewaart
+
+Instellingen en het logboek staan in de map %APPDATA%\Paper Pilot op je eigen computer. Het logboek helpt bij het zoeken naar fouten. Het gaat nooit vanzelf naar iemand toe.
+
+
+9. Vragen en ideeën
+
+Heb je een vraag, een fout gevonden of een idee? Kies Help, Mail de maker, of mail naar jaap.wortel@gmail.com.

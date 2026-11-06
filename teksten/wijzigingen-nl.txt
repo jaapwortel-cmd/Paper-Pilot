@@ -1,0 +1,12 @@
+﻿Wijzigingen in Paper Pilot
+
+Versie 0.0.0.1 (november 2026)
+- De eerste versie: de basis van Paper Pilot.
+- Hoofdvenster met de twee onderdelen Lezen en invullen en Controleren (deze komen in de volgende versies).
+- Menubalk, alles te bedienen met het toetsenbord en met de muis.
+- Nederlands en Engels (menu Instellingen, Taal / Language).
+- Weergave: automatisch (zoals Windows), licht of donker; hoog contrast van Windows wordt gevolgd.
+- Handleiding (F1), rondleiding, wijzigingen en privacyverklaring in het menu Help.
+- Mail de maker en Meer programma's van Jaap.
+- Updates: Paper Pilot kijkt één keer per dag of er een nieuwe versie is en installeert die als je dat wilt.
+- Installeren in Program Files en verwijderen via het Startmenu of Windows Instellingen.
