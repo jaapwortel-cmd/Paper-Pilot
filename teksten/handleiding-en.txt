@@ -46,6 +46,7 @@ Shortcut keys in the reading window:
 - Ctrl+Q: QR codes and barcodes that Paper Pilot found.
 - Ctrl+R: make a reminder.
 - Ctrl+M: email the document as an attachment.
+- Ctrl+plus and Ctrl+minus: bigger or smaller letters in the text box, Ctrl+0 back to normal. Paper Pilot remembers the size, also for the manual and other texts.
 - Escape: close the reading window.
 Use Tab to reach the buttons; the same commands are there as well.
 
@@ -119,6 +120,7 @@ Settings
 
 Help
 - Manual (F1): this manual.
+- Keyboard shortcuts: all Paper Pilot shortcuts in one list.
 - Guided tour: a short tour of the program.
 - Changes: what changed in each version.
 - Privacy statement: what Paper Pilot does and does not do with your data.

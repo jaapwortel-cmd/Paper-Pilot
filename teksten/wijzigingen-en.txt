@@ -1,6 +1,9 @@
 ﻿Changes in Paper Pilot
 
 Version 0.0.0.7 (November 2026)
+- Bigger letters in the reading window with Ctrl+plus (smaller with Ctrl+minus), for people who are visually impaired. The manual follows that size too.
+- Help menu, Keyboard shortcuts: all shortcuts in one list.
+- PDFs that Paper Pilot makes now have a title and a language (better for screen readers).
 - New: Check, for sighted people who make a PDF, Word document or website. Paper Pilot tells you in plain language what a screen reader cannot read well and how to fix it.
 - New: reminders (Ctrl+R and the File menu). Paper Pilot warns you from three days before, even when the program is not open.
 - New: My post (File menu). All letters you read, with date and sender, so you can find them again. Encrypted on your own computer; can be turned off.

@@ -35,6 +35,7 @@ const ID_POST_AAN: i32 = 224;
 const ID_POST: i32 = 101;
 const ID_HERINNERINGEN: i32 = 102;
 const ID_HANDLEIDING: i32 = 300;
+const ID_SNELTOETSEN: i32 = 308;
 const ID_RONDLEIDING: i32 = 301;
 const ID_WIJZIGINGEN: i32 = 302;
 const ID_PRIVACY: i32 = 303;
@@ -265,6 +266,7 @@ fn maak_menu() -> HMENU {
 
         let help = CreatePopupMenu();
         voeg(help, ID_HANDLEIDING, "MenuHandleiding");
+        voeg(help, ID_SNELTOETSEN, "MenuSneltoetsen");
         voeg(help, ID_RONDLEIDING, "MenuRondleiding");
         voeg(help, ID_WIJZIGINGEN, "MenuWijzigingen");
         voeg(help, ID_PRIVACY, "MenuPrivacy");
@@ -663,6 +665,7 @@ fn opdracht(hwnd: HWND, id: i32) {
                 crate::leesvenster::model_downloaden(hwnd);
             }
         }
+        ID_SNELTOETSEN => tekst_tonen("MenuSneltoetsenTitel", &t("SneltoetsenTekst")),
         ID_HANDLEIDING => tekst_tonen("MenuHandleidingTitel", crate::teksten::document("handleiding")),
         ID_PRIVACY => tekst_tonen("MenuPrivacyTitel", crate::teksten::document("privacy")),
         ID_WIJZIGINGEN => tekst_tonen("MenuWijzigingenTitel", crate::teksten::document("wijzigingen")),

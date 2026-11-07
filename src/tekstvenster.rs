@@ -1,4 +1,4 @@
-// Paper Pilot - venster met een lange tekst: handleiding, privacyverklaring, wijzigingen.
+﻿// Paper Pilot - venster met een lange tekst: handleiding, privacyverklaring, wijzigingen.
 // Een gewoon Windows-tekstvak (alleen lezen), zodat elke schermlezer het met de pijltjes kan lezen.
 // Tab gaat naar Sluiten, Escape sluit het venster.
 
@@ -66,7 +66,8 @@ pub fn toon(eigenaar: HWND, titel: &str, tekst: &str) {
     }
     let kleuren = crate::hoofdvenster::kleuren();
     crate::thema::titelbalk(hwnd, kleuren.donker);
-    let letter = lettertype(12, false, d, "Segoe UI");
+    // De letters in het tekstvak volgen de lettergrootte die je in het leesvenster kiest (Ctrl+plus en Ctrl+min).
+    let letter = lettertype(crate::win::tekstgrootte(), false, d, "Segoe UI");
     // De kop boven het tekstvak is ook de naam van het tekstvak voor de schermlezer.
     let kopletter = lettertype(16, true, d, "Segoe UI");
     let statisch = w("STATIC");

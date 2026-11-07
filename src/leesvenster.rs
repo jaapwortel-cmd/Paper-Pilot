@@ -39,6 +39,9 @@ const ID_QR: i32 = 114;
 const ID_TAAK: i32 = 115;
 const ID_HERINNERING: i32 = 117;
 const ID_MAIL: i32 = 118;
+const ID_GROTER: i32 = 119;
+const ID_KLEINER: i32 = 120;
+const ID_GEWOON: i32 = 121;
 const ID_SLUITEN: i32 = IDCANCEL;
 const WM_GELADEN: u32 = WM_APP + 10;
 const WM_VOORTGANG: u32 = WM_APP + 11;
@@ -71,6 +74,8 @@ struct Staat {
     knoppen: Vec<HWND>,
     letter: HFONT,
     kopletter: HFONT,
+    /// Het lettertype van het tekstvak (groter of kleiner met Ctrl+plus en Ctrl+min).
+    vakletter: HFONT,
     kwast: HBRUSH,
     toetsen: HACCEL,
     doc: Option<Document>,
@@ -343,6 +348,8 @@ fn maak(eigenaar: HWND) -> HWND {
     let vak = maak("EDIT", "", WS_TABSTOP | WS_VSCROLL | (ES_MULTILINE | ES_READONLY | ES_AUTOVSCROLL | ES_NOHIDESEL) as u32,
         WS_EX_CLIENTEDGE, ID_TEKST);
     let status = maak("STATIC", "", 0x80 | 0x4000, 0, -1);
+    let vakletter = lettertype(tekstgrootte(), false, d, "Segoe UI");
+    zet_lettertype(vak, vakletter);
     let mut knoppen = Vec::new();
     for (i, (id, sleutel)) in KNOPPEN.iter().enumerate() {
         knoppen.push(maak("BUTTON", &t(sleutel), WS_TABSTOP | if i == 0 { WS_GROUP } else { 0 } | BS_PUSHBUTTON as u32, 0, *id));
@@ -369,13 +376,19 @@ fn maak(eigenaar: HWND) -> HWND {
             ACCEL { fVirt: ctrl, key: b'T' as u16, cmd: ID_TAAK as u16 },
             ACCEL { fVirt: ctrl, key: b'R' as u16, cmd: ID_HERINNERING as u16 },
             ACCEL { fVirt: ctrl, key: b'M' as u16, cmd: ID_MAIL as u16 },
+            ACCEL { fVirt: ctrl, key: VK_OEM_PLUS, cmd: ID_GROTER as u16 },
+            ACCEL { fVirt: ctrl, key: VK_ADD, cmd: ID_GROTER as u16 },
+            ACCEL { fVirt: ctrl, key: VK_OEM_MINUS, cmd: ID_KLEINER as u16 },
+            ACCEL { fVirt: ctrl, key: VK_SUBTRACT, cmd: ID_KLEINER as u16 },
+            ACCEL { fVirt: ctrl, key: b'0' as u16, cmd: ID_GEWOON as u16 },
+            ACCEL { fVirt: ctrl, key: VK_NUMPAD0, cmd: ID_GEWOON as u16 },
             ACCEL { fVirt: ctrl, key: b'S' as u16, cmd: ID_OPSLAAN as u16 },
             ACCEL { fVirt: (FVIRTKEY | FCONTROL | FSHIFT) as u8, key: b'S' as u16, cmd: ID_BEELD as u16 },
         ];
         CreateAcceleratorTableW(a.as_ptr(), a.len() as i32)
     };
     let kwast = unsafe { CreateSolidBrush(kleuren.vak) };
-    STAAT.with(|s| *s.borrow_mut() = Some(Staat { hwnd, kop, status, vak, knoppen, letter, kopletter, kwast, toetsen,
+    STAAT.with(|s| *s.borrow_mut() = Some(Staat { hwnd, kop, status, vak, knoppen, letter, kopletter, vakletter, kwast, toetsen,
         doc: None, pad: None, zoekwoord: String::new(), bezig: false }));
     schik();
     unsafe {
@@ -852,6 +865,7 @@ fn opdracht(hwnd: HWND, id: i32) {
     let doc_open = lees().map(|s| s.doc.is_some()).unwrap_or(false);
     match id {
         ID_OPENEN => kies_bestand(),
+        ID_GROTER | ID_KLEINER | ID_GEWOON => lettergrootte(id),
         ID_SCAN => scannen(),
         ID_SLUITEN => unsafe {
             DestroyWindow(hwnd);
@@ -891,6 +905,28 @@ fn opdracht(hwnd: HWND, id: i32) {
         ID_MAIL => mailen(hwnd),
         _ => {}
     }
+}
+
+/// Ctrl+plus, Ctrl+min en Ctrl+0: de letters in het tekstvak groter, kleiner of weer gewoon (voor wie slechtziend is).
+fn lettergrootte(id: i32) {
+    let Some(s) = lees() else { return };
+    let nu = tekstgrootte();
+    let plek = GROOTTES.iter().position(|g| *g >= nu).unwrap_or(1);
+    let nieuw = match id {
+        ID_GROTER => GROOTTES[(plek + 1).min(GROOTTES.len() - 1)],
+        ID_KLEINER => GROOTTES[plek.saturating_sub(1)],
+        _ => 12,
+    };
+    instellingen::zet("tekstgrootte", &nieuw.to_string());
+    let letter = lettertype(nieuw, false, dpi(s.hwnd), "Segoe UI");
+    zet_lettertype(s.vak, letter);
+    unsafe {
+        InvalidateRect(s.vak, std::ptr::null(), 1);
+        SendMessageW(s.vak, EM_SCROLLCARET, 0, 0);
+    }
+    weg(s.vakletter as _);
+    met(|st| st.vakletter = letter);
+    zet_tekst(s.status, &tf("Lettergrootte", &[&nieuw.to_string()]));
 }
 
 /// Ctrl+R: een herinnering maken, met de datum en de tekst alvast ingevuld.
@@ -1111,6 +1147,7 @@ unsafe extern "system" fn venster_proc(hwnd: HWND, msg: u32, wp: WPARAM, lp: LPA
             if let Some(s) = lees() {
                 weg(s.letter as _);
                 weg(s.kopletter as _);
+                weg(s.vakletter as _);
                 weg(s.kwast as _);
                 DestroyAcceleratorTable(s.toetsen);
             }

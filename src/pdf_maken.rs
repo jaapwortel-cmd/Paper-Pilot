@@ -1,4 +1,4 @@
-// Paper Pilot - een PDF maken van gescande pagina's, met de herkende tekst onzichtbaar erin.
+﻿// Paper Pilot - een PDF maken van gescande pagina's, met de herkende tekst onzichtbaar erin.
 // Zo is de PDF ook later te doorzoeken en voor te lezen (net als bij een scanner die "doorzoekbare PDF" maakt).
 // Een kleine, eigen PDF-schrijver: elke pagina is een JPG-afbeelding met daarover onzichtbare tekst (Tr 3).
 
@@ -90,11 +90,24 @@ pub fn schrijf(pad: &Path, beelden: &[Beeld], regels: &[Vec<Regel>], zichtbaar: 
         objecten.push(stroom);
     }
     let mut alle: Vec<Vec<u8>> = vec![
-        b"<< /Type /Catalog /Pages 2 0 R >>".to_vec(),
+        // Taal en titel: zo is ook de PDF van Paper Pilot zelf goed voor een schermlezer.
+        format!("<< /Type /Catalog /Pages 2 0 R /Lang ({}) /ViewerPreferences << /DisplayDocTitle true >> >>",
+            if crate::teksten::taal() == "en" { "en-GB" } else { "nl-NL" }).into_bytes(),
         format!("<< /Type /Pages /Kids [{}] /Count {} >>", kinderen.join(" "), beelden.len()).into_bytes(),
         b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>".to_vec(),
     ];
     alle.extend(objecten);
+    // Documentinformatie met de titel (de bestandsnaam zonder .pdf), als UTF-16 met BOM.
+    // Liever de eerste regel van de brief (de schermlezer noemt de titel als eerste) dan de bestandsnaam.
+    let eerste = regels.first().and_then(|p| p.iter().map(|r| r.tekst.trim().to_string())
+        .find(|t| t.chars().filter(|c| c.is_alphabetic()).count() >= 3)).map(|t| t.chars().take(80).collect::<String>());
+    let titel = eerste.unwrap_or_else(|| pad.file_stem().map(|x| x.to_string_lossy().to_string()).unwrap_or_default());
+    let mut hex = String::from("FEFF");
+    for c in titel.encode_utf16() {
+        hex.push_str(&format!("{c:04X}"));
+    }
+    alle.push(format!("<< /Title <{hex}> /Creator (Paper Pilot) /Producer (Paper Pilot) >>").into_bytes());
+    let info = alle.len();
     let mut pdf = b"%PDF-1.4\n%\xE2\xE3\xCF\xD3\n".to_vec();
     let mut plaatsen = Vec::new();
     for (i, o) in alle.iter().enumerate() {
@@ -108,6 +121,6 @@ pub fn schrijf(pad: &Path, beelden: &[Beeld], regels: &[Vec<Regel>], zichtbaar: 
     for p in plaatsen {
         pdf.extend_from_slice(format!("{p:010} 00000 n \n").as_bytes());
     }
-    pdf.extend_from_slice(format!("trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n", alle.len() + 1).as_bytes());
+    pdf.extend_from_slice(format!("trailer\n<< /Size {} /Root 1 0 R /Info {info} 0 R >>\nstartxref\n{xref}\n%%EOF\n", alle.len() + 1).as_bytes());
     std::fs::write(pad, pdf).map_err(|e| e.to_string())
 }

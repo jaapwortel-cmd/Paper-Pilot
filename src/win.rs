@@ -1,4 +1,4 @@
-// Paper Pilot - kleine hulpjes voor Windows (tekst omzetten, lettertypen, schaal).
+﻿// Paper Pilot - kleine hulpjes voor Windows (tekst omzetten, lettertypen, schaal).
 
 use std::ffi::c_void;
 use windows_sys::Win32::Foundation::*;
@@ -167,4 +167,11 @@ pub fn kopieer_bestand(eigenaar: HWND, pad: &std::path::Path) -> bool {
         CloseClipboard();
         ok
     }
+}
+
+/// De lettergrootte voor tekst om te lezen (punten), te kiezen met Ctrl+plus en Ctrl+min.
+pub const GROOTTES: [i32; 10] = [10, 12, 14, 16, 18, 20, 24, 28, 32, 36];
+
+pub fn tekstgrootte() -> i32 {
+    crate::instellingen::get("tekstgrootte").and_then(|v| v.parse().ok()).unwrap_or(12).clamp(10, 36)
 }

@@ -46,6 +46,7 @@ Sneltoetsen in het leesvenster:
 - Ctrl+Q: QR-codes en streepjescodes die Paper Pilot vond.
 - Ctrl+R: een herinnering maken.
 - Ctrl+M: het document mailen als bijlage.
+- Ctrl+plus en Ctrl+min: de letters in het tekstvak groter of kleiner, Ctrl+0 weer gewoon. Paper Pilot onthoudt de grootte, ook voor de handleiding en andere teksten.
 - Escape: het leesvenster sluiten.
 Met Tab ga je naar de knoppen; dezelfde opdrachten staan daar ook.
 
@@ -119,6 +120,7 @@ Instellingen
 
 Help
 - Handleiding (F1): deze handleiding.
+- Sneltoetsen: alle sneltoetsen van Paper Pilot op een rij.
 - Rondleiding: een korte rondleiding langs de onderdelen.
 - Wijzigingen: wat er in elke versie veranderd is.
 - Privacyverklaring: wat Paper Pilot wel en niet doet met je gegevens.
