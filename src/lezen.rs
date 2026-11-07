@@ -539,6 +539,15 @@ pub fn lees_tekstbestand(pad: &Path) -> Result<String, String> {
     })
 }
 
+/// Een document van gewone tekst (bijvoorbeeld uit Mijn post).
+pub fn van_tekst(naam: &str, tekst: &str) -> Document {
+    let mut b = Bouwer::nieuw(naam);
+    for regel in tekst.lines() {
+        b.regel(regel.trim_end());
+    }
+    b.klaar()
+}
+
 fn txt(pad: &Path, naam: &str) -> Result<Document, String> {
     let tekst = lees_tekstbestand(pad)?;
     let mut b = Bouwer::nieuw(naam);

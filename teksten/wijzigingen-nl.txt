@@ -1,6 +1,11 @@
 ﻿Wijzigingen in Paper Pilot
 
 Versie 0.0.0.7 (november 2026)
+- Nieuw: herinneringen (Ctrl+R en menu Bestand). Paper Pilot waarschuwt vanaf drie dagen van tevoren, ook als het programma niet open is.
+- Nieuw: Mijn post (menu Bestand). Alle brieven die je las, met datum en afzender, om ze terug te vinden. Versleuteld op je eigen computer; uit te zetten.
+- Nieuw: voorlezen met een stem van Windows (F5), voor wie geen schermlezer gebruikt. Snelheid in het menu Instellingen.
+- Nieuw: Mijn handtekening (menu Instellingen). Eén keer scannen; daarna zet Paper Pilot hem op formulieren.
+- Nieuw: mailen als bijlage (Ctrl+M), ook na het opslaan van een ingevuld formulier.
 - Nieuw: Wat moet ik doen? (Ctrl+T). Een korte samenvatting van de brief (met het taalmodel op je eigen computer), en het bedrag, rekeningnummer, betalingskenmerk, uiterste datum en telefoonnummer om te kopiëren.
 - Nieuw: QR-codes en streepjescodes lezen op scans, foto's en PDF's. Betaal-QR-codes worden een betaalverzoek. Links openen en gegevens kopiëren met Ctrl+Q.
 - Nieuw: meer soorten bestanden openen: oud Word (.doc), RTF, OpenDocument (.odt, .ods, .odp), Excel (.xlsx), PowerPoint (.pptx), webpagina's (.html) en e-boeken (.epub). Met Ctrl+K ga je naar een hoofdstuk.

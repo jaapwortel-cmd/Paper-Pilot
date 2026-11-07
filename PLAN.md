@@ -1,4 +1,4 @@
-# Paper Pilot – het plan
+﻿# Paper Pilot – het plan
 
 *Brieven lezen en formulieren invullen, helemaal zelf.*
 
@@ -117,7 +117,7 @@ Elke stap eindigt met een nieuwe versie voor Jaap (0.0.0.1, 0.0.0.2 enz.). Pas a
 
 - Een versie voor Android (Google Play-account nodig) of iPhone (Apple-account nodig).
   Het hart van het programma (Rust) kan dan mee.
-- Brieven samenvatten of uitleggen in eenvoudige taal, met een taalmodel op de eigen computer.
+- (Gedaan in 0.0.0.7: Wat moet ik doen?, herinneringen, Mijn post, voorlezen met een stem, handtekening en mailen.)
 
 ## Meer programma's van Jaap (Jaaps tekst, 6 nov 2026)
 

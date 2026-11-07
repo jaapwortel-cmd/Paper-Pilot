@@ -1,4 +1,4 @@
-// Paper Pilot - Mijn gegevens: naam, adres, geboortedatum, BSN en dergelijke, om formulieren sneller in te vullen.
+﻿// Paper Pilot - Mijn gegevens: naam, adres, geboortedatum, BSN en dergelijke, om formulieren sneller in te vullen.
 //
 // Versleuteld bewaard met DPAPI van Windows (CryptProtectData) in %APPDATA%\Paper Pilot\mijn-gegevens.dat:
 // alleen de eigen Windows-gebruiker kan ze lezen. Ze gaan nooit naar internet.
@@ -12,29 +12,63 @@ pub const SOORTEN: [&str; 11] = [
     "voorletters", "voornaam", "achternaam", "straat", "postcode", "woonplaats", "geboortedatum", "telefoon", "email", "bsn", "iban",
 ];
 
-fn bestand() -> std::path::PathBuf {
-    crate::instellingen::map().join("mijn-gegevens.dat")
-}
-
 fn blob(data: &[u8]) -> CRYPT_INTEGER_BLOB {
     CRYPT_INTEGER_BLOB { cbData: data.len() as u32, pbData: data.as_ptr() as *mut u8 }
 }
 
-pub fn laad() -> BTreeMap<String, String> {
-    let mut uit = BTreeMap::new();
-    let Ok(versleuteld) = std::fs::read(bestand()) else { return uit };
+/// Versleutelt met DPAPI: alleen de eigen Windows-gebruiker kan het weer lezen.
+pub fn versleutel(data: &[u8]) -> Result<Vec<u8>, String> {
+    unsafe {
+        let mut uit: CRYPT_INTEGER_BLOB = std::mem::zeroed();
+        let naam = crate::win::w("Paper Pilot");
+        if CryptProtectData(&blob(data), naam.as_ptr(), std::ptr::null(), std::ptr::null(), std::ptr::null(), 0, &mut uit) == 0 {
+            return Err(crate::teksten::t("GegevensNietBewaard"));
+        }
+        let v = std::slice::from_raw_parts(uit.pbData, uit.cbData as usize).to_vec();
+        LocalFree(uit.pbData as _);
+        Ok(v)
+    }
+}
+
+pub fn ontsleutel(data: &[u8]) -> Option<Vec<u8>> {
     unsafe {
         let mut leeg: CRYPT_INTEGER_BLOB = std::mem::zeroed();
-        if CryptUnprotectData(&blob(&versleuteld), std::ptr::null_mut(), std::ptr::null(), std::ptr::null(), std::ptr::null(), 0, &mut leeg) == 0 {
-            crate::logboek::schrijf("Mijn gegevens konden niet worden gelezen.");
-            return uit;
+        if CryptUnprotectData(&blob(data), std::ptr::null_mut(), std::ptr::null(), std::ptr::null(), std::ptr::null(), 0, &mut leeg) == 0 {
+            return None;
         }
-        let tekst = String::from_utf8_lossy(std::slice::from_raw_parts(leeg.pbData, leeg.cbData as usize)).to_string();
+        let v = std::slice::from_raw_parts(leeg.pbData, leeg.cbData as usize).to_vec();
         LocalFree(leeg.pbData as _);
-        for regel in tekst.lines() {
-            if let Some((k, v)) = regel.split_once('=') {
-                uit.insert(k.to_string(), v.to_string());
-            }
+        Some(v)
+    }
+}
+
+/// Leest een versleuteld bestand in %APPDATA%\Paper Pilot (leeg als het er niet is of niet te lezen is).
+pub fn lees_versleuteld(naam: &str) -> Option<Vec<u8>> {
+    let data = std::fs::read(crate::instellingen::map().join(naam)).ok()?;
+    let uit = ontsleutel(&data);
+    if uit.is_none() {
+        crate::logboek::schrijf(&format!("{naam} kon niet worden gelezen."));
+    }
+    uit
+}
+
+/// Schrijft een versleuteld bestand in %APPDATA%\Paper Pilot (eerst naar .nieuw, dan vervangen).
+pub fn schrijf_versleuteld(naam: &str, data: &[u8]) -> Result<(), String> {
+    let v = versleutel(data)?;
+    let map = crate::instellingen::map();
+    let _ = std::fs::create_dir_all(&map);
+    let nieuw = map.join(format!("{naam}.nieuw"));
+    std::fs::write(&nieuw, v).map_err(|e| e.to_string())?;
+    std::fs::rename(&nieuw, map.join(naam)).map_err(|e| e.to_string())
+}
+
+pub fn laad() -> BTreeMap<String, String> {
+    let mut uit = BTreeMap::new();
+    let Some(data) = lees_versleuteld("mijn-gegevens.dat") else { return uit };
+    let tekst = String::from_utf8_lossy(&data).to_string();
+    for regel in tekst.lines() {
+        if let Some((k, v)) = regel.split_once('=') {
+            uit.insert(k.to_string(), v.to_string());
         }
     }
     uit
@@ -42,17 +76,7 @@ pub fn laad() -> BTreeMap<String, String> {
 
 pub fn bewaar(g: &BTreeMap<String, String>) -> Result<(), String> {
     let tekst: String = g.iter().filter(|(_, v)| !v.trim().is_empty()).map(|(k, v)| format!("{k}={}\n", v.replace('\n', " "))).collect();
-    unsafe {
-        let mut uit: CRYPT_INTEGER_BLOB = std::mem::zeroed();
-        let naam = crate::win::w("Paper Pilot");
-        if CryptProtectData(&blob(tekst.as_bytes()), naam.as_ptr(), std::ptr::null(), std::ptr::null(), std::ptr::null(), 0, &mut uit) == 0 {
-            return Err(crate::teksten::t("GegevensNietBewaard"));
-        }
-        let data = std::slice::from_raw_parts(uit.pbData, uit.cbData as usize).to_vec();
-        LocalFree(uit.pbData as _);
-        let _ = std::fs::create_dir_all(crate::instellingen::map());
-        std::fs::write(bestand(), data).map_err(|e| e.to_string())
-    }
+    schrijf_versleuteld("mijn-gegevens.dat", tekst.as_bytes())
 }
 
 /// Bij welke soort gegevens hoort deze vraag? (Op woorden in de vraag.)

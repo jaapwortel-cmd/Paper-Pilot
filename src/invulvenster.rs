@@ -1,4 +1,4 @@
-// Paper Pilot - een PDF-formulier invullen, vraag voor vraag.
+﻿// Paper Pilot - een PDF-formulier invullen, vraag voor vraag.
 //
 // Bovenaan "Vraag 3 van 12", daaronder de vraag (de naam van het invulvak voor de schermlezer) en het invulvak:
 // een gewoon tekstvak (ook om in te dicteren), een selectievakje, of een lijst met keuzes.
@@ -102,7 +102,13 @@ pub fn open(eigenaar: HWND, bron: &Path, naam: &str) {
     // Mijn gegevens alvast invullen in lege velden.
     let gegevens = crate::gegevens::laad();
     let mut voorgesteld = vec![false; velden.len()];
+    let heb_hand = crate::handtekening::heb();
     for (i, v) in velden.iter_mut().enumerate() {
+        if v.handtekening && heb_hand && v.waarde.is_empty() {
+            v.waarde = crate::handtekening::merkteken();
+            voorgesteld[i] = true;
+            continue;
+        }
         if v.soort == Soort::Tekst && v.waarde.is_empty() {
             if let Some(w) = crate::gegevens::soort_van(&v.vraag).and_then(|s| crate::gegevens::waarde(&gegevens, s)) {
                 v.waarde = w;
@@ -131,14 +137,18 @@ pub fn open_plat(eigenaar: HWND, bron: Bron, naam: &str) {
         let vraag = if p.vraag.is_empty() { tf("VeldNummer", &[&t("VeldZonderNaam"), &(i + 1).to_string()]) } else { p.vraag.clone() };
         let soort = if p.soort == crate::plat::Plaats::Vinkje { Soort::Vinkje } else { Soort::Tekst };
         let mut waarde = String::new();
-        if soort == Soort::Tekst {
+        let handtekening = soort == Soort::Tekst && crate::handtekening::is_vraag(&vraag);
+        if handtekening && crate::handtekening::heb() {
+            waarde = crate::handtekening::merkteken();
+            voorgesteld[i] = true;
+        } else if soort == Soort::Tekst {
             if let Some(w) = crate::gegevens::soort_van(&vraag).and_then(|s| crate::gegevens::waarde(&gegevens, s)) {
                 waarde = w;
                 voorgesteld[i] = true;
             }
         }
         velden.push(Veld { pagina: p.pagina as i32, annots: Vec::new(), soort, naam: String::new(), vraag, opties: Vec::new(),
-            meerregelig: false, verplicht: false, waarde, links: p.x, boven: p.onder });
+            meerregelig: false, verplicht: false, waarde, links: p.x, boven: p.onder, handtekening, vak: [0.0; 4] });
     }
     logboek::schrijf(&format!("Formulier zonder invulvelden: {} plekken gevonden.", velden.len()));
     maak(eigenaar, velden, voorgesteld, bron, naam);
@@ -295,7 +305,9 @@ fn toon_vraag(nr: usize) {
         }
     }
     zet_tekst(s.voortgang, &tf("VraagVan", &[&(nr + 1).to_string(), &s.velden.len().to_string()]));
-    let hint = if s.voorgesteld[nr] { t("HintMijnGegevens") } else if v.soort == Soort::Lijst || v.soort == Soort::Rondje {
+    let hint = if v.handtekening && crate::handtekening::is_merkteken(&v.waarde) { t("HintHandtekening") }
+        else if v.handtekening && !crate::handtekening::heb() { t("HintGeenHandtekening") }
+        else if s.voorgesteld[nr] { t("HintMijnGegevens") } else if v.soort == Soort::Lijst || v.soort == Soort::Rondje {
         t("HintKiezen") } else if v.soort == Soort::Vinkje { t("HintVinkje") } else { t("HintTypen") };
     zet_tekst(s.hint, &hint);
     met(|st| {
@@ -397,16 +409,47 @@ fn opslaan() {
         return;
     };
     let (bron, velden, d2) = (s.bron.clone(), s.velden.clone(), doel.clone());
-    let uitkomst = dialogen::werk(s.hwnd, &t("InvullenTitel"), &t("FormulierBewaren"), move |_| match bron {
-        Bron::Velden(pad) => crate::formulier_pdf::vul_in(&pad, &velden, &d2),
-        Bron::PlatPdf(pad, plekken) => {
-            let paren: Vec<_> = plekken.into_iter().zip(velden.into_iter().map(|v| v.waarde)).collect();
-            crate::plat::vul_pdf_in(&pad, &paren, &d2)
-        }
-        Bron::PlatScan(beelden, regels, plekken) => {
-            let paren: Vec<_> = plekken.into_iter().zip(velden.into_iter().map(|v| v.waarde)).collect();
-            let zichtbaar = crate::plat::zichtbaar(&paren, beelden.len());
-            crate::pdf_maken::schrijf(&d2, &beelden, &regels, &zichtbaar)
+    let uitkomst = dialogen::werk(s.hwnd, &t("InvullenTitel"), &t("FormulierBewaren"), move |_| {
+        // Waar de handtekening moet komen ("[mijn handtekening]" in het antwoord); dat antwoord zelf wordt geen tekst.
+        let hand = if velden.iter().any(|v| crate::handtekening::is_merkteken(&v.waarde)) { crate::handtekening::laad() } else { None };
+        let met_hand: Vec<bool> = velden.iter().map(|v| hand.is_some() && crate::handtekening::is_merkteken(&v.waarde)).collect();
+        let waarden: Vec<String> = velden.iter().map(|v| if crate::handtekening::is_merkteken(&v.waarde) { String::new() } else { v.waarde.clone() }).collect();
+        match bron {
+            Bron::Velden(pad) => {
+                let mut zonder = velden.clone();
+                for (v, w) in zonder.iter_mut().zip(&waarden) {
+                    v.waarde = w.clone();
+                }
+                crate::formulier_pdf::vul_in(&pad, &zonder, &d2)?;
+                let vakken: Vec<_> = velden.iter().zip(&met_hand).filter(|(_, m)| **m).map(|(v, _)| crate::handtekening::Vak {
+                    pagina: v.pagina, links: v.vak[0], onder: v.vak[1], breedte: v.vak[2] - v.vak[0], hoogte: v.vak[3] - v.vak[1],
+                    veld: v.annots.first().copied() }).collect();
+                match &hand { Some(h) => crate::handtekening::op_pdf(&d2, &vakken, h), None => Ok(()) }
+            }
+            Bron::PlatPdf(pad, plekken) => {
+                let paren: Vec<_> = plekken.iter().cloned().zip(waarden).collect();
+                crate::plat::vul_pdf_in(&pad, &paren, &d2)?;
+                let Some(h) = &hand else { return Ok(()) };
+                let hoogtes = crate::plat::paginahoogtes(&d2)?;
+                let schaal = crate::plat::PDF_SCHAAL;
+                let vakken: Vec<_> = plekken.iter().zip(&met_hand).filter(|(_, m)| **m).map(|(p, _)| crate::handtekening::Vak {
+                    pagina: p.pagina as i32, links: p.x / schaal,
+                    onder: hoogtes.get(p.pagina).copied().unwrap_or(842.0) - p.onder / schaal,
+                    breedte: p.breedte / schaal, hoogte: p.hoogte / schaal, veld: None }).collect();
+                crate::handtekening::op_pdf(&d2, &vakken, h)
+            }
+            Bron::PlatScan(mut beelden, regels, plekken) => {
+                if let Some(h) = &hand {
+                    for (p, _) in plekken.iter().zip(&met_hand).filter(|(_, m)| **m) {
+                        if let Some(b) = beelden.get_mut(p.pagina) {
+                            crate::handtekening::op_beeld(b, p.x, p.onder, p.breedte, p.hoogte, h);
+                        }
+                    }
+                }
+                let paren: Vec<_> = plekken.into_iter().zip(waarden).collect();
+                let zichtbaar = crate::plat::zichtbaar(&paren, beelden.len());
+                crate::pdf_maken::schrijf(&d2, &beelden, &regels, &zichtbaar)
+            }
         }
     });
     match uitkomst {
@@ -415,6 +458,9 @@ fn opslaan() {
             logboek::schrijf("Ingevuld formulier opgeslagen.");
             dialogen::melding(s.hwnd, &t("FormulierOpgeslagen"), &tf("FormulierOpgeslagenTekst", &[&doel.to_string_lossy()]), dialogen::ICOON_INFO);
             bied_gegevens_aan(&s.velden);
+            if dialogen::ja_nee(s.hwnd, &t("FormulierMailenVraag"), &t("FormulierMailenTekst"), false) {
+                crate::versturen::mail_met_uitleg(s.hwnd, &doel, &stam);
+            }
         }
         Some(Err(e)) => dialogen::melding(s.hwnd, &t("OpslaanMislukt"), &e, dialogen::ICOON_WAARSCHUWING),
         None => {}

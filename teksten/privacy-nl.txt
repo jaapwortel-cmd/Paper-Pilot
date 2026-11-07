@@ -14,7 +14,7 @@ Brieven, formulieren en scans die je met Paper Pilot opent, maakt of invult, bli
 
 2. Je persoonlijke gegevens
 
-Als je in Paper Pilot persoonlijke gegevens bewaart, zoals je naam, adres, geboortedatum, telefoonnummer, BSN of IBAN, dan staan die versleuteld op je eigen computer. Alleen jij kunt ze openen, met je eigen Windows-account. Ze gaan nooit naar internet.
+Als je in Paper Pilot persoonlijke gegevens bewaart, zoals je naam, adres, geboortedatum, telefoonnummer, BSN of IBAN, dan staan die versleuteld op je eigen computer. Alleen jij kunt ze openen, met je eigen Windows-account. Ze gaan nooit naar internet. Dat geldt ook voor Mijn post (de brieven die je hebt gelezen), je herinneringen en je handtekening. Mijn post kun je uitzetten en wissen.
 
 
 3. Wanneer Paper Pilot internet gebruikt
@@ -42,7 +42,7 @@ Paper Pilot houdt een logboek bij op je eigen computer (in de map %APPDATA%\Pape
 
 7. Verwijderen
 
-Als je Paper Pilot verwijdert, vraagt het programma of je eigen gegevens en instellingen ook weg moeten.
+Als je Paper Pilot verwijdert, vraagt het programma of je eigen gegevens en instellingen ook weg moeten. De geplande taak voor herinneringen gaat altijd weg.
 
 
 8. Vragen

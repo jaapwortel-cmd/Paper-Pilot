@@ -518,3 +518,26 @@ pub fn zichtbaar(plekken: &[(Plek, String)], aantal: usize) -> Vec<Vec<(String, 
     }
     uit
 }
+
+/// De hoogte van elke pagina in PDF-punten (om van "van boven" naar "van onder" te rekenen).
+pub fn paginahoogtes(pad: &Path) -> Result<Vec<f32>, String> {
+    let p = crate::formulier_pdf::pdfium()?;
+    let _slot = crate::formulier_pdf::SLOT.lock().unwrap();
+    let data = std::fs::read(pad).map_err(|e| e.to_string())?;
+    unsafe {
+        let doc = (p.FPDF_LoadMemDocument)(data.as_ptr() as *const _, data.len() as i32, std::ptr::null());
+        if doc.is_null() {
+            return Err(crate::teksten::t("LezenKapot"));
+        }
+        let mut uit = Vec::new();
+        for nr in 0..(p.FPDF_GetPageCount)(doc) {
+            let page = (p.FPDF_LoadPage)(doc, nr);
+            uit.push(if page.is_null() { 842.0 } else { (p.FPDF_GetPageHeightF)(page) });
+            if !page.is_null() {
+                (p.FPDF_ClosePage)(page);
+            }
+        }
+        (p.FPDF_CloseDocument)(doc);
+        Ok(uit)
+    }
+}

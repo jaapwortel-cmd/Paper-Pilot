@@ -46,6 +46,9 @@ Sneltoetsen in het leesvenster:
 - Ctrl+D: beschrijven wat er op de scan of foto staat.
 - Ctrl+T: Wat moet ik doen? Een korte samenvatting, en de gegevens om te betalen.
 - Ctrl+Q: QR-codes en streepjescodes die Paper Pilot vond.
+- F5: voorlezen vanaf de cursor met een stem van Windows, of stoppen. Ook Escape stopt het voorlezen.
+- Ctrl+R: een herinnering maken.
+- Ctrl+M: het document mailen als bijlage.
 - Escape: het leesvenster sluiten.
 Met Tab ga je naar de knoppen; dezelfde opdrachten staan daar ook.
 
@@ -58,6 +61,14 @@ Formulieren zonder invulvelden: veel formulieren hebben alleen lijntjes en hokje
 Scans en foto's: Paper Pilot herkent de gedrukte tekst, met de tekstherkenning van Windows en zonder internet. Ligt de scan op zijn kop, op zijn kant of scheef, dan zegt Paper Pilot dat en zet hem zelf recht. Met Ctrl+Shift+S sla je de rechtgezette scan op als afbeelding (PNG, JPG, TIFF met alle pagina's, BMP of GIF). Handschrift en foto's: kies Handschrift lezen (Ctrl+H) om handgeschreven tekst te laten lezen, zoals een boodschappenlijstje of ansichtkaart. Kies Beschrijven (Ctrl+D) om te horen wat er op een foto, tekening of scan staat. Dit doet een taalmodel op je eigen computer, zonder internet. De eerste keer vraagt Paper Pilot of je het model wilt downloaden (eenmalig, ongeveer 3,5 GB). Het antwoord komt in een apart venster; lees het met de pijltjestoetsen, Escape sluit het. Netjes handschrift gaat meestal goed, slordig handschrift niet altijd. Met een videokaart gaat het snel, alleen met de processor kan het een paar minuten duren. Een woord dat het model niet kan lezen, staat er als [onleesbaar].
 
 Wat moet ik doen? (Ctrl+T): Paper Pilot zegt in gewone woorden van wie de brief is, waar hij over gaat, wat je moet doen en vóór wanneer. Die samenvatting maakt het taalmodel op je eigen computer (zonder internet). Paper Pilot zoekt ook zelf het bedrag, het rekeningnummer (IBAN, met controle), het betalingskenmerk, uiterste datums en telefoonnummers. Daarna komt een lijstje: kies De samenvatting lezen, of kopieer een gegeven en plak het met Ctrl+V in je bank-app of op een website. Na het kopiëren kom je terug in het lijstje; Escape sluit het. Zonder taalmodel krijg je alleen de gegevens. Let op: Paper Pilot kan zich vergissen; controleer bedragen en rekeningnummers altijd met de brief zelf.
+
+Voorlezen (F5): voor wie geen schermlezer gebruikt. Paper Pilot leest voor met een stem van Windows, vanaf de cursor. Druk nog eens op F5 of op Escape om te stoppen. Zonder schermlezer loopt de cursor mee, zodat je ziet welke zin wordt gelezen. De snelheid kies je in het menu Instellingen, Voorleessnelheid. Er is een Nederlandse stem nodig; die zit meestal in Windows (Instellingen, Tijd en taal, Spraak).
+
+Herinneringen (Ctrl+R): Paper Pilot vult de datum en het bedrag alvast in als het die in de brief vindt. Ook bij Wat moet ik doen? staat Herinnering maken in het lijstje. Vanaf drie dagen voor de datum waarschuwt Paper Pilot elke dag één keer, tot je kiest Gedaan. Dat werkt ook als Paper Pilot niet open is: een geplande taak van Windows kijkt elke dag om 10 uur. Stond je computer uit, dan komt de herinnering zodra hij weer aan is.
+
+Mailen (Ctrl+M): Paper Pilot maakt een nieuwe mail in je eigen mailprogramma, met het document als bijlage. Een scan wordt eerst een PDF met de tekst erin. Je kiest zelf aan wie de mail gaat. Werkt je mailprogramma niet samen met Paper Pilot (zoals de nieuwe Outlook of Mail van Windows), dan zet Paper Pilot het bestand op het klembord en opent een nieuwe mail: plak het bestand met Ctrl+V. Na het opslaan van een ingevuld formulier vraagt Paper Pilot ook of je het wilt mailen.
+
+Handtekening op een formulier: heb je je handtekening klaargezet (Instellingen, Mijn handtekening), dan staat bij de vraag naar je handtekening alvast [mijn handtekening]. Bij het opslaan komt daar je handtekening als plaatje. Wis de tekst als je dat niet wilt. De datum bij een vraag naar de datum vult Paper Pilot alvast in met vandaag.
 
 QR-codes en streepjescodes: Paper Pilot zoekt ze vanzelf op scans, foto's en PDF-pagina's, en zegt wat erin staat. Een betaal-QR-code (scan en betaal) wordt een betaalverzoek met naam, bedrag, rekeningnummer en omschrijving. Kies QR-codes (Ctrl+Q) om een link te openen in je browser of iets te kopiëren. Een link opent nooit vanzelf: Paper Pilot vraagt het eerst.
 
@@ -81,12 +92,17 @@ Je kunt ook in de Verkenner op een PDF, Word-bestand of foto gaan staan en kieze
 Druk op Alt om naar de menubalk te gaan.
 
 Bestand
+- Mijn post: de brieven en documenten die je hebt gelezen of gescand, de nieuwste bovenaan, met de datum en de afzender. Kies er een om hem weer te openen, ook een scan die je niet hebt opgeslagen. Je kunt er ook een uithalen, of Mijn post helemaal wissen.
+- Herinneringen: al je herinneringen. Maak een nieuwe, of kies er een om hem weg te halen.
 - Afsluiten (Alt+F4): Paper Pilot sluiten.
 
 Instellingen
 - Taal / Language: Nederlands of English. Paper Pilot wisselt meteen van taal.
 - Weergave: Automatisch (zoals Windows), Licht of Donker. Staat hoog contrast van Windows aan, dan gebruikt Paper Pilot altijd de kleuren van Windows.
 - Mijn gegevens: je naam, adres, geboortedatum, telefoonnummer, e-mailadres, BSN en IBAN. Paper Pilot vult ze alvast in bij formulieren. Ze staan versleuteld op je eigen computer; alleen jij kunt ze lezen.
+- Mijn handtekening: zet je handtekening met een donkere pen op wit papier en scan het, of kies een foto. Paper Pilot haalt de handtekening eruit en bewaart hem versleuteld. Bij een formulier zet Paper Pilot hem bij de vraag naar je handtekening.
+- Voorleessnelheid: langzaam, gewoon of snel, voor Voorlezen (F5).
+- Mijn post bijhouden: staat dit aan, dan onthoudt Paper Pilot de brieven die je leest (versleuteld, op je eigen computer).
 - Taalmodel voor handschrift en foto's: het taalmodel downloaden, of verwijderen als het er al is.
 - Bij het starten naar updates zoeken: staat dit aan, dan kijkt Paper Pilot één keer per dag of er een nieuwe versie is.
 

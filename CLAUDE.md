@@ -99,3 +99,13 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   bedragen (belangrijkste vooraan), betalingskenmerk, uiterste datums, telefoon; samenvatting via `beeldmodel::vraag_over_tekst`
   (tekst-only, max 12000 tekens). `win::kopieer` (klembord). Testbestanden tests/voorbeeld-brief.{rtf,doc,odt,html},
   voorbeeld-tabel.*, voorbeeld-dia.*, qr-*, streepjescode.png, voorbeeld-aanslag.txt (gemaakt met LibreOffice, segno, PIL).
+  Ook in 0.0.0.7 (Jaap: herinneringen en de andere ideeën, zelfde versie): `herinneringen.rs` (DPAPI-JSON herinneringen.dat;
+  datums lezen/rekenen zonder crate; vanaf 3 dagen vooraf 1x per dag melden; geplande taak "Paper Pilot herinneringen" via
+  schtasks /XML (UTF-16, dagelijks 10:00, StartWhenAvailable) die `--herinneringen` start; weg bij lege lijst en bij verwijderen
+  ([UninstallRun])), `post.rs` (Mijn post, DPAPI mijn-post.dat, max 300, onthoud in leesvenster::geladen; menu Bestand),
+  `stem.rs` (SAPI ISpVoice, eerst OneCore-stem in de taal, F5, cursor loopt mee zonder schermlezer via ulInputSentPos),
+  `handtekening.rs` (inkt eruit + doorzichtig, DPAPI; op PDF via FPDFPageObj_NewImageObj + veld verbergen met annot-vlag 2,
+  op scans via op_beeld; "[mijn handtekening]" als waarde in het invulvenster), `versturen.rs` (MAPISendMailW uit mapi32.dll,
+  anders CF_HDROP op het klembord + mailto). gegevens::lees/schrijf_versleuteld. Proeven --proef-herinneringen,
+  --proef-handtekening (tests/handtekening.png, tests/formulier-handtekening.pdf), --proef-stem. Wine: schtasks /Delete werkt
+  daar niet, SAPI heeft geen stem.

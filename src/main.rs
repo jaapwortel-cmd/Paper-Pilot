@@ -1,4 +1,4 @@
-// =====================================================================
+﻿// =====================================================================
 //  Paper Pilot - brieven lezen en formulieren invullen, helemaal zelf.
 //  Gemaakt door Jaap Wortel. Gratis en open source (GPL-3.0).
 //
@@ -17,8 +17,10 @@ mod dialogen;
 mod envelop;
 mod formaten;
 mod formulier_pdf;
+mod handtekening;
 mod gegevens;
 mod herkennen;
+mod herinneringen;
 mod hoofdvenster;
 mod invulvenster;
 mod http;
@@ -29,11 +31,14 @@ mod lezen;
 mod logboek;
 mod pdf_maken;
 mod plat;
+mod post;
 mod proef;
 mod taken;
 mod qr;
 mod scanner;
+mod stem;
 mod tekstvenster;
+mod versturen;
 mod teksten;
 mod thema;
 mod win;
@@ -59,6 +64,11 @@ fn main() {
     let waarde = |naam: &str| args.iter().position(|a| a == naam).and_then(|i| args.get(i + 1)).cloned();
     instellingen::laad();
 
+    if args.iter().any(|a| a == "--herinneringen") {
+        // Vanuit de geplande taak van Windows: alleen een venster als er vandaag iets te melden is.
+        crate::teksten::zet_taal(&instellingen::get("taal").unwrap_or_else(|| "nl".into()));
+        std::process::exit(herinneringen::vanuit_taak());
+    }
     if let Some(verslag) = waarde("--proefstart") {
         std::process::exit(proef::proefstart(&verslag));
     }
@@ -83,6 +93,20 @@ fn main() {
         let i = args.iter().position(|a| a == "--proef-plat").unwrap_or(0);
         let verslag = args.get(i + 2).cloned().unwrap_or_else(|| "plat.txt".into());
         std::process::exit(proef::proef_plat(&bestand, &verslag));
+    }
+    if let Some(verslag) = waarde("--proef-stem") {
+        std::process::exit(proef::proef_stem(&verslag));
+    }
+    if let Some(verslag) = waarde("--proef-herinneringen") {
+        std::process::exit(proef::proef_herinneringen(&verslag));
+    }
+    if let Some(scan) = waarde("--proef-handtekening") {
+        // --proef-handtekening <scan> <pdf> <doel> <verslag>
+        let i = args.iter().position(|a| a == "--proef-handtekening").unwrap_or(0);
+        let pdf = args.get(i + 2).cloned().unwrap_or_default();
+        let doel = args.get(i + 3).cloned().unwrap_or_else(|| "getekend.pdf".into());
+        let verslag = args.get(i + 4).cloned().unwrap_or_else(|| "handtekening.txt".into());
+        std::process::exit(proef::proef_handtekening(&scan, &pdf, &doel, &verslag));
     }
     if let Some(verslag) = waarde("--proef-scanners") {
         std::process::exit(proef::proef_scanners(&verslag));

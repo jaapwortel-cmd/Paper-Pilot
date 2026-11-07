@@ -413,3 +413,140 @@ pub fn schermafbeelding(hwnd: HWND, pad: &str) -> Result<(), String> {
         std::fs::write(pad, bestand).map_err(|e| e.to_string())
     }
 }
+
+/// Welke stemmen zijn er voor het voorlezen, en lukt het? (Ter informatie: de bouwcomputer heeft geen geluid.)
+pub fn proef_stem(verslag: &str) -> i32 {
+    let uit = crate::stem::proef();
+    let _ = std::fs::write(verslag, format!("\u{feff}{uit}"));
+    0
+}
+
+/// Herinneringen en Mijn post: datums lezen, bewaren (versleuteld), melden, de geplande taak, en weer weghalen.
+pub fn proef_herinneringen(verslag: &str) -> i32 {
+    use crate::herinneringen as h;
+    let mut uit = String::new();
+    let mut fout = false;
+    let mut controle = |naam: &str, ok: bool, uit: &mut String| {
+        uit.push_str(&format!("{}: {naam}\r\n", if ok { "GOED" } else { "FOUT" }));
+        if !ok {
+            fout = true;
+        }
+    };
+    controle("1 december 2026", h::lees_datum("1 december 2026") == Some((2026, 12, 1)), &mut uit);
+    controle("15-12-2026", h::lees_datum("15-12-2026") == Some((2026, 12, 15)), &mut uit);
+    controle("1/2/27", h::lees_datum("1/2/27") == Some((2027, 2, 1)), &mut uit);
+    controle("31 februari bestaat niet", h::lees_datum("31 februari 2027").is_none(), &mut uit);
+    controle("3 dagen verschil", h::dagnummer((2026, 12, 1)) - h::dagnummer((2026, 11, 28)) == 3, &mut uit);
+    let oud = h::laad();
+    let vandaag = h::vandaag();
+    let over2 = h::van_dagnummer(h::dagnummer(vandaag) + 2);
+    controle("dagnummer heen en terug", h::van_dagnummer(h::dagnummer((2028, 2, 29))) == (2028, 2, 29), &mut uit);
+    controle("over 2 dagen uitgerekend", h::dagnummer(over2) - h::dagnummer(vandaag) == 2, &mut uit);
+    let _ = h::voeg_toe(over2, "Proef: betalen", "proef.pdf");
+    let _ = h::voeg_toe(h::van_dagnummer(h::dagnummer(vandaag) + 365), "Proef: later", "proef.pdf");
+    let te = h::te_melden();
+    controle("herinnering over 2 dagen wordt gemeld", te.iter().any(|x| x.wat == "Proef: betalen"), &mut uit);
+    controle("herinnering over een jaar nog niet", !te.iter().any(|x| x.wat == "Proef: later"), &mut uit);
+    uit.push_str(&format!("Zin: {}\r\n", te.first().map(h::zin).unwrap_or_default()));
+    let taak = std::process::Command::new("schtasks.exe").args(["/Query", "/TN", "Paper Pilot herinneringen"]).output()
+        .map(|o| o.status.success()).unwrap_or(false);
+    controle("geplande taak gemaakt", taak, &mut uit);
+    for x in h::laad() {
+        if x.wat.starts_with("Proef:") {
+            let _ = h::verwijder(x.id);
+        }
+    }
+    controle("weer weggehaald", h::laad().len() == oud.len(), &mut uit);
+    if oud.is_empty() {
+        let taak = std::process::Command::new("schtasks.exe").args(["/Query", "/TN", "Paper Pilot herinneringen"]).output()
+            .map(|o| o.status.success()).unwrap_or(true);
+        controle("geplande taak weg als er niets meer is", !taak, &mut uit);
+    }
+    // Mijn post
+    let doc = crate::lezen::van_tekst("proefbrief.txt", "Gemeente Voorbeeld\r\nBeste inwoner, dit is een proef.");
+    crate::post::onthoud(&doc, "");
+    let post = crate::post::laad();
+    controle("Mijn post onthoudt de brief", post.first().map(|s| s.naam == "proefbrief.txt" && s.afzender == "Gemeente Voorbeeld").unwrap_or(false), &mut uit);
+    uit.push_str(&format!("Regel: {}\r\n", post.first().map(crate::post::regel).unwrap_or_default()));
+    let _ = crate::post::verwijder(0);
+    let _ = std::fs::write(verslag, format!("\u{feff}{uit}"));
+    if fout { 1 } else { 0 }
+}
+
+/// Handtekening: uit een scan halen, versleuteld bewaren en teruglezen, op een PDF zetten en kijken of hij er staat.
+pub fn proef_handtekening(scan: &str, pdf: &str, doel: &str, verslag: &str) -> i32 {
+    crate::beeld::com_start();
+    let mut uit = String::new();
+    let fout = |uit: &mut String, e: String| {
+        uit.push_str(&format!("FOUT: {e}\r\n"));
+    };
+    let beeld = match crate::beeld::lees(std::path::Path::new(scan)) {
+        Ok(mut v) if !v.is_empty() => v.remove(0),
+        _ => {
+            let _ = std::fs::write(verslag, "FOUT: scan niet te lezen");
+            return 1;
+        }
+    };
+    let Some(hand) = crate::handtekening::uit_beeld(&beeld) else {
+        let _ = std::fs::write(verslag, "FOUT: geen handtekening gevonden");
+        return 1;
+    };
+    uit.push_str(&format!("Handtekening: {} x {} punten (scan {} x {})\r\n", hand.breed, hand.hoog, beeld.breed, beeld.hoog));
+    let doorzichtig = hand.punten.chunks_exact(4).filter(|p| p[3] == 0).count() as f32 / (hand.breed * hand.hoog) as f32;
+    uit.push_str(&format!("Doorzichtig: {:.0}%\r\n", doorzichtig * 100.0));
+    let mut ok = doorzichtig > 0.4 && hand.breed < beeld.breed / 2;
+    if let Err(e) = crate::handtekening::bewaar(&hand) {
+        fout(&mut uit, e);
+        ok = false;
+    }
+    let terug = crate::handtekening::laad();
+    if terug.as_ref().map(|t| t.breed != hand.breed).unwrap_or(true) {
+        fout(&mut uit, "teruglezen".into());
+        ok = false;
+    }
+    crate::handtekening::wis();
+    let _ = std::fs::copy(pdf, doel);
+    // Het handtekeningveld van het formulier (anders een vast vak).
+    let velden = crate::formulier_pdf::lees_velden(std::path::Path::new(pdf)).unwrap_or_default();
+    let vak = match velden.iter().find(|v| v.handtekening) {
+        Some(v) => {
+            uit.push_str(&format!("Handtekeningveld gevonden: {}\r\n", v.vraag));
+            crate::handtekening::Vak { pagina: v.pagina, links: v.vak[0], onder: v.vak[1], breedte: v.vak[2] - v.vak[0], hoogte: v.vak[3] - v.vak[1], veld: v.annots.first().copied() }
+        }
+        None => {
+            uit.push_str("Geen handtekeningveld; vast vak.\r\n");
+            crate::handtekening::Vak { pagina: 0, links: 100.0, onder: 100.0, breedte: 200.0, hoogte: 50.0, veld: None }
+        }
+    };
+    if let Err(e) = crate::handtekening::op_pdf(std::path::Path::new(doel), &[vak], &hand) {
+        fout(&mut uit, e);
+        ok = false;
+    }
+    // Teruglezen: staat er inkt in het vak?
+    if let Ok(pdfium) = crate::lezen::pdfium() {
+        use pdfium_render::prelude::*;
+        if let Ok(d) = pdfium.load_pdf_from_file(doel, None) {
+            if let Ok(pagina) = d.pages().get(0) {
+                let hp = pagina.height().value;
+                let schaal = 2.0;
+                if let Ok(bm) = pagina.render_with_config(&PdfRenderConfig::new().set_target_width((pagina.width().value * schaal) as i32).render_form_data(true).render_annotations(true)) {
+                    let (b, data) = (bm.width() as usize, bm.as_raw_bytes());
+                    let mut donker = 0;
+                    for y in ((hp - vak.onder - vak.hoogte.max(32.0)) * schaal).max(0.0) as usize..((hp - vak.onder) * schaal) as usize {
+                        for x in (vak.links * schaal) as usize..((vak.links + vak.breedte) * schaal) as usize {
+                            let i = (y * b + x) * 4;
+                            if i + 2 < data.len() && (data[i] as u32 + data[i + 1] as u32 + data[i + 2] as u32) < 300 {
+                                donker += 1;
+                            }
+                        }
+                    }
+                    uit.push_str(&format!("Inkt in het vak: {donker} punten\r\n"));
+                    ok &= donker > 200;
+                }
+            }
+        }
+    }
+    uit.push_str(if ok { "GESLAAGD\r\n" } else { "MISLUKT\r\n" });
+    let _ = std::fs::write(verslag, format!("\u{feff}{uit}"));
+    if ok { 0 } else { 1 }
+}

@@ -132,3 +132,39 @@ pub fn kopieer(eigenaar: HWND, tekst: &str) -> bool {
         ok
     }
 }
+
+/// Zet een bestand op het klembord, zoals Kopiëren in de Verkenner (plakken in een mail = bijlage).
+pub fn kopieer_bestand(eigenaar: HWND, pad: &std::path::Path) -> bool {
+    use windows_sys::Win32::System::DataExchange::*;
+    use windows_sys::Win32::System::Memory::*;
+    use windows_sys::Win32::UI::Shell::DROPFILES;
+    const CF_HDROP: u32 = 15;
+    let mut namen: Vec<u16> = pad.as_os_str().to_string_lossy().encode_utf16().collect();
+    namen.push(0);
+    namen.push(0);
+    let kop = std::mem::size_of::<DROPFILES>();
+    unsafe {
+        if OpenClipboard(eigenaar) == 0 {
+            return false;
+        }
+        EmptyClipboard();
+        let geheugen = GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, kop + namen.len() * 2);
+        let mut ok = false;
+        if !geheugen.is_null() {
+            let p = GlobalLock(geheugen) as *mut u8;
+            if !p.is_null() {
+                let df = p as *mut DROPFILES;
+                (*df).pFiles = kop as u32;
+                (*df).fWide = 1;
+                std::ptr::copy_nonoverlapping(namen.as_ptr() as *const u8, p.add(kop), namen.len() * 2);
+                GlobalUnlock(geheugen);
+                ok = !SetClipboardData(CF_HDROP, geheugen as HANDLE).is_null();
+            }
+            if !ok {
+                GlobalFree(geheugen);
+            }
+        }
+        CloseClipboard();
+        ok
+    }
+}

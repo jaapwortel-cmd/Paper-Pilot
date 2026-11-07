@@ -1,4 +1,4 @@
-// Paper Pilot - het hoofdvenster.
+﻿// Paper Pilot - het hoofdvenster.
 //
 // Bovenaan een gekleurde kop met de naam, daaronder twee grote tegels: "Lezen en invullen" en "Controleren".
 // De tegels zijn echte Windows-knoppen (zelf getekend), dus schermlezers zien gewone knoppen met een naam.
@@ -30,6 +30,13 @@ const ID_THEMA_DONKER: i32 = 212;
 const ID_UPDATES_START: i32 = 220;
 const ID_TAALMODEL: i32 = 221;
 const ID_GEGEVENS: i32 = 222;
+const ID_HANDTEKENING: i32 = 223;
+const ID_POST_AAN: i32 = 224;
+const ID_STEM_LANGZAAM: i32 = 230;
+const ID_STEM_GEWOON: i32 = 231;
+const ID_STEM_SNEL: i32 = 232;
+const ID_POST: i32 = 101;
+const ID_HERINNERINGEN: i32 = 102;
 const ID_HANDLEIDING: i32 = 300;
 const ID_RONDLEIDING: i32 = 301;
 const ID_WIJZIGINGEN: i32 = 302;
@@ -235,6 +242,9 @@ fn maak_menu() -> HMENU {
         };
 
         let bestand = CreatePopupMenu();
+        voeg(bestand, ID_POST, "MenuPost");
+        voeg(bestand, ID_HERINNERINGEN, "MenuHerinneringen");
+        streep(bestand);
         voeg(bestand, ID_AFSLUITEN, "MenuAfsluiten");
         sub(balk, bestand, "MenuBestand");
 
@@ -250,6 +260,13 @@ fn maak_menu() -> HMENU {
         sub(inst, weergave, "MenuWeergave");
         streep(inst);
         voeg(inst, ID_GEGEVENS, "MenuGegevens");
+        voeg(inst, ID_HANDTEKENING, "MenuHandtekening");
+        let stem = CreatePopupMenu();
+        voeg(stem, ID_STEM_LANGZAAM, "MenuStemLangzaam");
+        voeg(stem, ID_STEM_GEWOON, "MenuStemGewoon");
+        voeg(stem, ID_STEM_SNEL, "MenuStemSnel");
+        sub(inst, stem, "MenuStem");
+        voeg(inst, ID_POST_AAN, "MenuPostAan");
         voeg(inst, ID_TAALMODEL, "MenuTaalmodel");
         voeg(inst, ID_UPDATES_START, "MenuUpdatesBijStart");
         sub(balk, inst, "MenuInstellingen");
@@ -284,6 +301,10 @@ fn vink_menu() {
         CheckMenuRadioItem(menu, ID_THEMA_AUTO as u32, ID_THEMA_DONKER as u32, thema as u32, MF_BYCOMMAND);
         let aan = instellingen::aan("updates_bij_start", true);
         CheckMenuItem(menu, ID_UPDATES_START as u32, MF_BYCOMMAND | if aan { MF_CHECKED } else { MF_UNCHECKED });
+        let post = crate::post::aan();
+        CheckMenuItem(menu, ID_POST_AAN as u32, MF_BYCOMMAND | if post { MF_CHECKED } else { MF_UNCHECKED });
+        let stem = match crate::stem::snelheid() { n if n < 0 => ID_STEM_LANGZAAM, n if n > 0 => ID_STEM_SNEL, _ => ID_STEM_GEWOON };
+        CheckMenuRadioItem(menu, ID_STEM_LANGZAAM as u32, ID_STEM_SNEL as u32, stem as u32, MF_BYCOMMAND);
     } }
 }
 
@@ -540,12 +561,52 @@ fn na_start(hwnd: HWND) {
             tekstvenster::toon(hwnd, &tf("WatIsNieuw", &[crate::VERSIE]), &nieuw);
         }
     }
+    // Herinneringen van vandaag (ook als de geplande taak van Windows ze nog niet liet zien).
+    crate::herinneringen::meld(hwnd);
     if instellingen::aan("updates_bij_start", true) {
         let vandaag = logboek::nu()[..10].to_string();
         if instellingen::get("laatste_updatecontrole").as_deref() != Some(&vandaag) {
             instellingen::zet("laatste_updatecontrole", &vandaag);
             zoek_updates(false);
         }
+    }
+}
+
+/// Menu Bestand, Mijn post: de gelezen brieven, de nieuwste bovenaan.
+fn mijn_post(hwnd: HWND) {
+    let lijst = crate::post::laad();
+    if lijst.is_empty() {
+        let tekst = if crate::post::aan() { t("PostLeegTekst") } else { t("PostUitTekst") };
+        dialogen::melding(hwnd, &t("PostTitel"), &tekst, dialogen::ICOON_INFO);
+        return;
+    }
+    let mut namen: Vec<String> = lijst.iter().map(crate::post::regel).collect();
+    namen.push(t("PostWissen"));
+    let Some(i) = crate::keuzevensters::kies_uit_lijst(hwnd, &t("PostTitel"), &tf("PostLabel", &[&lijst.len().to_string()]), &namen, 0) else { return };
+    if i == lijst.len() {
+        if dialogen::ja_nee(hwnd, &t("PostTitel"), &t("PostWissenVraag"), false) {
+            crate::post::wis();
+            dialogen::melding(hwnd, &t("PostTitel"), &t("PostGewist"), dialogen::ICOON_INFO);
+        }
+        return;
+    }
+    let stuk = &lijst[i];
+    let keuzes = vec![t("PostOpenen"), t("PostWeg")];
+    match crate::keuzevensters::kies_uit_lijst(hwnd, &t("PostTitel"), &crate::post::regel(stuk), &keuzes, 0) {
+        Some(0) => {
+            let pad = std::path::PathBuf::from(&stuk.pad);
+            if !stuk.pad.is_empty() && pad.is_file() {
+                crate::leesvenster::open_bestand(hwnd, &pad);
+            } else {
+                crate::leesvenster::open_tekst(hwnd, &stuk.naam, &stuk.tekst);
+            }
+        }
+        Some(1) => {
+            if let Err(e) = crate::post::verwijder(i) {
+                dialogen::melding(hwnd, &t("OpslaanMislukt"), &e, dialogen::ICOON_WAARSCHUWING);
+            }
+        }
+        _ => {}
     }
 }
 
@@ -592,6 +653,22 @@ fn opdracht(hwnd: HWND, id: i32) {
             vink_menu();
         }
         ID_GEGEVENS => mijn_gegevens(hwnd),
+        ID_HANDTEKENING => crate::handtekening::instellen(hwnd),
+        ID_POST => mijn_post(hwnd),
+        ID_HERINNERINGEN => crate::herinneringen::lijst_venster(hwnd),
+        ID_POST_AAN => {
+            let aan = !crate::post::aan();
+            instellingen::zet_aan("mijn_post", aan);
+            if !aan && dialogen::ja_nee(hwnd, &t("PostUitKop"), &t("PostUitVraag"), false) {
+                crate::post::wis();
+            }
+            vink_menu();
+        }
+        ID_STEM_LANGZAAM | ID_STEM_GEWOON | ID_STEM_SNEL => {
+            let n = match id { ID_STEM_LANGZAAM => -3, ID_STEM_SNEL => 3, _ => 0 };
+            instellingen::zet("voorlees_snelheid", &n.to_string());
+            vink_menu();
+        }
         ID_TAALMODEL => {
             if crate::beeldmodel::geinstalleerd() {
                 let gb = format!("{:.1}", crate::beeldmodel::grootte_gb());

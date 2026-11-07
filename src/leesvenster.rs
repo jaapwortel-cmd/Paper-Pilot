@@ -37,13 +37,20 @@ const ID_AFDRUK: i32 = 112;
 const ID_INVULLEN: i32 = 113;
 const ID_QR: i32 = 114;
 const ID_TAAK: i32 = 115;
+const ID_VOORLEZEN: i32 = 116;
+const ID_HERINNERING: i32 = 117;
+const ID_MAIL: i32 = 118;
+const TIMER_VOORLEZEN: usize = 1;
 const ID_SLUITEN: i32 = IDCANCEL;
 const WM_GELADEN: u32 = WM_APP + 10;
 const WM_VOORTGANG: u32 = WM_APP + 11;
 
-const KNOPPEN: [(i32, &str); 14] = [
+const KNOPPEN: [(i32, &str); 17] = [
     (ID_OPENEN, "KnopOpenen"),
     (ID_TAAK, "KnopTaak"),
+    (ID_VOORLEZEN, "KnopVoorlezen"),
+    (ID_HERINNERING, "KnopHerinnering"),
+    (ID_MAIL, "KnopMailen"),
     (ID_INVULLEN, "KnopInvullen"),
     (ID_SCAN, "KnopScannen"),
     (ID_AFDRUK, "KnopAfdrukken"),
@@ -73,6 +80,8 @@ struct Staat {
     pad: Option<PathBuf>,
     zoekwoord: String,
     bezig: bool,
+    /// Waar het voorlezen begon (in UTF-16-tekens).
+    voorlees_begin: usize,
 }
 
 thread_local! {
@@ -123,6 +132,54 @@ pub fn open_en_kies(eigenaar: HWND) {
     }
 }
 
+/// Scanners zoeken en er een kiezen (de vorige keuze staat vooraan).
+fn kies_scanner(hwnd: HWND) -> Option<crate::scanner::Scanner> {
+    let scanners = dialogen::werk(hwnd, &t("ScanTitel"), &t("ScannersZoeken"), |v| {
+        v.meld(t("ScannersZoekenTekst"), 0);
+        crate::scanner::zoek()
+    })?;
+    if scanners.is_empty() {
+        dialogen::melding(hwnd, &t("GeenScanner"), &t("GeenScannerTekst"), dialogen::ICOON_WAARSCHUWING);
+        return None;
+    }
+    let scanner = if scanners.len() == 1 {
+        scanners[0].clone()
+    } else {
+        let namen: Vec<String> = scanners.iter().map(|s| s.naam.clone()).collect();
+        let vorige = instellingen::get("scanner").and_then(|n| namen.iter().position(|x| *x == n)).unwrap_or(0);
+        scanners[keuzevensters::kies_uit_lijst(hwnd, &t("ScanTitel"), &t("ScannerKiezen"), &namen, vorige)?].clone()
+    };
+    instellingen::zet("scanner", &scanner.naam);
+    Some(scanner)
+}
+
+/// Eén pagina scannen van de glasplaat (voor de handtekening). Geeft het beeld en de resolutie.
+pub fn scan_een_beeld(eigenaar: HWND) -> Option<(crate::beeld::Beeld, u32)> {
+    let scanner = kies_scanner(eigenaar)?;
+    let invoer = scanner.invoer && !scanner.glasplaat;
+    let sc = scanner.clone();
+    match dialogen::werk(eigenaar, &t("ScanTitel"), &t("ScanBezig"), move |v| {
+        v.meld(tf("ScanBezigTekst", &[&sc.naam]), 0);
+        crate::scanner::scan(&sc, invoer, 300)
+    })? {
+        Ok(mut b) if !b.is_empty() => Some((b.remove(0), 300)),
+        Ok(_) => {
+            dialogen::melding(eigenaar, &t("ScanLeeg"), &t("ScanLeegTekst"), dialogen::ICOON_WAARSCHUWING);
+            None
+        }
+        Err(e) => {
+            dialogen::melding(eigenaar, &t("ScanMislukt"), &tf("ScanMisluktTekst", &[&e]), dialogen::ICOON_WAARSCHUWING);
+            None
+        }
+    }
+}
+
+/// Een afbeelding kiezen (voor de handtekening).
+pub fn kies_afbeelding(eigenaar: HWND) -> Option<PathBuf> {
+    let map = instellingen::get("laatste_map").unwrap_or_default();
+    open_venster(eigenaar, &map)
+}
+
 /// Scannen: scanner zoeken (en kiezen), glasplaat of documentinvoer, pagina's scannen, en de tekst herkennen.
 fn scannen() {
     let Some(s) = lees() else { return };
@@ -130,25 +187,7 @@ fn scannen() {
     let terug = || unsafe {
         SetFocus(s.vak);
     };
-    let Some(scanners) = dialogen::werk(hwnd, &t("ScanTitel"), &t("ScannersZoeken"), |v| {
-        v.meld(t("ScannersZoekenTekst"), 0);
-        crate::scanner::zoek()
-    }) else { return terug() };
-    if scanners.is_empty() {
-        dialogen::melding(hwnd, &t("GeenScanner"), &t("GeenScannerTekst"), dialogen::ICOON_WAARSCHUWING);
-        return terug();
-    }
-    let scanner = if scanners.len() == 1 {
-        scanners[0].clone()
-    } else {
-        let namen: Vec<String> = scanners.iter().map(|s| s.naam.clone()).collect();
-        let vorige = instellingen::get("scanner").and_then(|n| namen.iter().position(|x| *x == n)).unwrap_or(0);
-        match keuzevensters::kies_uit_lijst(hwnd, &t("ScanTitel"), &t("ScannerKiezen"), &namen, vorige) {
-            Some(i) => scanners[i].clone(),
-            None => return terug(),
-        }
-    };
-    instellingen::zet("scanner", &scanner.naam);
+    let Some(scanner) = kies_scanner(hwnd) else { return terug() };
     // Wat ga je scannen? (Kleine letters: hoge resolutie. Envelop: van wie en aan wie.)
     let soorten = vec![t("InhoudBrief"), t("InhoudEnvelop"), t("InhoudKlein")];
     let vorige = instellingen::get("scan_inhoud").and_then(|v| v.parse::<usize>().ok()).unwrap_or(0).min(2);
@@ -236,6 +275,14 @@ fn afdrukken() {
     unsafe { SetFocus(s.vak) };
 }
 
+/// Opent het leesvenster met een tekst uit Mijn post (een scan die niet als bestand bestaat).
+pub fn open_tekst(eigenaar: HWND, naam: &str, tekst: &str) {
+    let h = maak(eigenaar);
+    if !h.is_null() {
+        geladen(Ok((crate::lezen::van_tekst(naam, tekst), PathBuf::new())));
+    }
+}
+
 /// Opent het leesvenster met dit bestand (bijvoorbeeld via "Openen met").
 pub fn open_bestand(eigenaar: HWND, pad: &Path) {
     let h = maak(eigenaar);
@@ -317,6 +364,9 @@ fn maak(eigenaar: HWND) -> HWND {
             ACCEL { fVirt: ctrl, key: b'D' as u16, cmd: ID_BESCHRIJF as u16 },
             ACCEL { fVirt: ctrl, key: b'Q' as u16, cmd: ID_QR as u16 },
             ACCEL { fVirt: ctrl, key: b'T' as u16, cmd: ID_TAAK as u16 },
+            ACCEL { fVirt: FVIRTKEY as u8, key: VK_F5, cmd: ID_VOORLEZEN as u16 },
+            ACCEL { fVirt: ctrl, key: b'R' as u16, cmd: ID_HERINNERING as u16 },
+            ACCEL { fVirt: ctrl, key: b'M' as u16, cmd: ID_MAIL as u16 },
             ACCEL { fVirt: ctrl, key: b'S' as u16, cmd: ID_OPSLAAN as u16 },
             ACCEL { fVirt: (FVIRTKEY | FCONTROL | FSHIFT) as u8, key: b'S' as u16, cmd: ID_BEELD as u16 },
         ];
@@ -324,7 +374,7 @@ fn maak(eigenaar: HWND) -> HWND {
     };
     let kwast = unsafe { CreateSolidBrush(kleuren.vak) };
     STAAT.with(|s| *s.borrow_mut() = Some(Staat { hwnd, kop, status, vak, knoppen, letter, kopletter, kwast, toetsen,
-        doc: None, pad: None, zoekwoord: String::new(), bezig: false }));
+        doc: None, pad: None, zoekwoord: String::new(), bezig: false, voorlees_begin: 0 }));
     schik();
     unsafe {
         ShowWindow(hwnd, SW_SHOWMAXIMIZED);
@@ -495,6 +545,7 @@ fn geladen(uitkomst: Result<(Document, PathBuf), String>) {
             zet_tekst(s.hwnd, &titel);
             logboek::schrijf(&format!("Document geopend: {} ({} pagina's, {} koppen, {} invulvelden).", doc.naam,
                 doc.paginas.len(), doc.koppen.len(), doc.invulvelden));
+            crate::post::onthoud(&doc, &pad.to_string_lossy());
             let zonder = doc.zonder_tekst.clone();
             let meldingen = doc.meldingen.clone();
             let velden = doc.invulvelden;
@@ -794,6 +845,12 @@ fn opdracht(hwnd: HWND, id: i32) {
         ID_OPENEN => kies_bestand(),
         ID_SCAN => scannen(),
         ID_SLUITEN => unsafe {
+            // Escape tijdens het voorlezen: eerst alleen het voorlezen stoppen.
+            if crate::stem::bezig() {
+                crate::stem::stop();
+                KillTimer(hwnd, TIMER_VOORLEZEN);
+                return;
+            }
             DestroyWindow(hwnd);
         },
         _ if !doc_open => {
@@ -821,8 +878,118 @@ fn opdracht(hwnd: HWND, id: i32) {
         ID_BESCHRIJF => kijk(crate::beeldmodel::Soort::Beschrijven),
         ID_QR => codes(hwnd),
         ID_TAAK => wat_moet_ik_doen(hwnd),
+        ID_VOORLEZEN => voorlezen(hwnd),
+        ID_HERINNERING => {
+            let doc = lees().and_then(|s| s.doc);
+            if let Some(doc) = doc {
+                let g = crate::taken::zoek(&doc.tekst, &doc.codes);
+                herinnering_maken(hwnd, &doc, &g, g.datums.first().map(|d| d.0.clone()));
+            }
+        }
+        ID_MAIL => mailen(hwnd),
         _ => {}
     }
+}
+
+/// F5: voorlezen vanaf de cursor, of stoppen. Zonder schermlezer loopt de cursor mee met de stem.
+fn voorlezen(hwnd: HWND) {
+    let Some(s) = lees() else { return };
+    if crate::stem::bezig() {
+        crate::stem::stop();
+        unsafe { KillTimer(hwnd, TIMER_VOORLEZEN) };
+        return;
+    }
+    let tekst: Vec<u16> = lees_tekst(s.vak).encode_utf16().collect();
+    let mut begin: u32 = 0;
+    unsafe { SendMessageW(s.vak, EM_GETSEL, &mut begin as *mut u32 as WPARAM, 0) };
+    let begin = (begin as usize).min(tekst.len());
+    // Aan het eind? Dan vanaf het begin.
+    let begin = if begin + 2 >= tekst.len() { 0 } else { begin };
+    let stuk = String::from_utf16_lossy(&tekst[begin..]);
+    match crate::stem::lees_voor(&stuk) {
+        Ok(_) => {
+            met(|st| st.voorlees_begin = begin);
+            if !schermlezer_aan() {
+                unsafe { SetTimer(hwnd, TIMER_VOORLEZEN, 300, None) };
+            }
+        }
+        Err(e) => {
+            logboek::schrijf(&format!("Voorlezen: {e}"));
+            dialogen::melding(hwnd, &t("VoorlezenMislukt"), &t("VoorlezenMisluktTekst"), dialogen::ICOON_WAARSCHUWING);
+        }
+    }
+}
+
+/// Draait er een schermlezer? Dan de cursor niet verplaatsen (anders praat de schermlezer door de stem heen).
+fn schermlezer_aan() -> bool {
+    let mut aan: i32 = 0;
+    unsafe { SystemParametersInfoW(SPI_GETSCREENREADER, 0, &mut aan as *mut i32 as *mut _, 0) };
+    aan != 0
+}
+
+/// Elke 0,3 seconde: de cursor naar de zin die de stem nu leest.
+fn volg_voorlezen(hwnd: HWND) {
+    let Some(s) = lees() else { return };
+    match crate::stem::positie() {
+        Some(p) => {
+            let plek = s.voorlees_begin + p;
+            unsafe {
+                SendMessageW(s.vak, EM_SETSEL, plek, plek as isize);
+                SendMessageW(s.vak, EM_SCROLLCARET, 0, 0);
+            }
+        }
+        None => unsafe {
+            if !crate::stem::bezig() {
+                KillTimer(hwnd, TIMER_VOORLEZEN);
+            }
+        },
+    }
+}
+
+/// Ctrl+R: een herinnering maken, met de datum en de tekst alvast ingevuld.
+fn herinnering_maken(hwnd: HWND, doc: &Document, g: &crate::taken::Gegevens, datum: Option<String>) {
+    let datum = datum.and_then(|d| crate::herinneringen::lees_datum(&d)).map(crate::herinneringen::mooi).unwrap_or_default();
+    let wat = match g.bedragen.first() {
+        Some(b) => tf("HerinneringBetalen", &[b]),
+        None => tf("HerinneringBrief", &[&doc.naam]),
+    };
+    crate::herinneringen::maak_venster(hwnd, &datum, &wat, &doc.naam);
+    if let Some(s) = lees() {
+        unsafe { SetFocus(s.vak) };
+    }
+}
+
+/// Ctrl+M: het document mailen als bijlage. Een scan wordt eerst een PDF (met de tekst erin).
+fn mailen(hwnd: HWND) {
+    let Some(s) = lees() else { return };
+    let Some(doc) = s.doc.clone() else { return };
+    let stam = Path::new(&doc.naam).file_stem().map(|x| x.to_string_lossy().to_string()).unwrap_or_else(|| doc.naam.clone());
+    let pad = match s.pad.clone().filter(|p| p.is_file()) {
+        Some(p) => p,
+        None if !doc.beelden.is_empty() => {
+            let map = std::env::temp_dir().join("Paper Pilot");
+            let _ = std::fs::create_dir_all(&map);
+            let doel = map.join(format!("{}.pdf", stam.replace(['\\', '/', ':', '*', '?', '"', '<', '>', '|'], "-")));
+            let leeg: Vec<Vec<(String, f32, f32, f32)>> = vec![Vec::new(); doc.beelden.len()];
+            if let Err(e) = crate::pdf_maken::schrijf(&doel, &doc.beelden, &doc.beeld_regels, &leeg) {
+                dialogen::melding(hwnd, &t("MailMislukt"), &e, dialogen::ICOON_WAARSCHUWING);
+                return;
+            }
+            doel
+        }
+        None => {
+            // Alleen tekst (bijvoorbeeld uit Mijn post): als tekstbestand mailen.
+            let map = std::env::temp_dir().join("Paper Pilot");
+            let _ = std::fs::create_dir_all(&map);
+            let doel = map.join(format!("{}.txt", stam.replace(['\\', '/', ':', '*', '?', '"', '<', '>', '|'], "-")));
+            if std::fs::write(&doel, format!("\u{feff}{}", doc.tekst)).is_err() {
+                return;
+            }
+            doel
+        }
+    };
+    crate::versturen::mail_met_uitleg(hwnd, &pad, &stam);
+    unsafe { SetFocus(s.vak) };
 }
 
 /// Ctrl+T: "Wat moet ik doen?" Een samenvatting van het taalmodel (als dat er is) en de gegevens om te betalen.
@@ -854,19 +1021,25 @@ fn wat_moet_ik_doen(hwnd: HWND) {
         t("TaakGegevensKop"), crate::taken::als_tekst(&gegevens), t("TaakLetOp"));
     let titel = format!("{} - {}", t("TaakTitel"), doc.naam);
     let kopieer_lijst = crate::taken::kopieerbaar(&gegevens);
-    if kopieer_lijst.is_empty() {
+    let datums: Vec<String> = gegevens.datums.iter().map(|d| d.0.clone()).collect();
+    if kopieer_lijst.is_empty() && datums.is_empty() {
         crate::tekstvenster::toon(hwnd, &titel, &geheel);
         return;
     }
     // Een lijstje: eerst "lezen", daarna de gegevens om te kopiëren. Na het kopiëren kom je terug in het lijstje.
     let mut namen = vec![t("TaakLeesSamenvatting")];
     namen.extend(kopieer_lijst.iter().map(|k| k.0.clone()));
+    namen.extend(datums.iter().map(|d| tf("TaakHerinnering", &[d])));
     let mut begin = 0;
     loop {
         match keuzevensters::kies_uit_lijst(hwnd, &t("TaakTitel"), &t("TaakLijstLabel"), &namen, begin) {
             Some(0) => {
                 crate::tekstvenster::toon(hwnd, &titel, &geheel);
                 return;
+            }
+            Some(i) if i > kopieer_lijst.len() => {
+                herinnering_maken(hwnd, &doc, &gegevens, datums.get(i - 1 - kopieer_lijst.len()).cloned());
+                begin = i;
             }
             Some(i) => {
                 let tekst = &kopieer_lijst[i - 1].1;
@@ -942,6 +1115,10 @@ unsafe extern "system" fn venster_proc(hwnd: HWND, msg: u32, wp: WPARAM, lp: LPA
             }
             0
         }
+        WM_TIMER if wp == TIMER_VOORLEZEN => {
+            volg_voorlezen(hwnd);
+            0
+        }
         WM_VOORTGANG => {
             let tekst = Box::from_raw(lp as *mut String);
             if let Some(s) = lees() {
@@ -988,6 +1165,8 @@ unsafe extern "system" fn venster_proc(hwnd: HWND, msg: u32, wp: WPARAM, lp: LPA
             0
         }
         WM_DESTROY => {
+            crate::stem::stop();
+            KillTimer(hwnd, TIMER_VOORLEZEN);
             if let Some(s) = lees() {
                 weg(s.letter as _);
                 weg(s.kopletter as _);

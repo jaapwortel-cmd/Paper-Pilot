@@ -14,7 +14,7 @@ Letters, forms and scans that you open, make or fill in with Paper Pilot stay on
 
 2. Your personal data
 
-If you store personal data in Paper Pilot, such as your name, address, date of birth, phone number, citizen service number (BSN) or IBAN, it is stored encrypted on your own computer. Only you can open it, with your own Windows account. It never goes to the internet.
+If you store personal data in Paper Pilot, such as your name, address, date of birth, phone number, citizen service number (BSN) or IBAN, it is stored encrypted on your own computer. Only you can open it, with your own Windows account. It never goes to the internet. This also applies to My post (the letters you have read), your reminders and your signature. You can turn off and clear My post.
 
 
 3. When Paper Pilot uses the internet
@@ -42,7 +42,7 @@ Paper Pilot keeps a log file on your own computer (in the folder %APPDATA%\Paper
 
 7. Uninstalling
 
-When you uninstall Paper Pilot, the program asks whether your own data and settings should be removed too.
+When you uninstall Paper Pilot, the program asks whether your own data and settings should be removed too. The scheduled task for reminders is always removed.
 
 
 8. Questions

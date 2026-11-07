@@ -1,4 +1,4 @@
-// Paper Pilot - invulvelden van een PDF-formulier lezen en invullen.
+﻿// Paper Pilot - invulvelden van een PDF-formulier lezen en invullen.
 //
 // Dit gebruikt de "formulier-omgeving" van PDFium zelf (zoals een PDF-lezer die je laat typen): Paper Pilot zet
 // de focus op een veld, selecteert alles en vervangt het door de nieuwe tekst. Zo tekent PDFium de tekst ook echt
@@ -54,8 +54,8 @@ pub(crate) struct Pdfium {
     FORM_OnAfterLoadPage: unsafe extern "C" fn(Page, Form),
     FORM_OnBeforeClosePage: unsafe extern "C" fn(Page, Form),
     FPDFPage_GetAnnotCount: unsafe extern "C" fn(Page) -> i32,
-    FPDFPage_GetAnnot: unsafe extern "C" fn(Page, i32) -> Annot,
-    FPDFPage_CloseAnnot: unsafe extern "C" fn(Annot),
+    pub FPDFPage_GetAnnot: unsafe extern "C" fn(Page, i32) -> Annot,
+    pub FPDFPage_CloseAnnot: unsafe extern "C" fn(Annot),
     FPDFAnnot_GetSubtype: unsafe extern "C" fn(Annot) -> i32,
     FPDFAnnot_GetRect: unsafe extern "C" fn(Annot, *mut Rect) -> i32,
     FPDFAnnot_GetFormFieldType: unsafe extern "C" fn(Form, Annot) -> i32,
@@ -96,6 +96,12 @@ pub(crate) struct Pdfium {
     pub FPDFPageObj_Transform: unsafe extern "C" fn(*mut c_void, f64, f64, f64, f64, f64, f64),
     pub FPDFPage_InsertObject: unsafe extern "C" fn(Page, *mut c_void),
     pub FPDFPage_GenerateContent: unsafe extern "C" fn(Page) -> i32,
+    // Voor de handtekening:
+    pub FPDFPageObj_NewImageObj: unsafe extern "C" fn(Doc) -> *mut c_void,
+    pub FPDFImageObj_SetBitmap: unsafe extern "C" fn(*mut Page, i32, *mut c_void, *mut c_void) -> i32,
+    pub FPDFImageObj_SetMatrix: unsafe extern "C" fn(*mut c_void, f64, f64, f64, f64, f64, f64) -> i32,
+    pub FPDFAnnot_GetFlags: unsafe extern "C" fn(Annot) -> i32,
+    pub FPDFAnnot_SetFlags: unsafe extern "C" fn(Annot, i32) -> i32,
 }
 
 unsafe impl Send for Pdfium {}
@@ -169,6 +175,11 @@ pub(crate) fn pdfium() -> Result<&'static Pdfium, String> {
             FPDFPageObj_Transform: f!(FPDFPageObj_Transform),
             FPDFPage_InsertObject: f!(FPDFPage_InsertObject),
             FPDFPage_GenerateContent: f!(FPDFPage_GenerateContent),
+            FPDFPageObj_NewImageObj: f!(FPDFPageObj_NewImageObj),
+            FPDFImageObj_SetBitmap: f!(FPDFImageObj_SetBitmap),
+            FPDFImageObj_SetMatrix: f!(FPDFImageObj_SetMatrix),
+            FPDFAnnot_GetFlags: f!(FPDFAnnot_GetFlags),
+            FPDFAnnot_SetFlags: f!(FPDFAnnot_SetFlags),
         })
     })
     .as_ref()
@@ -203,6 +214,10 @@ pub struct Veld {
     pub waarde: String,
     pub links: f32,
     pub boven: f32,
+    /// Een vraag naar de handtekening (een handtekeningveld, of een tekstveld met "handtekening" erin).
+    pub handtekening: bool,
+    /// Het vak van het veld in PDF-punten: links, onder, rechts, boven.
+    pub vak: [f32; 4],
 }
 
 /// Een open document met formulier-omgeving; alles wordt netjes gesloten bij het weggooien.
@@ -350,8 +365,8 @@ pub fn lees_velden(pad: &Path) -> Result<Vec<Veld>, String> {
                     2 => Some(Soort::Vinkje),
                     3 => Some(Soort::Rondje),
                     4 | 5 => Some(Soort::Lijst),
-                    6 => Some(Soort::Tekst),
-                    _ => None, // knoppen, handtekeningen (komt later)
+                    6 | 7 => Some(Soort::Tekst), // 7 = handtekeningveld
+                    _ => None, // knoppen
                 };
                 let vlaggen = (p.FPDFAnnot_GetFormFieldFlags)(f, a);
                 let Some(soort) = soort else {
@@ -391,7 +406,7 @@ pub fn lees_velden(pad: &Path) -> Result<Vec<Veld>, String> {
                             };
                             op_pagina.push(Veld { pagina: nr, annots: vec![i], soort, naam, vraag: groep, opties: vec![optie],
                                 meerregelig: false, verplicht: vlaggen & 2 != 0, waarde: if aan { "0".into() } else { String::new() },
-                                links: r.left, boven: r.top });
+                                links: r.left, boven: r.top, handtekening: false, vak: [r.left, r.bottom, r.right, r.top] });
                         }
                     }
                     _ => {
@@ -409,8 +424,11 @@ pub fn lees_velden(pad: &Path) -> Result<Vec<Veld>, String> {
                             Soort::Vinkje => waarde = if (p.FPDFAnnot_IsChecked)(f, a) != 0 { "1".into() } else { String::new() },
                             _ => waarde = tekst_van(|b, n| (p.FPDFAnnot_GetFormFieldValue)(f, a, b, n)),
                         }
+                        let handtekening = (p.FPDFAnnot_GetFormFieldType)(f, a) == 7
+                            || (soort == Soort::Tekst && (crate::handtekening::is_vraag(&vraag) || crate::handtekening::is_vraag(&naam)));
                         op_pagina.push(Veld { pagina: nr, annots: vec![i], soort, naam, vraag, opties,
-                            meerregelig: vlaggen & 4096 != 0, verplicht: vlaggen & 2 != 0, waarde, links: r.left, boven: r.top });
+                            meerregelig: vlaggen & 4096 != 0, verplicht: vlaggen & 2 != 0, waarde, links: r.left, boven: r.top,
+                            handtekening, vak: [r.left, r.bottom, r.right, r.top] });
                     }
                 }
                 (p.FPDFPage_CloseAnnot)(a);
@@ -466,6 +484,11 @@ pub fn vul_in(bron: &Path, velden: &[Veld], doel: &Path) -> Result<(), String> {
                     Soort::Tekst => {
                         let a = pak(v.annots[0]);
                         if a.is_null() {
+                            continue;
+                        }
+                        // In een echt handtekeningveld kan geen tekst; de handtekening komt er later als plaatje op.
+                        if (p.FPDFAnnot_GetFormFieldType)(open.form, a) == 7 || crate::handtekening::is_merkteken(&v.waarde) {
+                            (p.FPDFPage_CloseAnnot)(a);
                             continue;
                         }
                         let huidig = tekst_van(|b, n| (p.FPDFAnnot_GetFormFieldValue)(open.form, a, b, n));

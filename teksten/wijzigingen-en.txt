@@ -1,6 +1,11 @@
 ﻿Changes in Paper Pilot
 
 Version 0.0.0.7 (November 2026)
+- New: reminders (Ctrl+R and the File menu). Paper Pilot warns you from three days before, even when the program is not open.
+- New: My post (File menu). All letters you read, with date and sender, so you can find them again. Encrypted on your own computer; can be turned off.
+- New: read aloud with a Windows voice (F5), for people who do not use a screen reader. Speed in the Settings menu.
+- New: My signature (Settings menu). Scan it once; after that Paper Pilot puts it on forms.
+- New: email as an attachment (Ctrl+M), also after saving a filled-in form.
 - New: What do I need to do? (Ctrl+T). A short summary of the letter (with the language model on your own computer), and the amount, account number, payment reference, deadline and phone number to copy.
 - New: reading QR codes and barcodes on scans, photos and PDFs. Payment QR codes become a payment request. Open links and copy details with Ctrl+Q.
 - New: open more kinds of files: old Word (.doc), RTF, OpenDocument (.odt, .ods, .odp), Excel (.xlsx), PowerPoint (.pptx), web pages (.html) and e-books (.epub). Use Ctrl+K to go to a chapter.

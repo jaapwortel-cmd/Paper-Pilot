@@ -115,6 +115,10 @@ Name: "{autodesktop}\Paper Pilot"; Filename: "{app}\PaperPilot.exe"; Tasks: bure
 [Run]
 Filename: "{app}\PaperPilot.exe"; Description: "{cm:Starten}"; Flags: nowait postinstall runasoriginaluser
 
+[UninstallRun]
+; De geplande taak voor herinneringen weghalen.
+Filename: "{sys}\schtasks.exe"; Parameters: "/Delete /TN ""Paper Pilot herinneringen"" /F"; Flags: runhidden; RunOnceId: "TaakWeg"
+
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\onderdelen"
 
