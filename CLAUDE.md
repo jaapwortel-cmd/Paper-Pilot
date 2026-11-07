@@ -120,5 +120,8 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   Daarom aangevuld met WCAG 2.2 AA: web taalcode geldig, th in tabellen, fieldset bij rondjes, autocomplete (1.3.5), track-ondertiteling,
   marquee/blink, meta refresh (2.2.1), onclick zonder rol/tabindex (2.1.1), aria-hidden op focusbaar (4.1.2), svg role=img zonder naam;
   Word: uitgevulde tekst (jc both) en hoofdletters (caps). bartimeus.nl staat in de toegestane hosts van de omgeving.
+- 0.0.0.8 (7 nov 2026, Jaap: "maak er een echt versienummer van"): de eerste versie om te verspreiden (alles van 0.0.0.7).
+  De bouwronde maakt ook "Paper Pilot x installatie.zip". Dropbox-MCP kan geen .exe/.zip uploaden en geen openbare link maken:
+  Jaap zet de bestanden zelf in de updatemap; de openbare link is de bestaande link van de updatemap.
   Jaap: "als je iets vindt om het toegankelijker te maken, mag je dat gewoon doen". Gedaan: lettergrootte in het leesvenster
   (Ctrl+plus/min/0, instelling tekstgrootte, ook tekstvenster), Help, Sneltoetsen (SneltoetsenTekst), pdf_maken met /Lang, DisplayDocTitle en /Info /Title.

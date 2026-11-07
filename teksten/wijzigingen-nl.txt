@@ -1,5 +1,8 @@
 ﻿Wijzigingen in Paper Pilot
 
+Versie 0.0.0.8 (november 2026)
+- De eerste versie voor iedereen. Alles wat hieronder bij 0.0.0.7 staat, zit erin.
+
 Versie 0.0.0.7 (november 2026)
 - Grotere letters in het leesvenster met Ctrl+plus (kleiner met Ctrl+min), voor wie slechtziend is. Ook de handleiding volgt die grootte.
 - Menu Help, Sneltoetsen: alle sneltoetsen op een rij.

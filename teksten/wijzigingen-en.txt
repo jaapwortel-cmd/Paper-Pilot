@@ -1,5 +1,8 @@
 ﻿Changes in Paper Pilot
 
+Version 0.0.0.8 (November 2026)
+- The first version for everyone. Everything listed below under 0.0.0.7 is included.
+
 Version 0.0.0.7 (November 2026)
 - Bigger letters in the reading window with Ctrl+plus (smaller with Ctrl+minus), for people who are visually impaired. The manual follows that size too.
 - Help menu, Keyboard shortcuts: all shortcuts in one list.

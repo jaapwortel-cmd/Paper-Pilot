@@ -269,6 +269,8 @@ jobs:
           if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress | Out-Null }
           & $iscc "/DVersie=$env:VERSIE" installer\PaperPilot.iss
           if ($LASTEXITCODE -ne 0) { throw "Inno Setup is mislukt." }
+          # Ook als zip (om te delen: sommige mailprogramma's en websites houden een losse .exe tegen).
+          Compress-Archive -Path "uitvoer\Paper Pilot $env:VERSIE installatie.exe" -DestinationPath "uitvoer\Paper Pilot $env:VERSIE installatie.zip" -Force
           Get-ChildItem uitvoer
 
       - name: Proef installeren, bijwerken en verwijderen
@@ -298,7 +300,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory uit | Out-Null
-          Copy-Item "uitvoer\*.exe", "scherm-*.png", "proef.txt", "toegankelijkheid.txt" uit\
+          Copy-Item "uitvoer\*.exe", "uitvoer\*.zip", "scherm-*.png", "proef.txt", "toegankelijkheid.txt" uit\
           Copy-Item "lezen-*.txt", "beeldmodel*.txt", "invullen.txt", "ingevuld.pdf", "plat-*.txt", "plat-*.pdf", "herinneringen.txt", "handtekening.txt", "getekend.pdf", "controle-*.txt" uit\ -ErrorAction SilentlyContinue
           @"
           # Paper Pilot $env:VERSIE
