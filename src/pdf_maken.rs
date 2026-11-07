@@ -97,7 +97,7 @@ pub fn schrijf(pad: &Path, beelden: &[Beeld], regels: &[Vec<Regel>], zichtbaar: 
         b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>".to_vec(),
     ];
     alle.extend(objecten);
-    // Documentinformatie met de titel (de bestandsnaam zonder .pdf), als UTF-16 met BOM.
+    // Documentinformatie met de titel, als UTF-16 met BOM.
     // Liever de eerste regel van de brief (de schermlezer noemt de titel als eerste) dan de bestandsnaam.
     let eerste = regels.first().and_then(|p| p.iter().map(|r| r.tekst.trim().to_string())
         .find(|t| t.chars().filter(|c| c.is_alphabetic()).count() >= 3)).map(|t| t.chars().take(80).collect::<String>());
