@@ -113,6 +113,7 @@ jobs:
             "qr-factuur.png" = @("NL91ABNA0417164300", "https://www.rijksoverheid.nl");
             "qr-foto.jpg" = @("NL91ABNA0417164300", "https://www.rijksoverheid.nl");
             "streepjescode.png" = @("Nummer: 8712345678906");
+            "voorbeeld-boek.epub" = @("Kop: Het voorbeeldboek", "Kop: Hoofdstuk 2: Het einde", "voor & iedereen");
             "voorbeeld-aanslag.txt" = @("Gegevens: Bedrag: 245,80 euro", "NL91 ABNA 0417 1643 00", "5000 1234 5678 9012", "Datum: 1 december 2026", "030 - 286 00 00")
           }
           foreach ($f in $verwacht.Keys) {

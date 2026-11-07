@@ -568,8 +568,14 @@ pub fn pptx(pad: &Path, naam: &str) -> Result<Document, String> {
 
 pub fn html(pad: &Path, naam: &str) -> Result<Document, String> {
     let ruw = crate::lezen::lees_tekstbestand(pad)?;
-    let tekens: Vec<char> = ruw.chars().collect();
     let mut b = Bouwer::nieuw(naam);
+    html_naar(&mut b, &ruw);
+    Ok(b.klaar())
+}
+
+/// Zet de tekst van een webpagina (of een hoofdstuk van een e-boek) in de Bouwer.
+fn html_naar(b: &mut Bouwer, ruw: &str) {
+    let tekens: Vec<char> = ruw.chars().collect();
     let mut alinea = String::new();
     let mut kop = false;
     let mut overslaan: Option<String> = None;
@@ -697,5 +703,103 @@ pub fn html(pad: &Path, naam: &str) -> Result<Document, String> {
         i += 1;
     }
     b.alinea(&schoon(&alinea));
+}
+
+// ------------------------------------------------------------------ e-boek (.epub)
+
+/// EPUB: een zip met XHTML-hoofdstukken. De volgorde staat in het OPF-bestand (spine).
+pub fn epub(pad: &Path, naam: &str) -> Result<Document, String> {
+    use quick_xml::events::Event;
+    let namen = zip_namen(pad);
+    if namen.iter().any(|n| n == "META-INF/encryption.xml") && zip_deel(pad, "META-INF/encryption.xml").map(|x| x.contains("EncryptedData")).unwrap_or(false) {
+        // Met DRM beveiligd: dat kan Paper Pilot niet lezen.
+        return Err(crate::teksten::t("LezenEpubBeveiligd"));
+    }
+    let attr = |e: &quick_xml::events::BytesStart, sleutel: &str| -> Option<String> {
+        e.attributes().flatten().find(|a| lokaal(a.key.as_ref()) == sleutel)
+            .map(|a| a.unescape_value().map(|v| v.to_string()).unwrap_or_default())
+    };
+    // 1. Waar staat het OPF-bestand?
+    let container = zip_deel(pad, "META-INF/container.xml")?;
+    let mut opf_pad = String::new();
+    let mut r = quick_xml::Reader::from_str(&container);
+    loop {
+        match r.read_event() {
+            Ok(Event::Empty(e)) | Ok(Event::Start(e)) if lokaal(e.name().as_ref()) == "rootfile" => {
+                if let Some(p) = attr(&e, "full-path") {
+                    opf_pad = p;
+                    break;
+                }
+            }
+            Ok(Event::Eof) | Err(_) => break,
+            _ => {}
+        }
+    }
+    if opf_pad.is_empty() {
+        return Err(kapot());
+    }
+    let map = opf_pad.rsplit_once('/').map(|x| format!("{}/", x.0)).unwrap_or_default();
+    // 2. Titel, inhoud (manifest) en volgorde (spine).
+    let opf = zip_deel(pad, &opf_pad)?;
+    let mut titel = String::new();
+    let mut in_titel = false;
+    let mut manifest: Vec<(String, String)> = Vec::new();
+    let mut volgorde: Vec<String> = Vec::new();
+    let mut r = quick_xml::Reader::from_str(&opf);
+    loop {
+        match r.read_event() {
+            Ok(Event::Start(e)) if lokaal(e.name().as_ref()) == "title" && titel.is_empty() => in_titel = true,
+            Ok(Event::Text(t)) if in_titel => titel.push_str(&t.unescape().map(|s| s.to_string()).unwrap_or_default()),
+            Ok(Event::End(e)) if lokaal(e.name().as_ref()) == "title" => in_titel = false,
+            Ok(Event::Empty(e)) | Ok(Event::Start(e)) => match lokaal(e.name().as_ref()).as_str() {
+                "item" => {
+                    if let (Some(id), Some(href)) = (attr(&e, "id"), attr(&e, "href")) {
+                        manifest.push((id, href));
+                    }
+                }
+                "itemref" => {
+                    if let Some(id) = attr(&e, "idref") {
+                        volgorde.push(id);
+                    }
+                }
+                _ => {}
+            },
+            Ok(Event::Eof) | Err(_) => break,
+            _ => {}
+        }
+    }
+    let mut b = Bouwer::nieuw(naam);
+    if !titel.trim().is_empty() && !["unknown title", "untitled", "onbekende titel"].contains(&titel.trim().to_lowercase().as_str()) {
+        b.kop(titel.trim());
+    }
+    let mut gelezen = 0;
+    for id in &volgorde {
+        let Some((_, href)) = manifest.iter().find(|(i, _)| i == id) else { continue };
+        let href = href.split('#').next().unwrap_or("");
+        let href = href.replace("%20", " ");
+        let deel = normaliseer(&format!("{map}{href}"));
+        if let Ok(xhtml) = zip_deel(pad, &deel) {
+            html_naar(&mut b, &xhtml);
+            gelezen += 1;
+        }
+    }
+    if gelezen == 0 {
+        return Err(kapot());
+    }
     Ok(b.klaar())
+}
+
+/// "OEBPS/tekst/../h1.xhtml" wordt "OEBPS/h1.xhtml".
+fn normaliseer(pad: &str) -> String {
+    let mut delen: Vec<&str> = Vec::new();
+    for d in pad.split('/') {
+        match d {
+            "" | "." => {}
+            ".." => {
+                delen.pop();
+            }
+            d => delen.push(d),
+        }
+    }
+    delen.join("/")
 }

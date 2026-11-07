@@ -28,7 +28,7 @@ Met Tab of de pijltjes ga je van de ene knop naar de andere. Enter of spatie kie
 
 3. Een document lezen
 
-Kies Lezen en invullen (Alt+L). Paper Pilot vraagt: een bestand openen, of scannen. Kies je een bestand openen, dan komt het venster Document openen. Kies een PDF, een Word-bestand (.docx of het oude .doc), RTF, OpenDocument (.odt, .ods, .odp), Excel (.xlsx), PowerPoint (.pptx), een webpagina (.html), een tekstbestand of een foto of scan (JPG, PNG, TIFF, BMP, GIF, HEIC of WebP) en kies Openen.
+Kies Lezen en invullen (Alt+L). Paper Pilot vraagt: een bestand openen, of scannen. Kies je een bestand openen, dan komt het venster Document openen. Kies een PDF, een Word-bestand (.docx of het oude .doc), RTF, OpenDocument (.odt, .ods, .odp), Excel (.xlsx), PowerPoint (.pptx), een webpagina (.html), een e-boek (.epub, zonder beveiliging), een tekstbestand of een foto of scan (JPG, PNG, TIFF, BMP, GIF, HEIC of WebP) en kies Openen.
 
 Paper Pilot maakt er nette tekst van. Bovenaan staat de naam van het document, en een regel met het aantal pagina's, koppen en invulvelden. De tekst lees je met de pijltjestoetsen, net als in Kladblok. Elke pagina begint met een regel als "Pagina 1 van 3". Koppen staan op een eigen regel.
 

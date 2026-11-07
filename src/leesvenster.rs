@@ -379,12 +379,12 @@ fn kies_bestand() {
     }
 }
 
-const DOCS: &str = "*.docx;*.docm;*.dotx;*.doc;*.dot;*.rtf;*.odt;*.ott;*.ods;*.odp;*.xlsx;*.xlsm;*.pptx;*.ppsx;*.html;*.htm";
+const DOCS: &str = "*.docx;*.docm;*.dotx;*.doc;*.dot;*.rtf;*.odt;*.ott;*.ods;*.odp;*.xlsx;*.xlsm;*.pptx;*.ppsx;*.html;*.htm;*.epub";
 
 /// Het gewone Windows-venster "Openen".
 fn open_venster(eigenaar: HWND, map: &str) -> Option<PathBuf> {
     let beelden = crate::beeld::EXTENSIES.iter().map(|e| format!("*.{e}")).collect::<Vec<_>>().join(";");
-    let filter: Vec<u16> = format!("{}\0*.pdf;{DOCS};*.txt;{beelden}\0PDF\0*.pdf\0Word, RTF, OpenDocument, Excel, PowerPoint, HTML\0{DOCS}\0{}\0{beelden}\0{}\0*.txt\0{}\0*.*\0\0",
+    let filter: Vec<u16> = format!("{}\0*.pdf;{DOCS};*.txt;{beelden}\0PDF\0*.pdf\0Word, RTF, OpenDocument, Excel, PowerPoint, HTML, EPUB\0{DOCS}\0{}\0{beelden}\0{}\0*.txt\0{}\0*.*\0\0",
         t("FilterDocumenten"), t("FilterAfbeeldingen"), t("FilterTekst"), t("FilterAlles")).encode_utf16().collect();
     let mut buf = vec![0u16; 32768];
     let titel = w(&t("OpenenTitel"));

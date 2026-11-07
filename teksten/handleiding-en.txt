@@ -28,7 +28,7 @@ Use Tab or the arrow keys to move between the buttons. Enter or Space chooses a 
 
 3. Reading a document
 
-Choose Read and fill in (Alt+R). Paper Pilot asks: open a file, or scan. If you choose to open a file, the Open document window appears. Choose a PDF, a Word document (.docx or the old .doc), RTF, OpenDocument (.odt, .ods, .odp), Excel (.xlsx), PowerPoint (.pptx), a web page (.html), a text file or a photo or scan (JPG, PNG, TIFF, BMP, GIF, HEIC or WebP) and choose Open.
+Choose Read and fill in (Alt+R). Paper Pilot asks: open a file, or scan. If you choose to open a file, the Open document window appears. Choose a PDF, a Word document (.docx or the old .doc), RTF, OpenDocument (.odt, .ods, .odp), Excel (.xlsx), PowerPoint (.pptx), a web page (.html), an e-book (.epub, without copy protection), a text file or a photo or scan (JPG, PNG, TIFF, BMP, GIF, HEIC or WebP) and choose Open.
 
 Paper Pilot turns it into clean text. At the top is the name of the document, and a line with the number of pages, headings and form fields. Read the text with the arrow keys, just like in Notepad. Each page starts with a line such as "Page 1 of 3". Headings are on a line of their own.
 

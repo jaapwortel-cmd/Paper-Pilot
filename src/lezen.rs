@@ -114,6 +114,7 @@ pub fn open(pad: &Path, voortgang: &dyn Fn(String)) -> Result<Document, String> 
         "xlsx" | "xlsm" | "xltx" => crate::formaten::xlsx(pad, &naam),
         "pptx" | "pptm" | "ppsx" | "potx" => crate::formaten::pptx(pad, &naam),
         "html" | "htm" | "xhtml" | "mht" => crate::formaten::html(pad, &naam),
+        "epub" => crate::formaten::epub(pad, &naam),
         "txt" | "text" | "md" | "csv" => txt(pad, &naam),
         _ => Err(crate::teksten::t("LezenSoortOnbekend")),
     }
