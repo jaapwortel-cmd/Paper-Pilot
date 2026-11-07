@@ -543,3 +543,27 @@ pub fn proef_handtekening(scan: &str, pdf: &str, doel: &str, verslag: &str) -> i
     let _ = std::fs::write(verslag, format!("\u{feff}{uit}"));
     if ok { 0 } else { 1 }
 }
+
+/// Controleren: een PDF, Word-bestand of HTML-bestand controleren en het verslag wegschrijven.
+pub fn proef_controleren(bestand: &str, verslag: &str) -> i32 {
+    crate::beeld::com_start();
+    let pad = std::path::Path::new(bestand);
+    let uitkomst = if bestand.starts_with("http://") || bestand.starts_with("https://") {
+        crate::controle_web::controleer(bestand)
+    } else if bestand.to_lowercase().ends_with(".html") || bestand.to_lowercase().ends_with(".htm") {
+        crate::lezen::lees_tekstbestand(pad).map(|h| crate::controle_web::controleer_html(bestand, &h))
+    } else {
+        crate::controleren::controleer(pad)
+    };
+    match uitkomst {
+        Ok(v) => {
+            let doc = v.als_document();
+            let _ = std::fs::write(verslag, format!("\u{feff}{}", doc.tekst));
+            0
+        }
+        Err(e) => {
+            let _ = std::fs::write(verslag, format!("FOUT: {e}"));
+            1
+        }
+    }
+}

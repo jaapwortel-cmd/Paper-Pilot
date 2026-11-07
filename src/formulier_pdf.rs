@@ -102,6 +102,24 @@ pub(crate) struct Pdfium {
     pub FPDFImageObj_SetMatrix: unsafe extern "C" fn(*mut c_void, f64, f64, f64, f64, f64, f64) -> i32,
     pub FPDFAnnot_GetFlags: unsafe extern "C" fn(Annot) -> i32,
     pub FPDFAnnot_SetFlags: unsafe extern "C" fn(Annot, i32) -> i32,
+    // Voor Controleren (toegankelijkheid van een PDF):
+    pub FPDF_GetMetaText: unsafe extern "C" fn(Doc, *const u8, *mut u16, u32) -> u32,
+    pub FPDFCatalog_IsTagged: unsafe extern "C" fn(Doc) -> i32,
+    pub FPDFCatalog_GetLanguage: unsafe extern "C" fn(Doc, *mut u16, u32) -> u32,
+    pub FPDFBookmark_GetFirstChild: unsafe extern "C" fn(Doc, *mut c_void) -> *mut c_void,
+    pub FPDF_GetDocPermissions: unsafe extern "C" fn(Doc) -> u32,
+    pub FPDF_StructTree_GetForPage: unsafe extern "C" fn(Page) -> *mut c_void,
+    pub FPDF_StructTree_Close: unsafe extern "C" fn(*mut c_void),
+    pub FPDF_StructTree_CountChildren: unsafe extern "C" fn(*mut c_void) -> i32,
+    pub FPDF_StructTree_GetChildAtIndex: unsafe extern "C" fn(*mut c_void, i32) -> *mut c_void,
+    pub FPDF_StructElement_GetType: unsafe extern "C" fn(*mut c_void, *mut u16, u32) -> u32,
+    pub FPDF_StructElement_GetAltText: unsafe extern "C" fn(*mut c_void, *mut u16, u32) -> u32,
+    pub FPDF_StructElement_GetActualText: unsafe extern "C" fn(*mut c_void, *mut u16, u32) -> u32,
+    pub FPDF_StructElement_CountChildren: unsafe extern "C" fn(*mut c_void) -> i32,
+    pub FPDF_StructElement_GetChildAtIndex: unsafe extern "C" fn(*mut c_void, i32) -> *mut c_void,
+    pub FPDFPage_CountObjects: unsafe extern "C" fn(Page) -> i32,
+    pub FPDFPage_GetObject: unsafe extern "C" fn(Page, i32) -> *mut c_void,
+    pub FPDFPageObj_GetType: unsafe extern "C" fn(*mut c_void) -> i32,
 }
 
 unsafe impl Send for Pdfium {}
@@ -180,6 +198,23 @@ pub(crate) fn pdfium() -> Result<&'static Pdfium, String> {
             FPDFImageObj_SetMatrix: f!(FPDFImageObj_SetMatrix),
             FPDFAnnot_GetFlags: f!(FPDFAnnot_GetFlags),
             FPDFAnnot_SetFlags: f!(FPDFAnnot_SetFlags),
+            FPDF_GetMetaText: f!(FPDF_GetMetaText),
+            FPDFCatalog_IsTagged: f!(FPDFCatalog_IsTagged),
+            FPDFCatalog_GetLanguage: f!(FPDFCatalog_GetLanguage),
+            FPDFBookmark_GetFirstChild: f!(FPDFBookmark_GetFirstChild),
+            FPDF_GetDocPermissions: f!(FPDF_GetDocPermissions),
+            FPDF_StructTree_GetForPage: f!(FPDF_StructTree_GetForPage),
+            FPDF_StructTree_Close: f!(FPDF_StructTree_Close),
+            FPDF_StructTree_CountChildren: f!(FPDF_StructTree_CountChildren),
+            FPDF_StructTree_GetChildAtIndex: f!(FPDF_StructTree_GetChildAtIndex),
+            FPDF_StructElement_GetType: f!(FPDF_StructElement_GetType),
+            FPDF_StructElement_GetAltText: f!(FPDF_StructElement_GetAltText),
+            FPDF_StructElement_GetActualText: f!(FPDF_StructElement_GetActualText),
+            FPDF_StructElement_CountChildren: f!(FPDF_StructElement_CountChildren),
+            FPDF_StructElement_GetChildAtIndex: f!(FPDF_StructElement_GetChildAtIndex),
+            FPDFPage_CountObjects: f!(FPDFPage_CountObjects),
+            FPDFPage_GetObject: f!(FPDFPage_GetObject),
+            FPDFPageObj_GetType: f!(FPDFPageObj_GetType),
         })
     })
     .as_ref()
@@ -456,6 +491,42 @@ pub fn lees_velden(pad: &Path) -> Result<Vec<Veld>, String> {
         }
     }
     Ok(velden)
+}
+
+/// Voor Controleren: alle invulvelden met (pagina, naam, beschrijving voor de schermlezer = TU).
+pub fn velden_met_beschrijving(pad: &Path) -> Result<Vec<(i32, String, String)>, String> {
+    let p = pdfium()?;
+    let _slot = SLOT.lock().unwrap();
+    let open = Open::nieuw(p, pad)?;
+    let mut uit = Vec::new();
+    if open.form.is_null() {
+        return Ok(uit);
+    }
+    unsafe {
+        for nr in 0..(p.FPDF_GetPageCount)(open.doc) {
+            let Some(page) = open.pagina(nr) else { continue };
+            for i in 0..(p.FPDFPage_GetAnnotCount)(page) {
+                let a = (p.FPDFPage_GetAnnot)(page, i);
+                if a.is_null() {
+                    continue;
+                }
+                if (p.FPDFAnnot_GetSubtype)(a) == 20 {
+                    let soort = (p.FPDFAnnot_GetFormFieldType)(open.form, a);
+                    // 1 = drukknop: telt ook mee; 0 = onbekend niet.
+                    if soort > 0 {
+                        let naam = tekst_van(|b, n| (p.FPDFAnnot_GetFormFieldName)(open.form, a, b, n));
+                        let tu = tekst_van(|b, n| (p.FPDFAnnot_GetFormFieldAlternateName)(open.form, a, b, n));
+                        if !uit.iter().any(|(_, x, _): &(i32, String, String)| *x == naam) {
+                            uit.push((nr + 1, naam, tu));
+                        }
+                    }
+                }
+                (p.FPDFPage_CloseAnnot)(a);
+            }
+            open.sluit_pagina(page);
+        }
+    }
+    Ok(uit)
 }
 
 /// Vult de velden in en slaat het formulier op als nieuwe PDF.

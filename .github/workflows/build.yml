@@ -146,6 +146,34 @@ jobs:
           if ($p.ExitCode -ne 0) { throw "De handtekening werkt niet." }
           if (-not (Get-Content handtekening.txt -Raw -Encoding utf8).Contains("Handtekeningveld gevonden")) { throw "Het handtekeningveld is niet gevonden." }
 
+      - name: Controleren (PDF, Word en website)
+        shell: pwsh
+        run: |
+          $fouten = 0
+          $verwacht = @{
+            "controle-fouten.pdf" = @("De PDF heeft geen titel", "1 van de 1 plaatjes hebben geen beschrijving", "tabellen zonder kopcellen");
+            "controle-goed.pdf" = @("Paper Pilot vond 0 problemen en 0 punten", "De PDF heeft een titel: Goede brief", "De PDF is getagd");
+            "scan.pdf" = @("Deze PDF is een scan", "niet getagd");
+            "voorbeeld-formulier.pdf" = @("Alle 7 invulvelden hebben een naam");
+            "controle-word.docx" = @("Het document heeft geen titel", "eruitziet als een kop", "geen beschrijving", "geen koprij", "te weinig kleurcontrast", "met de hand is getypt", "kleine letters", "Koppen slaan een niveau over");
+            "controle-web.html" = @("De taal van de pagina is niet ingesteld", "De pagina heeft geen titel", "logo.png", "knoppen zonder naam", "geen label", "Inzoomen is uitgezet", "zonder titel", "Geluid of video speelt vanzelf af", "dezelfde id", "Lees meer")
+          }
+          foreach ($f in $verwacht.Keys) {
+            $p = Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-controleren", "tests\$f", "controle-$f.txt" -Wait -PassThru
+            $t = Get-Content "controle-$f.txt" -Raw -Encoding utf8
+            "==== $f"; $t.Substring(0, [Math]::Min(1200, $t.Length))
+            if ($p.ExitCode -ne 0) { "FOUT: $f gaf foutcode $($p.ExitCode)"; $fouten++ }
+            foreach ($v in $verwacht[$f]) { if (-not $t.Contains($v)) { "FOUT: '$v' ontbreekt in $f"; $fouten++ } }
+          }
+          if ($fouten -gt 0) { throw "$fouten fout(en) bij het controleren." }
+
+      - name: Een echte website controleren (ter informatie)
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-controleren", "https://www.rijksoverheid.nl", "controle-website.txt" -Wait
+          Get-Content controle-website.txt -Encoding utf8 | Select-Object -First 40
+
       - name: Formulieren zonder invulvelden
         shell: pwsh
         run: |
@@ -271,7 +299,7 @@ jobs:
         run: |
           New-Item -ItemType Directory uit | Out-Null
           Copy-Item "uitvoer\*.exe", "scherm-*.png", "proef.txt", "toegankelijkheid.txt" uit\
-          Copy-Item "lezen-*.txt", "beeldmodel*.txt", "invullen.txt", "ingevuld.pdf", "plat-*.txt", "plat-*.pdf", "herinneringen.txt", "handtekening.txt", "getekend.pdf" uit\ -ErrorAction SilentlyContinue
+          Copy-Item "lezen-*.txt", "beeldmodel*.txt", "invullen.txt", "ingevuld.pdf", "plat-*.txt", "plat-*.pdf", "herinneringen.txt", "handtekening.txt", "getekend.pdf", "controle-*.txt" uit\ -ErrorAction SilentlyContinue
           @"
           # Paper Pilot $env:VERSIE
 

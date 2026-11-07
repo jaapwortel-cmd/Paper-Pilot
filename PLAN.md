@@ -117,7 +117,7 @@ Elke stap eindigt met een nieuwe versie voor Jaap (0.0.0.1, 0.0.0.2 enz.). Pas a
 
 - Een versie voor Android (Google Play-account nodig) of iPhone (Apple-account nodig).
   Het hart van het programma (Rust) kan dan mee.
-- (Gedaan in 0.0.0.7: Wat moet ik doen?, herinneringen, Mijn post, handtekening en mailen.)
+- (Gedaan in 0.0.0.7: Wat moet ik doen?, herinneringen, Mijn post, handtekening, mailen, en Controleren voor PDF, Word en websites.)
 
 ## Meer programma's van Jaap (Jaaps tekst, 6 nov 2026)
 

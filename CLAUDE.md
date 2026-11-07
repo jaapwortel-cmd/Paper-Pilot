@@ -108,3 +108,11 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   op scans via op_beeld; "[mijn handtekening]" als waarde in het invulvenster), `versturen.rs` (MAPISendMailW uit mapi32.dll,
   anders CF_HDROP op het klembord + mailto). gegevens::lees/schrijf_versleuteld. Proeven --proef-herinneringen,
   --proef-handtekening (tests/handtekening.png, tests/formulier-handtekening.pdf). Wine: schtasks /Delete werkt daar niet.
+  Ook in 0.0.0.7 (Jaap: "en nu dat gedeelte voor ziende mensen"): stap 10-12 Controleren. `controleren.rs` (keuze PDF/Word/
+  website, Verslag met Punt Probleem/LetOp/Goed uit teksten "Kop || Uitleg || Oplossing", verslag als Document in het
+  leesvenster via leesvenster::open_verslag (niet in Mijn post), WCAG-contrast), `controle_pdf.rs` (pdfium: tekst/scan, vreemde
+  tekens, IsTagged, titel (ook nep-titels), taal, StructTree: H/H1-6, Figure zonder Alt, Table zonder TH; bladwijzers, velden
+  zonder TU, rechten), `controle_word.rs` (docx-XML: titel, taal, kopstijlen + nep-koppen, docPr descr/decorative, tblHeader,
+  samengevoegde cellen, contrast, sz<18, lege alinea's, vage links, handlijsten, tekstvakken), `controle_web.rs` (eigen HTML-
+  tokenizer, geen JavaScript: lang, title, alt, links/knoppen/velden zonder naam, koppen, main, viewport-zoom, iframes, dubbele
+  id's, tabindex, autoplay, inline contrast). Proef `--proef-controleren <bestand of url> <verslag>`, tests/controle-*.

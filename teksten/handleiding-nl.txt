@@ -14,8 +14,6 @@ Lezen en invullen: voor blinden en slechtzienden. Je scant of opent een brief en
 
 Controleren: voor ziende mensen die een PDF, Word-bestand of website maken. Paper Pilot zegt in gewone taal wat een schermlezer niet goed kan lezen, en hoe je dat oplost.
 
-Let op: in deze versie kun je documenten, scans en foto's openen en lezen. Ondertekenen en Controleren worden nu gebouwd en komen in de volgende versies. Updates krijg je vanzelf.
-
 
 2. Het hoofdvenster
 
@@ -85,7 +83,21 @@ Afdrukken: kies Afdrukken (Ctrl+P). Bij een scan of foto kies je eerst: de tekst
 Je kunt ook in de Verkenner op een PDF, Word-bestand of foto gaan staan en kiezen: Openen met, Paper Pilot.
 
 
-4. De menu's
+4. Controleren (voor wie documenten of websites maakt)
+
+Kies Controleren (Alt+C) in het hoofdvenster. Paper Pilot vraagt wat je wilt controleren: een PDF, een Word-bestand (.docx) of een website. Bij een website typ of plak je het adres.
+
+Daarna krijg je een verslag in het leesvenster. Bovenaan staat hoeveel problemen en punten om op te letten Paper Pilot vond, en wat goed is. Bij elk punt staat wat er mis is, waarom dat lastig is voor iemand met een schermlezer, waar het is, en hoe je het oplost. Met Ctrl+K spring je van punt naar punt, met Ctrl+S sla je het verslag op, met Ctrl+P druk je het af.
+
+Wat Paper Pilot controleert:
+- PDF: echte tekst of een scan, vreemde tekens (lettertypen), structuur (tags), titel, taal, koppen, beschrijvingen bij plaatjes, koprijen in tabellen, bladwijzers in een lange PDF, namen bij invulvelden, en beveiliging die de schermlezer tegenhoudt.
+- Word: titel, taal, echte koppen en tekst die er alleen uitziet als een kop, beschrijvingen bij plaatjes, koprijen en ingewikkelde tabellen, kleurcontrast, heel kleine letters, lege regels als opvulling, onduidelijke linkteksten, met de hand getypte lijstjes en tekstvakken. Een oud .doc-bestand sla je eerst op als .docx.
+- Website: taal, titel, alt-tekst bij plaatjes, links en knoppen zonder naam, invulvelden zonder label, koppen, een hoofdgedeelte (main), inzoomen, iframes, dubbele id's, tabindex, geluid dat vanzelf afspeelt, en kleurcontrast in de HTML. Paper Pilot kijkt naar de HTML; wat met JavaScript verschijnt en kleuren uit CSS worden niet gecontroleerd.
+
+Paper Pilot controleert veel, maar niet alles. Laat je document of website ook eens gebruiken door iemand met een schermlezer.
+
+
+5. De menu's
 
 Druk op Alt om naar de menubalk te gaan.
 
@@ -114,24 +126,24 @@ Help
 - Over Paper Pilot: versie en maker.
 
 
-5. Dicteren
+6. Dicteren
 
 In elk invulveld van Paper Pilot kun je ook dicteren met een dicteerprogramma, zoals Spraak naar tekst, Wispr Flow, Dragon NaturallySpeaking of dicteren van Windows (Windows+H). Paper Pilot springt nooit vanzelf naar een ander veld, dus je dictaat komt altijd in het veld waar je staat.
 
 Paper Pilot gebruikt nooit de Insert-toets of Caps Lock: dat zijn de toetsen van je schermlezer. Zolang je een van die toetsen ingedrukt houdt, reageert Paper Pilot nergens op.
 
 
-6. De eerste keer en na een update
+7. De eerste keer en na een update
 
 De eerste keer dat je Paper Pilot start, zie je een korte rondleiding. Na een update zie je één keer wat er nieuw is. Beide vind je later terug in het menu Help.
 
 
-7. Updates
+8. Updates
 
 Paper Pilot kijkt één keer per dag of er een nieuwe versie is (dat kun je uitzetten in het menu Instellingen). Is er een nieuwe versie, dan vraagt Paper Pilot of je hem wilt installeren. Kies je Ja, dan vraagt Windows om toestemming. Paper Pilot sluit even, de nieuwe versie wordt geïnstalleerd en Paper Pilot start vanzelf opnieuw. De oude programmabestanden worden opgeruimd. Je eigen gegevens en instellingen blijven bewaard.
 
 
-8. Installeren en verwijderen
+9. Installeren en verwijderen
 
 Paper Pilot wordt geïnstalleerd in de map Program Files. Windows vraagt daarbij één keer om toestemming.
 
@@ -142,11 +154,11 @@ Verwijderen kan op twee manieren:
 Bij het verwijderen vraagt Paper Pilot of je eigen gegevens en instellingen ook weg moeten.
 
 
-9. Waar Paper Pilot iets bewaart
+10. Waar Paper Pilot iets bewaart
 
-Instellingen en het logboek staan in de map %APPDATA%\Paper Pilot op je eigen computer. Het logboek helpt bij het zoeken naar fouten. Het gaat nooit vanzelf naar iemand toe.
+Instellingen, het logboek, Mijn gegevens, Mijn post, je herinneringen en je handtekening staan in de map %APPDATA%\Paper Pilot op je eigen computer. Mijn gegevens, Mijn post, de herinneringen en de handtekening zijn versleuteld. Het logboek helpt bij het zoeken naar fouten. Het gaat nooit vanzelf naar iemand toe.
 
 
-10. Vragen en ideeën
+11. Vragen en ideeën
 
 Heb je een vraag, een fout gevonden of een idee? Kies Help, Mail de maker, of mail naar jaap.wortel@gmail.com.

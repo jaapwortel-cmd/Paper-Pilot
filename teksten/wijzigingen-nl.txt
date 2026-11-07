@@ -1,6 +1,7 @@
 ﻿Wijzigingen in Paper Pilot
 
 Versie 0.0.0.7 (november 2026)
+- Nieuw: Controleren, voor ziende mensen die een PDF, Word-bestand of website maken. Paper Pilot zegt in gewone taal wat een schermlezer niet goed kan lezen en hoe je het oplost.
 - Nieuw: herinneringen (Ctrl+R en menu Bestand). Paper Pilot waarschuwt vanaf drie dagen van tevoren, ook als het programma niet open is.
 - Nieuw: Mijn post (menu Bestand). Alle brieven die je las, met datum en afzender, om ze terug te vinden. Versleuteld op je eigen computer; uit te zetten.
 - Nieuw: Mijn handtekening (menu Instellingen). Eén keer scannen; daarna zet Paper Pilot hem op formulieren.

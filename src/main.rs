@@ -10,6 +10,10 @@
 #![windows_subsystem = "windows"]
 
 mod beeld;
+mod controle_pdf;
+mod controle_web;
+mod controle_word;
+mod controleren;
 mod beeldmodel;
 mod afdrukken;
 mod bijwerken;
@@ -92,6 +96,12 @@ fn main() {
         let i = args.iter().position(|a| a == "--proef-plat").unwrap_or(0);
         let verslag = args.get(i + 2).cloned().unwrap_or_else(|| "plat.txt".into());
         std::process::exit(proef::proef_plat(&bestand, &verslag));
+    }
+    if let Some(bestand) = waarde("--proef-controleren") {
+        // --proef-controleren <pdf, docx of html> <verslag>
+        let i = args.iter().position(|a| a == "--proef-controleren").unwrap_or(0);
+        let verslag = args.get(i + 2).cloned().unwrap_or_else(|| "controle.txt".into());
+        std::process::exit(proef::proef_controleren(&bestand, &verslag));
     }
     if let Some(verslag) = waarde("--proef-herinneringen") {
         std::process::exit(proef::proef_herinneringen(&verslag));

@@ -270,6 +270,14 @@ fn afdrukken() {
     unsafe { SetFocus(s.vak) };
 }
 
+/// Opent het leesvenster met een verslag van Controleren (Ctrl+K springt van punt naar punt).
+pub fn open_verslag(eigenaar: HWND, doc: Document) {
+    let h = maak(eigenaar);
+    if !h.is_null() {
+        geladen_met(Ok((doc, PathBuf::new())), false);
+    }
+}
+
 /// Opent het leesvenster met een tekst uit Mijn post (een scan die niet als bestand bestaat).
 pub fn open_tekst(eigenaar: HWND, naam: &str, tekst: &str) {
     let h = maak(eigenaar);
@@ -520,6 +528,11 @@ fn laad(pad: PathBuf) {
 }
 
 fn geladen(uitkomst: Result<(Document, PathBuf), String>) {
+    geladen_met(uitkomst, true);
+}
+
+/// `onthouden`: in Mijn post zetten (niet bij een verslag van Controleren).
+fn geladen_met(uitkomst: Result<(Document, PathBuf), String>, onthouden: bool) {
     met(|s| s.bezig = false);
     let Some(s) = lees() else { return };
     match uitkomst {
@@ -539,7 +552,9 @@ fn geladen(uitkomst: Result<(Document, PathBuf), String>) {
             zet_tekst(s.hwnd, &titel);
             logboek::schrijf(&format!("Document geopend: {} ({} pagina's, {} koppen, {} invulvelden).", doc.naam,
                 doc.paginas.len(), doc.koppen.len(), doc.invulvelden));
-            crate::post::onthoud(&doc, &pad.to_string_lossy());
+            if onthouden {
+                crate::post::onthoud(&doc, &pad.to_string_lossy());
+            }
             let zonder = doc.zonder_tekst.clone();
             let meldingen = doc.meldingen.clone();
             let velden = doc.invulvelden;

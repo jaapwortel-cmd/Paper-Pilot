@@ -217,7 +217,7 @@ fn zet_teksten() {
             }
         }
         zet_tekst(s.tegels[0], &format!("{}. {}", t("TegelLezen"), t("TegelLezenOver")));
-        zet_tekst(s.tegels[1], &format!("{}. {} {}", t("TegelControleren"), t("TegelControlerenOver"), t("Binnenkort")));
+        zet_tekst(s.tegels[1], &format!("{}. {}", t("TegelControleren"), t("TegelControlerenOver")));
         unsafe { InvalidateRect(s.hwnd, std::ptr::null(), 1) };
     }
     vink_menu();
@@ -428,8 +428,8 @@ fn teken_tegel(di: &DRAWITEMSTRUCT) {
         let mut rs = RECT { left: binnen, top: binnen, right: binnen + px(48, d), bottom: binnen + px(44, d) };
         teken_tekst(dc, if lezen { "\u{E8A5}" } else { "\u{E9D5}" }, &mut rs, s.letters.symbool,
             if k.hoog_contrast { tekstkleur } else { k.accent }, DT_LEFT | DT_SINGLELINE | DT_NOPREFIX);
-        // "Binnenkort" als label rechtsboven (alleen bij onderdelen die er nog niet zijn).
-        let label = if lezen { t("NieuwLabel") } else { t("BinnenkortLabel") };
+        // Een label rechtsboven ("Nieuw").
+        let label = t("NieuwLabel");
         let lb = px(110, d);
         let lh = px(28, d);
         let lx = b - binnen - lb;
@@ -484,10 +484,6 @@ unsafe extern "system" fn tegel_proc(hwnd: HWND, msg: u32, wp: WPARAM, lp: LPARA
 
 fn tekst_tonen(titel_sleutel: &str, tekst: &str) {
     tekstvenster::toon(hoofd_hwnd(), &t(titel_sleutel), tekst);
-}
-
-fn komt_later(hwnd: HWND, sleutel: &str) {
-    dialogen::melding(hwnd, &t(sleutel), &t("KomtLaterTekst"), dialogen::ICOON_INFO);
 }
 
 fn zoek_updates(handmatig: bool) {
@@ -619,7 +615,7 @@ fn mijn_gegevens(hwnd: HWND) {
 fn opdracht(hwnd: HWND, id: i32) {
     match id {
         ID_LEZEN => crate::leesvenster::open_en_kies(hwnd),
-        ID_CONTROLEREN => komt_later(hwnd, "TegelControleren"),
+        ID_CONTROLEREN => crate::controleren::start(hwnd),
         ID_AFSLUITEN => unsafe {
             DestroyWindow(hwnd);
         },
