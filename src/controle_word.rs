@@ -178,6 +178,7 @@ pub fn controleer(pad: &Path) -> Result<Verslag, String> {
         tekens: usize,
         grootte: Option<u32>,
         lijst: bool,
+        uitgevuld: bool,
     }
     let mut r = quick_xml::Reader::from_str(&doc);
     let mut alinea: Option<Alinea> = None;
@@ -205,6 +206,9 @@ pub fn controleer(pad: &Path) -> Result<Verslag, String> {
     let mut tekstvakken = 0usize;
     let mut laag_contrast: Vec<String> = Vec::new();
     let mut klein: Vec<String> = Vec::new();
+    let mut uitgevuld = 0usize;
+    let mut hoofdletters: Vec<String> = Vec::new();
+    let mut run_caps = false;
     // Opmaak van het stukje tekst (w:r) dat nu loopt.
     let mut run_vet = false;
     let mut run_kleur: Option<String> = None;
@@ -234,6 +238,11 @@ pub fn controleer(pad: &Path) -> Result<Verslag, String> {
                             a.stijl = s;
                         }
                     }
+                    "jc" if !in_run_opmaak => {
+                        if let (Some(a), Some(v)) = (alinea.as_mut(), attr(&e, "val")) {
+                            a.uitgevuld = v == "both" || v == "distribute";
+                        }
+                    }
                     "numPr" => {
                         if let Some(a) = alinea.as_mut() {
                             a.lijst = true;
@@ -244,9 +253,11 @@ pub fn controleer(pad: &Path) -> Result<Verslag, String> {
                         run_kleur = None;
                         run_grootte = None;
                         run_achter = None;
+                        run_caps = false;
                         run_tekst.clear();
                     }
                     "rPr" => in_run_opmaak = true,
+                    "caps" if in_run_opmaak => run_caps = attr(&e, "val").map(|v| v != "0" && v != "false").unwrap_or(true),
                     "b" if in_run_opmaak => run_vet = attr(&e, "val").map(|v| v != "0" && v != "false").unwrap_or(true),
                     "color" if in_run_opmaak => run_kleur = attr(&e, "val"),
                     "sz" if in_run_opmaak => run_grootte = attr(&e, "val").and_then(|v| v.parse().ok()),
@@ -321,6 +332,14 @@ pub fn controleer(pad: &Path) -> Result<Verslag, String> {
                                     klein.push(format!("{} ({} pt)", kort(&run_tekst), g / 2));
                                 }
                             }
+                            // Hele zinnen in hoofdletters lezen moeilijk (en schermlezers spellen ze soms).
+                            let letters: Vec<char> = run_tekst.chars().filter(|c| c.is_alphabetic()).collect();
+                            let alles_groot = letters.len() >= 15 && letters.iter().all(|c| c.is_uppercase()) && run_tekst.split_whitespace().count() >= 3;
+                            if (run_caps && run_tekst.split_whitespace().count() >= 3) || alles_groot {
+                                if hoofdletters.len() < 40 {
+                                    hoofdletters.push(kort(&run_tekst));
+                                }
+                            }
                             if let Some(a) = alinea.as_mut() {
                                 a.tekens += tekens;
                                 if run_vet || stijl.vet {
@@ -373,6 +392,9 @@ pub fn controleer(pad: &Path) -> Result<Verslag, String> {
                                 continue;
                             }
                             leeg_op_rij = 0;
+                            if a.uitgevuld && tekst.chars().count() > 80 {
+                                uitgevuld += 1;
+                            }
                             let stijl = opmaak(&stijlen, &a.stijl);
                             if let Some(niveau) = stijl.kop {
                                 koppen.push((niveau, tekst.clone()));
@@ -451,6 +473,12 @@ pub fn controleer(pad: &Path) -> Result<Verslag, String> {
     }
     if !klein.is_empty() {
         v.punt(Ernst::LetOp, "CWordKlein", &[&klein.len().to_string()], klein);
+    }
+    if uitgevuld > 0 {
+        v.punt(Ernst::LetOp, "CWordUitgevuld", &[&uitgevuld.to_string()], Vec::new());
+    }
+    if !hoofdletters.is_empty() {
+        v.punt(Ernst::LetOp, "CWordHoofdletters", &[&hoofdletters.len().to_string()], hoofdletters);
     }
     if lege_stukken > 0 {
         v.punt(Ernst::LetOp, "CWordLegeAlineas", &[&lege_stukken.to_string()], Vec::new());

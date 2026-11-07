@@ -187,6 +187,14 @@ fn lees_attrs(s: &str) -> Vec<(String, String)> {
     uit
 }
 
+/// Een taalcode zoals "nl", "nl-NL" of "en-GB".
+fn geldige_taal(s: &str) -> bool {
+    let mut delen = s.split('-');
+    let eerste = delen.next().unwrap_or("");
+    (2..=3).contains(&eerste.len()) && eerste.chars().all(|c| c.is_ascii_alphabetic())
+        && delen.all(|d| (2..=8).contains(&d.len()) && d.chars().all(|c| c.is_ascii_alphanumeric()))
+}
+
 /// Een kleur uit CSS: #abc, #aabbcc, rgb(1,2,3) of een paar bekende namen.
 fn css_kleur(s: &str) -> Option<(u8, u8, u8)> {
     let s = s.trim().to_lowercase();
@@ -246,6 +254,7 @@ pub fn controleer_html(adres: &str, html: &str) -> Verslag {
 
     // Taal en titel.
     match open(&labels, "html").next().and_then(|h| h.waarde("lang").map(|s| s.to_string())) {
+        Some(taal) if !geldige_taal(&taal) => v.punt(Ernst::Probleem, "CWebFouteTaal", &[&taal], Vec::new()),
         Some(taal) => v.goed("CWebTaal", &[&taal]),
         None => v.punt(Ernst::Probleem, "CWebGeenTaal", &[], Vec::new()),
     }
@@ -274,6 +283,20 @@ pub fn controleer_html(adres: &str, html: &str) -> Verslag {
     // Stapel voor a/button/hN/label: (soort, begin-index in teksten_tot, label)
     let mut stapel: Vec<(String, usize, Label)> = Vec::new();
     let mut verborgen_diepte = 0usize;
+    // Extra controles uit WCAG 2.2.
+    let mut tabellen: Vec<bool> = Vec::new(); // open tabellen: heeft al een kopcel?
+    let mut tabellen_totaal = 0usize;
+    let mut tabellen_zonder_kop = 0usize;
+    let mut fieldset_diepte = 0usize;
+    let mut rondjes: HashMap<String, bool> = HashMap::new(); // naam -> in een groep (fieldset)
+    let mut zonder_autocomplete = Vec::new();
+    let mut video_open: Option<bool> = None; // Some(heeft ondertiteling)
+    let mut video_zonder_ondertiteling = 0usize;
+    let mut bewegend = 0usize;
+    let mut verversen = false;
+    let mut klik_zonder_toetsenbord = Vec::new();
+    let mut verborgen_maar_focus = Vec::new();
+    let mut svg_zonder_naam = 0usize;
 
     for stuk in &s {
         match stuk {
@@ -295,6 +318,18 @@ pub fn controleer_html(adres: &str, html: &str) -> Verslag {
                         if ti > 0 {
                             tabindex += 1;
                         }
+                    }
+                    // Klikbaar gemaakt met JavaScript, maar niet met het toetsenbord te bereiken.
+                    if (l.naam == "div" || l.naam == "span" || l.naam == "li" || l.naam == "td") && l.heeft("onclick")
+                        && l.attr("role").is_none() && l.attr("tabindex").is_none()
+                    {
+                        klik_zonder_toetsenbord.push(format!("<{}{}>", l.naam, l.waarde("class").map(|c| format!(" class=\"{}\"", kort(c))).unwrap_or_default()));
+                    }
+                    // Verborgen voor de schermlezer, maar wel te bereiken met Tab.
+                    let focusbaar = (l.naam == "a" && l.heeft("href")) || matches!(l.naam.as_str(), "button" | "input" | "select" | "textarea")
+                        || l.waarde("tabindex").and_then(|x| x.parse::<i32>().ok()).map(|x| x >= 0).unwrap_or(false);
+                    if focusbaar && l.attr("aria-hidden") == Some("true") && l.attr("type") != Some("hidden") {
+                        verborgen_maar_focus.push(format!("<{}>", l.naam));
                     }
                     // Kleurcontrast in de HTML zelf (style="color: ...; background: ...").
                     if let (Some(k), Some(a)) = (stijl(l, "color").and_then(|c| css_kleur(&c)),
@@ -324,8 +359,57 @@ pub fn controleer_html(adres: &str, html: &str) -> Verslag {
                         }
                     }
                     ("svg", false) => {
+                        if l.attr("role") == Some("img") && l.waarde("aria-label").is_none() && l.waarde("aria-labelledby").is_none() {
+                            svg_zonder_naam += 1;
+                        }
                         if let Some(n) = l.waarde("aria-label") {
                             teksten_tot.push(n.to_string());
+                        }
+                    }
+                    ("table", false) => {
+                        let opmaak = matches!(l.attr("role"), Some("presentation") | Some("none"));
+                        tabellen.push(opmaak);
+                        if !opmaak {
+                            tabellen_totaal += 1;
+                        }
+                    }
+                    ("th", false) => {
+                        if let Some(t) = tabellen.last_mut() {
+                            *t = true;
+                        }
+                    }
+                    ("td", false) => {
+                        if matches!(l.attr("scope"), Some("row") | Some("col")) {
+                            if let Some(t) = tabellen.last_mut() {
+                                *t = true;
+                            }
+                        }
+                    }
+                    ("table", true) => {
+                        if tabellen.pop() == Some(false) {
+                            tabellen_zonder_kop += 1;
+                        }
+                    }
+                    ("fieldset", false) => fieldset_diepte += 1,
+                    ("fieldset", true) => fieldset_diepte = fieldset_diepte.saturating_sub(1),
+                    ("marquee", false) | ("blink", false) => bewegend += 1,
+                    ("meta", false) => {
+                        if l.attr("http-equiv").map(|h| h.eq_ignore_ascii_case("refresh")).unwrap_or(false)
+                            && l.attr("content").and_then(|c| c.split(';').next()).and_then(|n| n.trim().parse::<f32>().ok()).map(|n| n > 0.0).unwrap_or(false)
+                        {
+                            verversen = true;
+                        }
+                    }
+                    ("track", false) => {
+                        if matches!(l.attr("kind"), Some("captions") | Some("subtitles")) {
+                            if let Some(v) = video_open.as_mut() {
+                                *v = true;
+                            }
+                        }
+                    }
+                    ("video", true) => {
+                        if video_open.take() == Some(false) {
+                            video_zonder_ondertiteling += 1;
                         }
                     }
                     ("iframe", false) => {
@@ -334,6 +418,9 @@ pub fn controleer_html(adres: &str, html: &str) -> Verslag {
                         }
                     }
                     ("video", false) | ("audio", false) => {
+                        if l.naam == "video" {
+                            video_open = Some(false);
+                        }
                         if l.heeft("autoplay") && !l.heeft("muted") {
                             autoplay += 1;
                         }
@@ -357,7 +444,23 @@ pub fn controleer_html(adres: &str, html: &str) -> Verslag {
                                     lege_knoppen.push(format!("<input type=\"{soort}\">"));
                                 }
                             }
-                            _ => velden.push(((*l).clone(), in_label > 0)),
+                            _ => {
+                                if soort == "radio" {
+                                    if let Some(n) = l.waarde("name") {
+                                        let in_groep = fieldset_diepte > 0;
+                                        let e = rondjes.entry(n.to_string()).or_insert(in_groep);
+                                        *e &= in_groep;
+                                    }
+                                }
+                                // Persoonlijke gegevens: met autocomplete kan de browser ze invullen (WCAG 1.3.5).
+                                let sleutel = format!("{} {} {}", l.attr("name").unwrap_or(""), l.attr("id").unwrap_or(""), soort).to_lowercase();
+                                let persoonlijk = ["email", "e-mail", "tel", "phone", "telefoon", "naam", "name", "postcode", "zip", "adres", "address", "straat", "street", "woonplaats", "city"]
+                                    .iter().any(|w| sleutel.contains(w)) && !sleutel.contains("search") && !sleutel.contains("zoek");
+                                if persoonlijk && l.attr("autocomplete").is_none() && l.naam == "input" {
+                                    zonder_autocomplete.push(format!("<input {}>", kort(l.waarde("name").or(l.waarde("id")).unwrap_or(&soort))));
+                                }
+                                velden.push(((*l).clone(), in_label > 0))
+                            }
                         }
                     }
                     ("a", false) if l.heeft("href") => stapel.push(("a".into(), teksten_tot.len(), (*l).clone())),
@@ -471,6 +574,37 @@ pub fn controleer_html(adres: &str, html: &str) -> Verslag {
         if !leeg.is_empty() {
             v.punt(Ernst::Probleem, "CWebLegeKoppen", &[&leeg.len().to_string()], leeg);
         }
+    }
+    // Tabellen met kopcellen.
+    if tabellen_zonder_kop > 0 {
+        v.punt(Ernst::Probleem, "CWebTabelZonderKop", &[&tabellen_zonder_kop.to_string(), &tabellen_totaal.to_string()], Vec::new());
+    } else if tabellen_totaal > 0 {
+        v.goed("CWebTabellenGoed", &[&tabellen_totaal.to_string()]);
+    }
+    let los: Vec<String> = rondjes.iter().filter(|(_, g)| !**g).map(|(n, _)| format!("name=\"{n}\"")).collect();
+    if !los.is_empty() {
+        v.punt(Ernst::LetOp, "CWebRondjesGroep", &[&los.len().to_string()], los);
+    }
+    if !zonder_autocomplete.is_empty() {
+        v.punt(Ernst::LetOp, "CWebAutocomplete", &[&zonder_autocomplete.len().to_string()], zonder_autocomplete);
+    }
+    if video_zonder_ondertiteling > 0 {
+        v.punt(Ernst::LetOp, "CWebOndertiteling", &[&video_zonder_ondertiteling.to_string()], Vec::new());
+    }
+    if bewegend > 0 {
+        v.punt(Ernst::Probleem, "CWebBewegend", &[], Vec::new());
+    }
+    if verversen {
+        v.punt(Ernst::Probleem, "CWebVerversen", &[], Vec::new());
+    }
+    if !klik_zonder_toetsenbord.is_empty() {
+        v.punt(Ernst::Probleem, "CWebKlikZonderToetsenbord", &[&klik_zonder_toetsenbord.len().to_string()], klik_zonder_toetsenbord);
+    }
+    if !verborgen_maar_focus.is_empty() {
+        v.punt(Ernst::Probleem, "CWebVerborgenFocus", &[&verborgen_maar_focus.len().to_string()], verborgen_maar_focus);
+    }
+    if svg_zonder_naam > 0 {
+        v.punt(Ernst::Probleem, "CWebSvgZonderNaam", &[&svg_zonder_naam.to_string()], Vec::new());
     }
     // Hoofdgedeelte en andere herkenningspunten.
     let heeft_main = labels.iter().any(|l| !l.sluit && (l.naam == "main" || l.attr("role") == Some("main")));

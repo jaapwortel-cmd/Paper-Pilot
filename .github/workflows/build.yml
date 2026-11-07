@@ -155,8 +155,8 @@ jobs:
             "controle-goed.pdf" = @("Paper Pilot vond 0 problemen en 0 punten", "De PDF heeft een titel: Goede brief", "De PDF is getagd");
             "scan.pdf" = @("Deze PDF is een scan", "niet getagd");
             "voorbeeld-formulier.pdf" = @("Alle 7 invulvelden hebben een naam");
-            "controle-word.docx" = @("Het document heeft geen titel", "eruitziet als een kop", "geen beschrijving", "geen koprij", "te weinig kleurcontrast", "met de hand is getypt", "kleine letters", "Koppen slaan een niveau over");
-            "controle-web.html" = @("De taal van de pagina is niet ingesteld", "De pagina heeft geen titel", "logo.png", "knoppen zonder naam", "geen label", "Inzoomen is uitgezet", "zonder titel", "Geluid of video speelt vanzelf af", "dezelfde id", "Lees meer")
+            "controle-word.docx" = @("Het document heeft geen titel", "eruitziet als een kop", "geen beschrijving", "geen koprij", "te weinig kleurcontrast", "met de hand is getypt", "kleine letters", "Koppen slaan een niveau over", "uitgevulde tekst", "in hoofdletters");
+            "controle-web.html" = @("De taal van de pagina is niet ingesteld", "De pagina heeft geen titel", "logo.png", "knoppen zonder naam", "geen label", "Inzoomen is uitgezet", "zonder titel", "Geluid of video speelt vanzelf af", "dezelfde id", "Lees meer", "tabellen hebben geen kopcellen", "groepsvraag", "autocomplete", "ondertiteling", "Bewegende", "ververst", "alleen met de muis", "met Tab te bereiken", "svg")
           }
           foreach ($f in $verwacht.Keys) {
             $p = Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-controleren", "tests\$f", "controle-$f.txt" -Wait -PassThru

@@ -91,8 +91,10 @@ Daarna krijg je een verslag in het leesvenster. Bovenaan staat hoeveel problemen
 
 Wat Paper Pilot controleert:
 - PDF: echte tekst of een scan, vreemde tekens (lettertypen), structuur (tags), titel, taal, koppen, beschrijvingen bij plaatjes, koprijen in tabellen, bladwijzers in een lange PDF, namen bij invulvelden, en beveiliging die de schermlezer tegenhoudt.
-- Word: titel, taal, echte koppen en tekst die er alleen uitziet als een kop, beschrijvingen bij plaatjes, koprijen en ingewikkelde tabellen, kleurcontrast, heel kleine letters, lege regels als opvulling, onduidelijke linkteksten, met de hand getypte lijstjes en tekstvakken. Een oud .doc-bestand sla je eerst op als .docx.
-- Website: taal, titel, alt-tekst bij plaatjes, links en knoppen zonder naam, invulvelden zonder label, koppen, een hoofdgedeelte (main), inzoomen, iframes, dubbele id's, tabindex, geluid dat vanzelf afspeelt, en kleurcontrast in de HTML. Paper Pilot kijkt naar de HTML; wat met JavaScript verschijnt en kleuren uit CSS worden niet gecontroleerd.
+- Word: titel, taal, echte koppen en tekst die er alleen uitziet als een kop, beschrijvingen bij plaatjes, koprijen en ingewikkelde tabellen, kleurcontrast, heel kleine letters, uitgevulde tekst, zinnen in hoofdletters, lege regels als opvulling, onduidelijke linkteksten, met de hand getypte lijstjes en tekstvakken. Een oud .doc-bestand sla je eerst op als .docx.
+- Website: taal, titel, alt-tekst bij plaatjes, links en knoppen zonder naam, invulvelden zonder label, keuzerondjes zonder groepsvraag, autocomplete bij persoonlijke gegevens, koppen, tabellen met kopcellen, een hoofdgedeelte (main), inzoomen, iframes, video zonder ondertiteling, bewegende tekst, pagina's die vanzelf verversen, onderdelen die alleen met de muis werken, dubbele id's, tabindex, geluid dat vanzelf afspeelt, en kleurcontrast in de HTML. Paper Pilot kijkt naar de HTML; wat met JavaScript verschijnt en kleuren uit CSS worden niet gecontroleerd.
+
+De controles volgen de internationale richtlijnen voor toegankelijkheid (WCAG 2.2, niveau AA), die ook in Nederland en Europa gelden, en de adviezen voor goed leesbare tekst voor mensen die slechtziend zijn.
 
 Paper Pilot controleert veel, maar niet alles. Laat je document of website ook eens gebruiken door iemand met een schermlezer.
 

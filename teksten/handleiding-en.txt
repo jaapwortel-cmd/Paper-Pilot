@@ -91,8 +91,10 @@ You then get a report in the reading window. At the top it says how many problem
 
 What Paper Pilot checks:
 - PDF: real text or a scan, strange characters (fonts), structure (tags), title, language, headings, descriptions of pictures, header rows in tables, bookmarks in a long PDF, names of form fields, and security that blocks the screen reader.
-- Word: title, language, real headings and text that only looks like a heading, descriptions of pictures, header rows and complicated tables, colour contrast, very small letters, empty lines used for spacing, unclear link texts, lists typed by hand and text boxes. Save an old .doc file as .docx first.
-- Website: language, title, alt text of pictures, links and buttons without a name, form fields without a label, headings, a main section (main), zooming, iframes, duplicate ids, tabindex, sound that plays by itself, and colour contrast in the HTML. Paper Pilot looks at the HTML; what appears through JavaScript and colours from CSS are not checked.
+- Word: title, language, real headings and text that only looks like a heading, descriptions of pictures, header rows and complicated tables, colour contrast, very small letters, justified text, sentences in capital letters, empty lines used for spacing, unclear link texts, lists typed by hand and text boxes. Save an old .doc file as .docx first.
+- Website: language, title, alt text of pictures, links and buttons without a name, form fields without a label, radio buttons without a group question, autocomplete for personal details, headings, tables with header cells, a main section (main), zooming, iframes, video without captions, moving text, pages that refresh by themselves, parts that only work with the mouse, duplicate ids, tabindex, sound that plays by itself, and colour contrast in the HTML. Paper Pilot looks at the HTML; what appears through JavaScript and colours from CSS are not checked.
+
+The checks follow the international accessibility guidelines (WCAG 2.2, level AA), which also apply in the Netherlands and Europe, and the advice on readable text for people who are visually impaired.
 
 Paper Pilot checks a lot, but not everything. Also ask someone who uses a screen reader to try your document or website.
 
