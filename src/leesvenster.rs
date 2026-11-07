@@ -37,18 +37,15 @@ const ID_AFDRUK: i32 = 112;
 const ID_INVULLEN: i32 = 113;
 const ID_QR: i32 = 114;
 const ID_TAAK: i32 = 115;
-const ID_VOORLEZEN: i32 = 116;
 const ID_HERINNERING: i32 = 117;
 const ID_MAIL: i32 = 118;
-const TIMER_VOORLEZEN: usize = 1;
 const ID_SLUITEN: i32 = IDCANCEL;
 const WM_GELADEN: u32 = WM_APP + 10;
 const WM_VOORTGANG: u32 = WM_APP + 11;
 
-const KNOPPEN: [(i32, &str); 17] = [
+const KNOPPEN: [(i32, &str); 16] = [
     (ID_OPENEN, "KnopOpenen"),
     (ID_TAAK, "KnopTaak"),
-    (ID_VOORLEZEN, "KnopVoorlezen"),
     (ID_HERINNERING, "KnopHerinnering"),
     (ID_MAIL, "KnopMailen"),
     (ID_INVULLEN, "KnopInvullen"),
@@ -80,8 +77,6 @@ struct Staat {
     pad: Option<PathBuf>,
     zoekwoord: String,
     bezig: bool,
-    /// Waar het voorlezen begon (in UTF-16-tekens).
-    voorlees_begin: usize,
 }
 
 thread_local! {
@@ -364,7 +359,6 @@ fn maak(eigenaar: HWND) -> HWND {
             ACCEL { fVirt: ctrl, key: b'D' as u16, cmd: ID_BESCHRIJF as u16 },
             ACCEL { fVirt: ctrl, key: b'Q' as u16, cmd: ID_QR as u16 },
             ACCEL { fVirt: ctrl, key: b'T' as u16, cmd: ID_TAAK as u16 },
-            ACCEL { fVirt: FVIRTKEY as u8, key: VK_F5, cmd: ID_VOORLEZEN as u16 },
             ACCEL { fVirt: ctrl, key: b'R' as u16, cmd: ID_HERINNERING as u16 },
             ACCEL { fVirt: ctrl, key: b'M' as u16, cmd: ID_MAIL as u16 },
             ACCEL { fVirt: ctrl, key: b'S' as u16, cmd: ID_OPSLAAN as u16 },
@@ -374,7 +368,7 @@ fn maak(eigenaar: HWND) -> HWND {
     };
     let kwast = unsafe { CreateSolidBrush(kleuren.vak) };
     STAAT.with(|s| *s.borrow_mut() = Some(Staat { hwnd, kop, status, vak, knoppen, letter, kopletter, kwast, toetsen,
-        doc: None, pad: None, zoekwoord: String::new(), bezig: false, voorlees_begin: 0 }));
+        doc: None, pad: None, zoekwoord: String::new(), bezig: false }));
     schik();
     unsafe {
         ShowWindow(hwnd, SW_SHOWMAXIMIZED);
@@ -845,12 +839,6 @@ fn opdracht(hwnd: HWND, id: i32) {
         ID_OPENEN => kies_bestand(),
         ID_SCAN => scannen(),
         ID_SLUITEN => unsafe {
-            // Escape tijdens het voorlezen: eerst alleen het voorlezen stoppen.
-            if crate::stem::bezig() {
-                crate::stem::stop();
-                KillTimer(hwnd, TIMER_VOORLEZEN);
-                return;
-            }
             DestroyWindow(hwnd);
         },
         _ if !doc_open => {
@@ -878,7 +866,6 @@ fn opdracht(hwnd: HWND, id: i32) {
         ID_BESCHRIJF => kijk(crate::beeldmodel::Soort::Beschrijven),
         ID_QR => codes(hwnd),
         ID_TAAK => wat_moet_ik_doen(hwnd),
-        ID_VOORLEZEN => voorlezen(hwnd),
         ID_HERINNERING => {
             let doc = lees().and_then(|s| s.doc);
             if let Some(doc) = doc {
@@ -888,61 +875,6 @@ fn opdracht(hwnd: HWND, id: i32) {
         }
         ID_MAIL => mailen(hwnd),
         _ => {}
-    }
-}
-
-/// F5: voorlezen vanaf de cursor, of stoppen. Zonder schermlezer loopt de cursor mee met de stem.
-fn voorlezen(hwnd: HWND) {
-    let Some(s) = lees() else { return };
-    if crate::stem::bezig() {
-        crate::stem::stop();
-        unsafe { KillTimer(hwnd, TIMER_VOORLEZEN) };
-        return;
-    }
-    let tekst: Vec<u16> = lees_tekst(s.vak).encode_utf16().collect();
-    let mut begin: u32 = 0;
-    unsafe { SendMessageW(s.vak, EM_GETSEL, &mut begin as *mut u32 as WPARAM, 0) };
-    let begin = (begin as usize).min(tekst.len());
-    // Aan het eind? Dan vanaf het begin.
-    let begin = if begin + 2 >= tekst.len() { 0 } else { begin };
-    let stuk = String::from_utf16_lossy(&tekst[begin..]);
-    match crate::stem::lees_voor(&stuk) {
-        Ok(_) => {
-            met(|st| st.voorlees_begin = begin);
-            if !schermlezer_aan() {
-                unsafe { SetTimer(hwnd, TIMER_VOORLEZEN, 300, None) };
-            }
-        }
-        Err(e) => {
-            logboek::schrijf(&format!("Voorlezen: {e}"));
-            dialogen::melding(hwnd, &t("VoorlezenMislukt"), &t("VoorlezenMisluktTekst"), dialogen::ICOON_WAARSCHUWING);
-        }
-    }
-}
-
-/// Draait er een schermlezer? Dan de cursor niet verplaatsen (anders praat de schermlezer door de stem heen).
-fn schermlezer_aan() -> bool {
-    let mut aan: i32 = 0;
-    unsafe { SystemParametersInfoW(SPI_GETSCREENREADER, 0, &mut aan as *mut i32 as *mut _, 0) };
-    aan != 0
-}
-
-/// Elke 0,3 seconde: de cursor naar de zin die de stem nu leest.
-fn volg_voorlezen(hwnd: HWND) {
-    let Some(s) = lees() else { return };
-    match crate::stem::positie() {
-        Some(p) => {
-            let plek = s.voorlees_begin + p;
-            unsafe {
-                SendMessageW(s.vak, EM_SETSEL, plek, plek as isize);
-                SendMessageW(s.vak, EM_SCROLLCARET, 0, 0);
-            }
-        }
-        None => unsafe {
-            if !crate::stem::bezig() {
-                KillTimer(hwnd, TIMER_VOORLEZEN);
-            }
-        },
     }
 }
 
@@ -1115,10 +1047,6 @@ unsafe extern "system" fn venster_proc(hwnd: HWND, msg: u32, wp: WPARAM, lp: LPA
             }
             0
         }
-        WM_TIMER if wp == TIMER_VOORLEZEN => {
-            volg_voorlezen(hwnd);
-            0
-        }
         WM_VOORTGANG => {
             let tekst = Box::from_raw(lp as *mut String);
             if let Some(s) = lees() {
@@ -1165,8 +1093,6 @@ unsafe extern "system" fn venster_proc(hwnd: HWND, msg: u32, wp: WPARAM, lp: LPA
             0
         }
         WM_DESTROY => {
-            crate::stem::stop();
-            KillTimer(hwnd, TIMER_VOORLEZEN);
             if let Some(s) = lees() {
                 weg(s.letter as _);
                 weg(s.kopletter as _);

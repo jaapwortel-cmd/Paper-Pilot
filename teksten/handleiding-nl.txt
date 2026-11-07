@@ -46,7 +46,6 @@ Sneltoetsen in het leesvenster:
 - Ctrl+D: beschrijven wat er op de scan of foto staat.
 - Ctrl+T: Wat moet ik doen? Een korte samenvatting, en de gegevens om te betalen.
 - Ctrl+Q: QR-codes en streepjescodes die Paper Pilot vond.
-- F5: voorlezen vanaf de cursor met een stem van Windows, of stoppen. Ook Escape stopt het voorlezen.
 - Ctrl+R: een herinnering maken.
 - Ctrl+M: het document mailen als bijlage.
 - Escape: het leesvenster sluiten.
@@ -62,7 +61,6 @@ Scans en foto's: Paper Pilot herkent de gedrukte tekst, met de tekstherkenning v
 
 Wat moet ik doen? (Ctrl+T): Paper Pilot zegt in gewone woorden van wie de brief is, waar hij over gaat, wat je moet doen en vóór wanneer. Die samenvatting maakt het taalmodel op je eigen computer (zonder internet). Paper Pilot zoekt ook zelf het bedrag, het rekeningnummer (IBAN, met controle), het betalingskenmerk, uiterste datums en telefoonnummers. Daarna komt een lijstje: kies De samenvatting lezen, of kopieer een gegeven en plak het met Ctrl+V in je bank-app of op een website. Na het kopiëren kom je terug in het lijstje; Escape sluit het. Zonder taalmodel krijg je alleen de gegevens. Let op: Paper Pilot kan zich vergissen; controleer bedragen en rekeningnummers altijd met de brief zelf.
 
-Voorlezen (F5): voor wie geen schermlezer gebruikt. Paper Pilot leest voor met een stem van Windows, vanaf de cursor. Druk nog eens op F5 of op Escape om te stoppen. Zonder schermlezer loopt de cursor mee, zodat je ziet welke zin wordt gelezen. De snelheid kies je in het menu Instellingen, Voorleessnelheid. Er is een Nederlandse stem nodig; die zit meestal in Windows (Instellingen, Tijd en taal, Spraak).
 
 Herinneringen (Ctrl+R): Paper Pilot vult de datum en het bedrag alvast in als het die in de brief vindt. Ook bij Wat moet ik doen? staat Herinnering maken in het lijstje. Vanaf drie dagen voor de datum waarschuwt Paper Pilot elke dag één keer, tot je kiest Gedaan. Dat werkt ook als Paper Pilot niet open is: een geplande taak van Windows kijkt elke dag om 10 uur. Stond je computer uit, dan komt de herinnering zodra hij weer aan is.
 
@@ -101,7 +99,6 @@ Instellingen
 - Weergave: Automatisch (zoals Windows), Licht of Donker. Staat hoog contrast van Windows aan, dan gebruikt Paper Pilot altijd de kleuren van Windows.
 - Mijn gegevens: je naam, adres, geboortedatum, telefoonnummer, e-mailadres, BSN en IBAN. Paper Pilot vult ze alvast in bij formulieren. Ze staan versleuteld op je eigen computer; alleen jij kunt ze lezen.
 - Mijn handtekening: zet je handtekening met een donkere pen op wit papier en scan het, of kies een foto. Paper Pilot haalt de handtekening eruit en bewaart hem versleuteld. Bij een formulier zet Paper Pilot hem bij de vraag naar je handtekening.
-- Voorleessnelheid: langzaam, gewoon of snel, voor Voorlezen (F5).
 - Mijn post bijhouden: staat dit aan, dan onthoudt Paper Pilot de brieven die je leest (versleuteld, op je eigen computer).
 - Taalmodel voor handschrift en foto's: het taalmodel downloaden, of verwijderen als het er al is.
 - Bij het starten naar updates zoeken: staat dit aan, dan kijkt Paper Pilot één keer per dag of er een nieuwe versie is.

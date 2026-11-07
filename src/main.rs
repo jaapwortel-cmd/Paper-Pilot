@@ -36,7 +36,6 @@ mod proef;
 mod taken;
 mod qr;
 mod scanner;
-mod stem;
 mod tekstvenster;
 mod versturen;
 mod teksten;
@@ -93,9 +92,6 @@ fn main() {
         let i = args.iter().position(|a| a == "--proef-plat").unwrap_or(0);
         let verslag = args.get(i + 2).cloned().unwrap_or_else(|| "plat.txt".into());
         std::process::exit(proef::proef_plat(&bestand, &verslag));
-    }
-    if let Some(verslag) = waarde("--proef-stem") {
-        std::process::exit(proef::proef_stem(&verslag));
     }
     if let Some(verslag) = waarde("--proef-herinneringen") {
         std::process::exit(proef::proef_herinneringen(&verslag));

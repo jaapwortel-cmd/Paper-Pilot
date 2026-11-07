@@ -32,9 +32,6 @@ const ID_TAALMODEL: i32 = 221;
 const ID_GEGEVENS: i32 = 222;
 const ID_HANDTEKENING: i32 = 223;
 const ID_POST_AAN: i32 = 224;
-const ID_STEM_LANGZAAM: i32 = 230;
-const ID_STEM_GEWOON: i32 = 231;
-const ID_STEM_SNEL: i32 = 232;
 const ID_POST: i32 = 101;
 const ID_HERINNERINGEN: i32 = 102;
 const ID_HANDLEIDING: i32 = 300;
@@ -261,11 +258,6 @@ fn maak_menu() -> HMENU {
         streep(inst);
         voeg(inst, ID_GEGEVENS, "MenuGegevens");
         voeg(inst, ID_HANDTEKENING, "MenuHandtekening");
-        let stem = CreatePopupMenu();
-        voeg(stem, ID_STEM_LANGZAAM, "MenuStemLangzaam");
-        voeg(stem, ID_STEM_GEWOON, "MenuStemGewoon");
-        voeg(stem, ID_STEM_SNEL, "MenuStemSnel");
-        sub(inst, stem, "MenuStem");
         voeg(inst, ID_POST_AAN, "MenuPostAan");
         voeg(inst, ID_TAALMODEL, "MenuTaalmodel");
         voeg(inst, ID_UPDATES_START, "MenuUpdatesBijStart");
@@ -303,8 +295,6 @@ fn vink_menu() {
         CheckMenuItem(menu, ID_UPDATES_START as u32, MF_BYCOMMAND | if aan { MF_CHECKED } else { MF_UNCHECKED });
         let post = crate::post::aan();
         CheckMenuItem(menu, ID_POST_AAN as u32, MF_BYCOMMAND | if post { MF_CHECKED } else { MF_UNCHECKED });
-        let stem = match crate::stem::snelheid() { n if n < 0 => ID_STEM_LANGZAAM, n if n > 0 => ID_STEM_SNEL, _ => ID_STEM_GEWOON };
-        CheckMenuRadioItem(menu, ID_STEM_LANGZAAM as u32, ID_STEM_SNEL as u32, stem as u32, MF_BYCOMMAND);
     } }
 }
 
@@ -662,11 +652,6 @@ fn opdracht(hwnd: HWND, id: i32) {
             if !aan && dialogen::ja_nee(hwnd, &t("PostUitKop"), &t("PostUitVraag"), false) {
                 crate::post::wis();
             }
-            vink_menu();
-        }
-        ID_STEM_LANGZAAM | ID_STEM_GEWOON | ID_STEM_SNEL => {
-            let n = match id { ID_STEM_LANGZAAM => -3, ID_STEM_SNEL => 3, _ => 0 };
-            instellingen::zet("voorlees_snelheid", &n.to_string());
             vink_menu();
         }
         ID_TAALMODEL => {

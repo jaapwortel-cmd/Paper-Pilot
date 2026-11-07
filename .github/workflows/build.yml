@@ -146,13 +146,6 @@ jobs:
           if ($p.ExitCode -ne 0) { throw "De handtekening werkt niet." }
           if (-not (Get-Content handtekening.txt -Raw -Encoding utf8).Contains("Handtekeningveld gevonden")) { throw "Het handtekeningveld is niet gevonden." }
 
-      - name: Voorlezen met een stem (ter informatie)
-        continue-on-error: true
-        shell: pwsh
-        run: |
-          Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-stem", "stem.txt" -Wait
-          Get-Content stem.txt -Encoding utf8
-
       - name: Formulieren zonder invulvelden
         shell: pwsh
         run: |
@@ -278,7 +271,7 @@ jobs:
         run: |
           New-Item -ItemType Directory uit | Out-Null
           Copy-Item "uitvoer\*.exe", "scherm-*.png", "proef.txt", "toegankelijkheid.txt" uit\
-          Copy-Item "lezen-*.txt", "beeldmodel*.txt", "invullen.txt", "ingevuld.pdf", "plat-*.txt", "plat-*.pdf", "herinneringen.txt", "handtekening.txt", "getekend.pdf", "stem.txt" uit\ -ErrorAction SilentlyContinue
+          Copy-Item "lezen-*.txt", "beeldmodel*.txt", "invullen.txt", "ingevuld.pdf", "plat-*.txt", "plat-*.pdf", "herinneringen.txt", "handtekening.txt", "getekend.pdf" uit\ -ErrorAction SilentlyContinue
           @"
           # Paper Pilot $env:VERSIE
 

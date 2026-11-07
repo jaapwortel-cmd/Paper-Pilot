@@ -46,7 +46,6 @@ Shortcut keys in the reading window:
 - Ctrl+D: describe what is on the scan or photo.
 - Ctrl+T: What do I need to do? A short summary, and the details for paying.
 - Ctrl+Q: QR codes and barcodes that Paper Pilot found.
-- F5: read aloud from the cursor with a Windows voice, or stop. Escape also stops reading aloud.
 - Ctrl+R: make a reminder.
 - Ctrl+M: email the document as an attachment.
 - Escape: close the reading window.
@@ -62,7 +61,6 @@ Scans and photos: Paper Pilot recognises the printed text, using Windows text re
 
 What do I need to do? (Ctrl+T): Paper Pilot tells you in plain words who the letter is from, what it is about, what you need to do and by when. The language model on your own computer makes this summary (without the internet). Paper Pilot also finds the amount, the account number (IBAN, checked), the payment reference, deadlines and phone numbers by itself. Then a list appears: choose Read the summary, or copy a detail and paste it with Ctrl+V into your banking app or a website. After copying you return to the list; Escape closes it. Without the language model you only get the details. Please note: Paper Pilot can make mistakes; always check amounts and account numbers against the letter itself.
 
-Read aloud (F5): for people who do not use a screen reader. Paper Pilot reads aloud with a Windows voice, from the cursor. Press F5 again or Escape to stop. Without a screen reader the cursor follows along, so you see which sentence is being read. Choose the speed in the Settings menu, Reading speed. A voice in your language is needed; Windows usually has one (Settings, Time and language, Speech).
 
 Reminders (Ctrl+R): Paper Pilot fills in the date and amount if it finds them in the letter. What do I need to do? also has Make a reminder in its list. From three days before the date, Paper Pilot warns you once a day until you choose Done. This also works when Paper Pilot is not open: a scheduled task of Windows checks every day at 10 am. If your computer was off, the reminder comes as soon as it is on again.
 
@@ -101,7 +99,6 @@ Settings
 - Appearance: Automatic (like Windows), Light or Dark. When Windows high contrast is on, Paper Pilot always uses the Windows colours.
 - My details: your name, address, date of birth, phone number, email address, BSN and IBAN. Paper Pilot fills them in for you in forms. They are stored encrypted on your own computer; only you can read them.
 - My signature: sign with a dark pen on white paper and scan it, or choose a photo. Paper Pilot takes out the signature and stores it encrypted. On a form, Paper Pilot puts it at the question for your signature.
-- Reading speed: slow, normal or fast, for Read aloud (F5).
 - Keep My post: when this is on, Paper Pilot remembers the letters you read (encrypted, on your own computer).
 - Language model for handwriting and photos: download the language model, or remove it if it is already there.
 - Check for updates at startup: when this is on, Paper Pilot checks once a day for a new version.

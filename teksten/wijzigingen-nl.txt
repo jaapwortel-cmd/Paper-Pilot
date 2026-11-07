@@ -3,7 +3,6 @@
 Versie 0.0.0.7 (november 2026)
 - Nieuw: herinneringen (Ctrl+R en menu Bestand). Paper Pilot waarschuwt vanaf drie dagen van tevoren, ook als het programma niet open is.
 - Nieuw: Mijn post (menu Bestand). Alle brieven die je las, met datum en afzender, om ze terug te vinden. Versleuteld op je eigen computer; uit te zetten.
-- Nieuw: voorlezen met een stem van Windows (F5), voor wie geen schermlezer gebruikt. Snelheid in het menu Instellingen.
 - Nieuw: Mijn handtekening (menu Instellingen). Eén keer scannen; daarna zet Paper Pilot hem op formulieren.
 - Nieuw: mailen als bijlage (Ctrl+M), ook na het opslaan van een ingevuld formulier.
 - Nieuw: Wat moet ik doen? (Ctrl+T). Een korte samenvatting van de brief (met het taalmodel op je eigen computer), en het bedrag, rekeningnummer, betalingskenmerk, uiterste datum en telefoonnummer om te kopiëren.

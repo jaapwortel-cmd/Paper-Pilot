@@ -20,6 +20,7 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   browser gaat naar Firefox of de standaardbrowser.
 - Sneltoetsen: NOOIT de Insert-toets of Caps Lock gebruiken (toetsen van NVDA en JAWS). Zolang Insert of
   Caps Lock ingedrukt is, reageert Paper Pilot op geen enkele sneltoets (Jaap, 6 nov 2026).
+- Geen eigen voorleesstem in Paper Pilot: de schermlezer leest al voor (Jaap, 7 nov 2026). Een gebouwde versie met F5 is weer weggehaald.
 - Licentie: GPL-3.0.
 - Niet ondertekenen (geen SignPath, geen certificaat): Jaap vindt dat te veel handelingen (6 nov 2026).
 - Alleen de naam Jaap Wortel als maker in het programma (geen andere namen of organisaties).
@@ -103,9 +104,7 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   datums lezen/rekenen zonder crate; vanaf 3 dagen vooraf 1x per dag melden; geplande taak "Paper Pilot herinneringen" via
   schtasks /XML (UTF-16, dagelijks 10:00, StartWhenAvailable) die `--herinneringen` start; weg bij lege lijst en bij verwijderen
   ([UninstallRun])), `post.rs` (Mijn post, DPAPI mijn-post.dat, max 300, onthoud in leesvenster::geladen; menu Bestand),
-  `stem.rs` (SAPI ISpVoice, eerst OneCore-stem in de taal, F5, cursor loopt mee zonder schermlezer via ulInputSentPos),
   `handtekening.rs` (inkt eruit + doorzichtig, DPAPI; op PDF via FPDFPageObj_NewImageObj + veld verbergen met annot-vlag 2,
   op scans via op_beeld; "[mijn handtekening]" als waarde in het invulvenster), `versturen.rs` (MAPISendMailW uit mapi32.dll,
   anders CF_HDROP op het klembord + mailto). gegevens::lees/schrijf_versleuteld. Proeven --proef-herinneringen,
-  --proef-handtekening (tests/handtekening.png, tests/formulier-handtekening.pdf), --proef-stem. Wine: schtasks /Delete werkt
-  daar niet, SAPI heeft geen stem.
+  --proef-handtekening (tests/handtekening.png, tests/formulier-handtekening.pdf). Wine: schtasks /Delete werkt daar niet.

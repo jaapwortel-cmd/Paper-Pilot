@@ -414,13 +414,6 @@ pub fn schermafbeelding(hwnd: HWND, pad: &str) -> Result<(), String> {
     }
 }
 
-/// Welke stemmen zijn er voor het voorlezen, en lukt het? (Ter informatie: de bouwcomputer heeft geen geluid.)
-pub fn proef_stem(verslag: &str) -> i32 {
-    let uit = crate::stem::proef();
-    let _ = std::fs::write(verslag, format!("\u{feff}{uit}"));
-    0
-}
-
 /// Herinneringen en Mijn post: datums lezen, bewaren (versleuteld), melden, de geplande taak, en weer weghalen.
 pub fn proef_herinneringen(verslag: &str) -> i32 {
     use crate::herinneringen as h;
