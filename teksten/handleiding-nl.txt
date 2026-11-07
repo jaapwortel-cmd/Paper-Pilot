@@ -28,7 +28,7 @@ Met Tab of de pijltjes ga je van de ene knop naar de andere. Enter of spatie kie
 
 3. Een document lezen
 
-Kies Lezen en invullen (Alt+L). Paper Pilot vraagt: een bestand openen, of scannen. Kies je een bestand openen, dan komt het venster Document openen. Kies een PDF, een Word-bestand (.docx), een tekstbestand of een foto of scan (JPG, PNG, TIFF, BMP, GIF, HEIC of WebP) en kies Openen.
+Kies Lezen en invullen (Alt+L). Paper Pilot vraagt: een bestand openen, of scannen. Kies je een bestand openen, dan komt het venster Document openen. Kies een PDF, een Word-bestand (.docx of het oude .doc), RTF, OpenDocument (.odt, .ods, .odp), Excel (.xlsx), PowerPoint (.pptx), een webpagina (.html), een tekstbestand of een foto of scan (JPG, PNG, TIFF, BMP, GIF, HEIC of WebP) en kies Openen.
 
 Paper Pilot maakt er nette tekst van. Bovenaan staat de naam van het document, en een regel met het aantal pagina's, koppen en invulvelden. De tekst lees je met de pijltjestoetsen, net als in Kladblok. Elke pagina begint met een regel als "Pagina 1 van 3". Koppen staan op een eigen regel.
 
@@ -44,6 +44,8 @@ Sneltoetsen in het leesvenster:
 - Ctrl+Shift+S: een scan of foto (rechtgezet) opslaan als PDF met de tekst erin, of als afbeelding.
 - Ctrl+H: handschrift lezen (bij een scan of foto).
 - Ctrl+D: beschrijven wat er op de scan of foto staat.
+- Ctrl+T: Wat moet ik doen? Een korte samenvatting, en de gegevens om te betalen.
+- Ctrl+Q: QR-codes en streepjescodes die Paper Pilot vond.
 - Escape: het leesvenster sluiten.
 Met Tab ga je naar de knoppen; dezelfde opdrachten staan daar ook.
 
@@ -54,6 +56,10 @@ Formulier invullen: Paper Pilot stelt de vragen één voor één. Bovenaan hoor 
 Formulieren zonder invulvelden: veel formulieren hebben alleen lijntjes en hokjes, of zijn gescand. Kies ook dan Formulier invullen (Ctrl+I). Paper Pilot zoekt zelf de plekken om in te vullen: een vraag met een dubbele punt en lege ruimte erachter, lijntjes, puntjes en hokjes om aan te vinken. Daarna gaat het invullen hetzelfde. Bij het opslaan zet Paper Pilot je antwoorden op de goede plek, en een kruisje in de hokjes die je aanvinkt. Dit gaat meestal goed, maar niet altijd: kijk het ingevulde formulier goed na, of laat iemand meekijken.
 
 Scans en foto's: Paper Pilot herkent de gedrukte tekst, met de tekstherkenning van Windows en zonder internet. Ligt de scan op zijn kop, op zijn kant of scheef, dan zegt Paper Pilot dat en zet hem zelf recht. Met Ctrl+Shift+S sla je de rechtgezette scan op als afbeelding (PNG, JPG, TIFF met alle pagina's, BMP of GIF). Handschrift en foto's: kies Handschrift lezen (Ctrl+H) om handgeschreven tekst te laten lezen, zoals een boodschappenlijstje of ansichtkaart. Kies Beschrijven (Ctrl+D) om te horen wat er op een foto, tekening of scan staat. Dit doet een taalmodel op je eigen computer, zonder internet. De eerste keer vraagt Paper Pilot of je het model wilt downloaden (eenmalig, ongeveer 3,5 GB). Het antwoord komt in een apart venster; lees het met de pijltjestoetsen, Escape sluit het. Netjes handschrift gaat meestal goed, slordig handschrift niet altijd. Met een videokaart gaat het snel, alleen met de processor kan het een paar minuten duren. Een woord dat het model niet kan lezen, staat er als [onleesbaar].
+
+Wat moet ik doen? (Ctrl+T): Paper Pilot zegt in gewone woorden van wie de brief is, waar hij over gaat, wat je moet doen en vóór wanneer. Die samenvatting maakt het taalmodel op je eigen computer (zonder internet). Paper Pilot zoekt ook zelf het bedrag, het rekeningnummer (IBAN, met controle), het betalingskenmerk, uiterste datums en telefoonnummers. Daarna komt een lijstje: kies De samenvatting lezen, of kopieer een gegeven en plak het met Ctrl+V in je bank-app of op een website. Na het kopiëren kom je terug in het lijstje; Escape sluit het. Zonder taalmodel krijg je alleen de gegevens. Let op: Paper Pilot kan zich vergissen; controleer bedragen en rekeningnummers altijd met de brief zelf.
+
+QR-codes en streepjescodes: Paper Pilot zoekt ze vanzelf op scans, foto's en PDF-pagina's, en zegt wat erin staat. Een betaal-QR-code (scan en betaal) wordt een betaalverzoek met naam, bedrag, rekeningnummer en omschrijving. Kies QR-codes (Ctrl+Q) om een link te openen in je browser of iets te kopiëren. Een link opent nooit vanzelf: Paper Pilot vraagt het eerst.
 
 Enveloppen: Paper Pilot ziet zelf dat het een envelop is, ook met een venster, en zegt bovenaan van wie de post komt en aan wie hij is. Daaronder staat alle tekst van de envelop. Kleine letters, zoals op een bijsluiter of het label van een theezakje: Paper Pilot vergroot de afbeelding en maakt hem contrastrijker als dat beter leest. Lukt het toch niet goed, probeer dan Handschrift lezen (Ctrl+H): het taalmodel leest kleine en gebogen letters vaak beter.
 

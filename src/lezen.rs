@@ -1,4 +1,4 @@
-// Paper Pilot - documenten lezen: PDF (met PDFium), Word (.docx) en gewone tekst.
+﻿// Paper Pilot - documenten lezen: PDF (met PDFium), Word (.docx) en gewone tekst.
 //
 // Het resultaat is nette tekst voor een gewoon Windows-tekstvak: per pagina een regel "Pagina 1 van 3",
 // alinea's met een lege regel ertussen, en koppen op een eigen regel. De plaats van elke kop en elke pagina
@@ -31,6 +31,8 @@ pub struct Document {
     pub beeld_paginas: Vec<usize>,
     /// Bij elk beeld: de herkende regels met hun plaats (voor een doorzoekbare PDF).
     pub beeld_regels: Vec<Vec<crate::herkennen::Regel>>,
+    /// Gevonden QR-codes en streepjescodes.
+    pub codes: Vec<crate::qr::Code>,
 }
 
 /// Bouwt de tekst op en houdt de plaatsen bij.
@@ -40,10 +42,10 @@ pub(crate) struct Bouwer {
 }
 
 impl Bouwer {
-    fn nieuw(naam: &str) -> Self {
+    pub(crate) fn nieuw(naam: &str) -> Self {
         Bouwer { doc: Document { naam: naam.to_string(), ..Default::default() }, lengte: 0 }
     }
-    fn regel(&mut self, s: &str) -> (usize, usize) {
+    pub(crate) fn regel(&mut self, s: &str) -> (usize, usize) {
         let begin = self.lengte;
         self.doc.tekst.push_str(s);
         self.lengte += s.encode_utf16().count();
@@ -52,18 +54,18 @@ impl Bouwer {
         self.lengte += 2;
         (begin, eind)
     }
-    fn leeg(&mut self) {
+    pub(crate) fn leeg(&mut self) {
         if !self.doc.tekst.is_empty() && !self.doc.tekst.ends_with("\r\n\r\n") {
             self.regel("");
         }
     }
-    fn kop(&mut self, s: &str) {
+    pub(crate) fn kop(&mut self, s: &str) {
         self.leeg();
         let (b, e) = self.regel(s);
         self.doc.koppen.push((s.to_string(), b, e));
         self.regel("");
     }
-    fn alinea(&mut self, s: &str) {
+    pub(crate) fn alinea(&mut self, s: &str) {
         let s = s.trim();
         if s.is_empty() {
             return;
@@ -71,14 +73,14 @@ impl Bouwer {
         self.regel(s);
         self.regel("");
     }
-    fn pagina(&mut self, nr: usize, totaal: usize) {
+    pub(crate) fn pagina(&mut self, nr: usize, totaal: usize) {
         self.leeg();
         let begin = self.lengte;
         self.doc.paginas.push(begin);
         self.regel(&crate::teksten::tf("PaginaVan", &[&nr.to_string(), &totaal.to_string()]));
         self.regel("");
     }
-    fn klaar(mut self) -> Document {
+    pub(crate) fn klaar(mut self) -> Document {
         while self.doc.tekst.ends_with("\r\n\r\n") {
             self.doc.tekst.truncate(self.doc.tekst.len() - 2);
         }
@@ -105,7 +107,13 @@ pub fn open(pad: &Path, voortgang: &dyn Fn(String)) -> Result<Document, String> 
     }
     match ext.as_str() {
         "pdf" => pdf(pad, &naam, voortgang),
-        "docx" => docx(pad, &naam),
+        "docx" | "docm" | "dotx" | "dotm" => docx(pad, &naam),
+        "rtf" => crate::formaten::rtf(pad, &naam),
+        "doc" | "dot" => crate::formaten::doc(pad, &naam),
+        "odt" | "ott" | "ods" | "ots" | "odp" | "otp" => crate::formaten::opendocument(pad, &naam),
+        "xlsx" | "xlsm" | "xltx" => crate::formaten::xlsx(pad, &naam),
+        "pptx" | "pptm" | "ppsx" | "potx" => crate::formaten::pptx(pad, &naam),
+        "html" | "htm" | "xhtml" | "mht" => crate::formaten::html(pad, &naam),
         "txt" | "text" | "md" | "csv" => txt(pad, &naam),
         _ => Err(crate::teksten::t("LezenSoortOnbekend")),
     }
@@ -279,6 +287,18 @@ fn pdf(pad: &Path, naam: &str, voortgang: &dyn Fn(String)) -> Result<Document, S
             vorige = Some(r);
         }
         b.alinea(&alinea);
+        // QR-codes (bijvoorbeeld "scan en betaal" op een factuur): de pagina als plaatje bekijken (150 dpi).
+        if i < 20 {
+            let beeld = doc.pages().get(i as i32).ok().and_then(|p| {
+                let breed = ((p.width().value / 72.0 * 150.0) as i32).clamp(600, 1800);
+                p.render_with_config(&PdfRenderConfig::new().set_target_width(breed).render_form_data(true)).ok().map(|bm| {
+                    crate::beeld::Beeld { breed: bm.width() as u32, hoog: bm.height() as u32, punten: bm.as_raw_bytes() }
+                })
+            });
+            if let Some(beeld) = beeld {
+                codes_erbij(&mut b, &beeld, i + 1);
+            }
+        }
     }
     let mut d = b.klaar();
     d.invulvelden = velden;
@@ -296,6 +316,7 @@ fn scan_pagina(b: &mut Bouwer, beeld: &crate::beeld::Beeld, nr: usize, inhoud: I
             crate::logboek::schrijf(&format!("Tekstherkenning: {e}"));
             b.doc.zonder_tekst.push(nr);
             b.alinea(&e);
+            codes_erbij(b, beeld, nr);
             b.doc.beelden.push(beeld.clone());
             b.doc.beeld_paginas.push(nr);
             b.doc.beeld_regels.push(Vec::new());
@@ -339,9 +360,25 @@ fn scan_pagina(b: &mut Bouwer, beeld: &crate::beeld::Beeld, nr: usize, inhoud: I
     } else {
         ocr_alineas(b, &u.regels);
     }
+    codes_erbij(b, &u.beeld, nr);
     b.doc.beelden.push(u.beeld);
     b.doc.beeld_paginas.push(nr);
     b.doc.beeld_regels.push(u.regels);
+}
+
+/// Zoekt QR-codes en streepjescodes op een pagina en zet ze, in gewone woorden, onder de tekst.
+fn codes_erbij(b: &mut Bouwer, beeld: &crate::beeld::Beeld, nr: usize) {
+    use crate::teksten::tf;
+    for code in crate::qr::zoek(beeld, nr) {
+        b.kop(&tf("QrKop", &[&code.soort]));
+        b.alinea(&crate::qr::uitleg(&code));
+        let zin = match crate::qr::betaling(&code.tekst) {
+            Some(bet) if !bet.bedrag.is_empty() => tf("QrMeldingBetaal", &[&nr.to_string(), &bet.bedrag, &bet.naam]),
+            _ => tf("QrMelding", &[&nr.to_string(), &code.soort]),
+        };
+        b.doc.meldingen.push(zin);
+        b.doc.codes.push(code);
+    }
 }
 
 /// Herkende regels netjes in alinea's en koppen zetten.

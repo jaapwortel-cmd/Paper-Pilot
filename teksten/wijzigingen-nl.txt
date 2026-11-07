@@ -1,6 +1,9 @@
 ﻿Wijzigingen in Paper Pilot
 
 Versie 0.0.0.7 (november 2026)
+- Nieuw: Wat moet ik doen? (Ctrl+T). Een korte samenvatting van de brief (met het taalmodel op je eigen computer), en het bedrag, rekeningnummer, betalingskenmerk, uiterste datum en telefoonnummer om te kopiëren.
+- Nieuw: QR-codes en streepjescodes lezen op scans, foto's en PDF's. Betaal-QR-codes worden een betaalverzoek. Links openen en gegevens kopiëren met Ctrl+Q.
+- Nieuw: meer soorten bestanden openen: oud Word (.doc), RTF, OpenDocument (.odt, .ods, .odp), Excel (.xlsx), PowerPoint (.pptx) en webpagina's (.html).
 - Nieuw: PDF-formulieren invullen, vraag voor vraag (Ctrl+I in het leesvenster). Tekstvakken, vinkjes, keuzerondjes en keuzelijsten.
 - Paper Pilot zoekt bij elk invulveld de vraag die erbij hoort, en zegt het als een vraag verplicht is.
 - Overzicht van alle vragen en antwoorden (Ctrl+L), en opslaan als nieuwe PDF (Ctrl+S). De antwoorden zijn in elke PDF-lezer te zien.

@@ -100,7 +100,20 @@ jobs:
             "twee-paginas.tif" = @("Pagina's: 2", "Pagina 2 van 2", "op zijn kop");
             "envelop.jpg" = @("envelop van Belastingdienst", "1234 AB Zeist", "Kop: Envelop");
             "theezakje.png" = @("bergamot", "minuten");
-            "bijsluiter.png" = @("Paracetamol", "hooguit 6 tabletten", "bijwerkingen")
+            "bijsluiter.png" = @("Paracetamol", "hooguit 6 tabletten", "bijwerkingen");
+            "voorbeeld-brief.rtf" = @("Kop: Brief van de gemeente", "Kop: Afspraken", "Datum | 12 november 2026");
+            "voorbeeld-brief.doc" = @("Brief van de gemeente", "Datum | 12 november 2026", "Tijd | 10.30 uur");
+            "voorbeeld-brief.odt" = @("Kop: Brief van de gemeente", "Kop: Afspraken", "Datum | 12 november 2026");
+            "voorbeeld-brief.html" = @("Kop: Brief van de gemeente", "Kop: Afspraken", "Datum | 12 november 2026");
+            "voorbeeld-tabel.xlsx" = @("Kop: Kosten", "Kop: Tweede", "Huur | 750");
+            "voorbeeld-tabel.ods" = @("Kop: Kosten", "Huur | 750");
+            "voorbeeld-dia.pptx" = @("Kop: Dia 2", "Formulieren invullen");
+            "voorbeeld-dia.odp" = @("Kop: Dia 2", "Formulieren invullen");
+            "qr-factuur.pdf" = @("betaal-QR-code: 12,50 euro aan Gemeente Voorbeeld", "NL91ABNA0417164300", "Kop: Factuur");
+            "qr-factuur.png" = @("NL91ABNA0417164300", "https://www.rijksoverheid.nl");
+            "qr-foto.jpg" = @("NL91ABNA0417164300", "https://www.rijksoverheid.nl");
+            "streepjescode.png" = @("Nummer: 8712345678906");
+            "voorbeeld-aanslag.txt" = @("Gegevens: Bedrag: 245,80 euro", "NL91 ABNA 0417 1643 00", "5000 1234 5678 9012", "Datum: 1 december 2026", "030 - 286 00 00")
           }
           foreach ($f in $verwacht.Keys) {
             $p = Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-lezen", "tests\$f", "lezen-$f.txt" -Wait -PassThru

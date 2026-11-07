@@ -1,9 +1,9 @@
-// Paper Pilot - het leesvenster: een document openen en lezen.
+﻿// Paper Pilot - het leesvenster: een document openen en lezen.
 //
 // Bovenaan de naam van het document (ook de naam van het tekstvak voor de schermlezer) en een regel met
 // het aantal pagina's, koppen en invulvelden. Daaronder knoppen, en het grote tekstvak (alleen lezen) met de tekst.
 // Sneltoetsen (nooit Insert of Caps Lock): Ctrl+O openen, Ctrl+F zoeken, F3 en Shift+F3 volgende/vorige,
-// Ctrl+K koppen, Ctrl+G naar pagina, Ctrl+S opslaan als tekst, Escape sluiten.
+// Ctrl+K koppen, Ctrl+G naar pagina, Ctrl+S opslaan als tekst, Ctrl+T wat moet ik doen, Ctrl+Q QR-codes, Escape sluiten.
 // Een document openen gebeurt op de achtergrond, zodat het venster blijft reageren.
 
 use crate::lezen::Document;
@@ -35,17 +35,21 @@ const ID_BESCHRIJF: i32 = 110;
 const ID_SCAN: i32 = 111;
 const ID_AFDRUK: i32 = 112;
 const ID_INVULLEN: i32 = 113;
+const ID_QR: i32 = 114;
+const ID_TAAK: i32 = 115;
 const ID_SLUITEN: i32 = IDCANCEL;
 const WM_GELADEN: u32 = WM_APP + 10;
 const WM_VOORTGANG: u32 = WM_APP + 11;
 
-const KNOPPEN: [(i32, &str); 12] = [
+const KNOPPEN: [(i32, &str); 14] = [
     (ID_OPENEN, "KnopOpenen"),
+    (ID_TAAK, "KnopTaak"),
     (ID_INVULLEN, "KnopInvullen"),
     (ID_SCAN, "KnopScannen"),
     (ID_AFDRUK, "KnopAfdrukken"),
     (ID_HANDSCHRIFT, "KnopHandschrift"),
     (ID_BESCHRIJF, "KnopBeschrijven"),
+    (ID_QR, "KnopQr"),
     (ID_ZOEKEN, "KnopZoeken"),
     (ID_KOPPEN, "KnopKoppen"),
     (ID_PAGINA, "KnopPagina"),
@@ -311,6 +315,8 @@ fn maak(eigenaar: HWND) -> HWND {
             ACCEL { fVirt: ctrl, key: b'I' as u16, cmd: ID_INVULLEN as u16 },
             ACCEL { fVirt: ctrl, key: b'P' as u16, cmd: ID_AFDRUK as u16 },
             ACCEL { fVirt: ctrl, key: b'D' as u16, cmd: ID_BESCHRIJF as u16 },
+            ACCEL { fVirt: ctrl, key: b'Q' as u16, cmd: ID_QR as u16 },
+            ACCEL { fVirt: ctrl, key: b'T' as u16, cmd: ID_TAAK as u16 },
             ACCEL { fVirt: ctrl, key: b'S' as u16, cmd: ID_OPSLAAN as u16 },
             ACCEL { fVirt: (FVIRTKEY | FCONTROL | FSHIFT) as u8, key: b'S' as u16, cmd: ID_BEELD as u16 },
         ];
@@ -373,10 +379,12 @@ fn kies_bestand() {
     }
 }
 
+const DOCS: &str = "*.docx;*.docm;*.dotx;*.doc;*.dot;*.rtf;*.odt;*.ott;*.ods;*.odp;*.xlsx;*.xlsm;*.pptx;*.ppsx;*.html;*.htm";
+
 /// Het gewone Windows-venster "Openen".
 fn open_venster(eigenaar: HWND, map: &str) -> Option<PathBuf> {
     let beelden = crate::beeld::EXTENSIES.iter().map(|e| format!("*.{e}")).collect::<Vec<_>>().join(";");
-    let filter: Vec<u16> = format!("{}\0*.pdf;*.docx;*.txt;{beelden}\0PDF\0*.pdf\0Word (.docx)\0*.docx\0{}\0{beelden}\0{}\0*.txt\0{}\0*.*\0\0",
+    let filter: Vec<u16> = format!("{}\0*.pdf;{DOCS};*.txt;{beelden}\0PDF\0*.pdf\0Word, RTF, OpenDocument, Excel, PowerPoint, HTML\0{DOCS}\0{}\0{beelden}\0{}\0*.txt\0{}\0*.*\0\0",
         t("FilterDocumenten"), t("FilterAfbeeldingen"), t("FilterTekst"), t("FilterAlles")).encode_utf16().collect();
     let mut buf = vec![0u16; 32768];
     let titel = w(&t("OpenenTitel"));
@@ -811,7 +819,113 @@ fn opdracht(hwnd: HWND, id: i32) {
             }
         }
         ID_BESCHRIJF => kijk(crate::beeldmodel::Soort::Beschrijven),
+        ID_QR => codes(hwnd),
+        ID_TAAK => wat_moet_ik_doen(hwnd),
         _ => {}
+    }
+}
+
+/// Ctrl+T: "Wat moet ik doen?" Een samenvatting van het taalmodel (als dat er is) en de gegevens om te betalen.
+fn wat_moet_ik_doen(hwnd: HWND) {
+    let Some(s) = lees() else { return };
+    let Some(doc) = s.doc.clone() else { return };
+    let gegevens = crate::taken::zoek(&doc.tekst, &doc.codes);
+    let mut model = crate::beeldmodel::geinstalleerd();
+    if !model {
+        model = model_downloaden(hwnd);
+    }
+    let samenvatting = if model {
+        let tekst = doc.tekst.clone();
+        match dialogen::werk(hwnd, &t("TaakTitel"), &t("TaakBezig"), move |v| {
+            v.meld(t("KijkDuurt"), 0);
+            crate::beeldmodel::vraag_over_tekst(&t("TaakOpdracht"), &tekst)
+        }) {
+            Some(Ok(a)) => {
+                logboek::schrijf(&format!("Wat moet ik doen: {} tekens samenvatting.", a.chars().count()));
+                a.replace("**", "").lines().map(|r| r.trim_start_matches(['#', '*']).trim_start()).collect::<Vec<_>>().join("\r\n")
+            }
+            Some(Err(e)) => tf("TaakModelFout", &[&e]),
+            None => t("TaakZonderModel"),
+        }
+    } else {
+        t("TaakZonderModel")
+    };
+    let geheel = format!("{}\r\n\r\n{}\r\n\r\n{}\r\n{}\r\n\r\n{}", t("TaakSamenvattingKop"), samenvatting,
+        t("TaakGegevensKop"), crate::taken::als_tekst(&gegevens), t("TaakLetOp"));
+    let titel = format!("{} - {}", t("TaakTitel"), doc.naam);
+    let kopieer_lijst = crate::taken::kopieerbaar(&gegevens);
+    if kopieer_lijst.is_empty() {
+        crate::tekstvenster::toon(hwnd, &titel, &geheel);
+        return;
+    }
+    // Een lijstje: eerst "lezen", daarna de gegevens om te kopiëren. Na het kopiëren kom je terug in het lijstje.
+    let mut namen = vec![t("TaakLeesSamenvatting")];
+    namen.extend(kopieer_lijst.iter().map(|k| k.0.clone()));
+    let mut begin = 0;
+    loop {
+        match keuzevensters::kies_uit_lijst(hwnd, &t("TaakTitel"), &t("TaakLijstLabel"), &namen, begin) {
+            Some(0) => {
+                crate::tekstvenster::toon(hwnd, &titel, &geheel);
+                return;
+            }
+            Some(i) => {
+                let tekst = &kopieer_lijst[i - 1].1;
+                if kopieer(hwnd, tekst) {
+                    dialogen::melding(hwnd, &t("TaakTitel"), &tf("QrGekopieerd", &[tekst]), dialogen::ICOON_INFO);
+                }
+                begin = i;
+            }
+            None => {
+                unsafe { SetFocus(s.vak) };
+                return;
+            }
+        }
+    }
+}
+
+/// Ctrl+Q: de gevonden QR-codes en streepjescodes. Kies een code, dan een link openen of iets kopiëren.
+fn codes(hwnd: HWND) {
+    let codes = lees().and_then(|s| s.doc.map(|d| d.codes)).unwrap_or_default();
+    if codes.is_empty() {
+        dialogen::melding(hwnd, &t("QrKiesTitel"), &t("QrGeen"), dialogen::ICOON_INFO);
+        return;
+    }
+    let keuze = if codes.len() == 1 {
+        0
+    } else {
+        let items: Vec<String> = codes.iter().map(|c| {
+            let uitleg = crate::qr::uitleg(c).replace("\r\n", ". ");
+            format!("{} ({}): {}", c.soort, tf("PaginaKort", &[&c.pagina.to_string()]), uitleg)
+        }).collect();
+        match keuzevensters::kies_uit_lijst(hwnd, &t("QrKiesTitel"), &t("QrKiesLabel"), &items, 0) {
+            Some(i) => i,
+            None => return,
+        }
+    };
+    let code = &codes[keuze];
+    let link = crate::qr::link(&code.tekst);
+    let mut acties: Vec<(String, Option<String>)> = Vec::new();
+    if let Some(l) = &link {
+        acties.push((tf("QrOpenLink", &[l]), None));
+    }
+    for (naam, tekst) in crate::qr::kopieerbaar(code) {
+        acties.push((naam, Some(tekst)));
+    }
+    let namen: Vec<String> = acties.iter().map(|a| a.0.clone()).collect();
+    let Some(i) = keuzevensters::kies_uit_lijst(hwnd, &t("QrWatTitel"), &t("QrWatLabel"), &namen, 0) else { return };
+    match &acties[i].1 {
+        None => {
+            if let Some(l) = link {
+                if dialogen::ja_nee(hwnd, &t("QrWatTitel"), &tf("QrLinkVraag", &[&l]), false) {
+                    open_adres(&l);
+                }
+            }
+        }
+        Some(tekst) => {
+            if kopieer(hwnd, tekst) {
+                dialogen::melding(hwnd, &t("QrWatTitel"), &tf("QrGekopieerd", &[tekst]), dialogen::ICOON_INFO);
+            }
+        }
     }
 }
 

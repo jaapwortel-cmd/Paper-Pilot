@@ -1,4 +1,4 @@
-// Paper Pilot - proeven voor GitHub (bij elke bouwronde) en schermafbeeldingen.
+﻿// Paper Pilot - proeven voor GitHub (bij elke bouwronde) en schermafbeeldingen.
 //
 //   PaperPilot.exe --proefstart verslag.txt      controleert teksten, documenten, het venster en de namen
 //   PaperPilot.exe --schermafbeelding foto.bmp   maakt een schermafbeelding van het hoofdvenster
@@ -132,6 +132,10 @@ pub fn proef_lezen(bestand: &str, verslag: &str) -> i32 {
             for m in &d.meldingen {
                 s.push_str(&format!("Melding: {m}\r\n"));
             }
+            let gegevens = crate::taken::zoek(&d.tekst, &d.codes);
+            if !crate::taken::kopieerbaar(&gegevens).is_empty() {
+                s.push_str(&format!("Gegevens: {}\r\n", crate::taken::als_tekst(&gegevens).replace("\r\n", " / ")));
+            }
             for (k, b, e) in &d.koppen {
                 s.push_str(&format!("Kop: {k} ({b}-{e})\r\n"));
             }
@@ -206,6 +210,16 @@ pub fn proef_beeldmodel(hfmap: &str, afbeelding: &str, verslag: &str) -> i32 {
                 fout = true;
                 uit.push_str(&format!("FOUT: {naam}: {e}\r\n"));
             }
+        }
+    }
+    // "Wat moet ik doen?": een vraag over een tekst, zonder afbeelding.
+    let brief = "Gemeente Voorbeeld. U moet nog 245,80 euro betalen voor 1 december 2026 op NL91 ABNA 0417 1643 00.";
+    let begin = std::time::Instant::now();
+    match crate::beeldmodel::vraag_over_tekst(&crate::teksten::t("TaakOpdracht"), brief) {
+        Ok(t) => uit.push_str(&format!("== Wat moet ik doen ({} s)\r\n{t}\r\n", begin.elapsed().as_secs())),
+        Err(e) => {
+            fout = true;
+            uit.push_str(&format!("FOUT: Wat moet ik doen: {e}\r\n"));
         }
     }
     crate::beeldmodel::stop();

@@ -95,3 +95,40 @@ pub fn adrescode(s: &str) -> String {
     }
     uit
 }
+
+/// Zet tekst op het klembord (om te plakken met Ctrl+V).
+pub fn kopieer(eigenaar: HWND, tekst: &str) -> bool {
+    use windows_sys::Win32::System::DataExchange::*;
+    use windows_sys::Win32::System::Memory::*;
+    const CF_UNICODETEXT: u32 = 13;
+    let data = w(tekst);
+    unsafe {
+        let mut gelukt = false;
+        for _ in 0..5 {
+            if OpenClipboard(eigenaar) != 0 {
+                gelukt = true;
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(50));
+        }
+        if !gelukt {
+            return false;
+        }
+        EmptyClipboard();
+        let geheugen = GlobalAlloc(GMEM_MOVEABLE, data.len() * 2);
+        let mut ok = false;
+        if !geheugen.is_null() {
+            let p = GlobalLock(geheugen) as *mut u16;
+            if !p.is_null() {
+                std::ptr::copy_nonoverlapping(data.as_ptr(), p, data.len());
+                GlobalUnlock(geheugen);
+                ok = !SetClipboardData(CF_UNICODETEXT, geheugen as HANDLE).is_null();
+            }
+            if !ok {
+                GlobalFree(geheugen);
+            }
+        }
+        CloseClipboard();
+        ok
+    }
+}

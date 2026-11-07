@@ -22,7 +22,7 @@ If you store personal data in Paper Pilot, such as your name, address, date of b
 Paper Pilot only uses the internet:
 - to check whether there is a new version (in a folder of the maker on Dropbox). You can turn this off in the Settings menu. No personal data is sent. Like any website, Dropbox does see the internet address (IP address) of your computer.
 - when you choose to check a website yourself. Paper Pilot then fetches that website.
-- when you choose to download the language model for handwriting and photos (once, from Hugging Face and GitHub). After that the language model works on your own computer, without the internet: your letters and photos never go to the internet. No personal data is sent with this download either.
+- when you choose to download the language model for handwriting, photos and summaries (once, from Hugging Face and GitHub). After that the language model works on your own computer, without the internet: your letters and photos never go to the internet. No personal data is sent with this download either.
 
 
 4. No ads, no tracking

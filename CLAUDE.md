@@ -92,3 +92,10 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   dubbele punt + lege ruimte (met kader: antwoord in het kader), □-tekens, ____/....., getekende lijnen (geen bovenrand van
   een kader, erboven leeg) en getekende hokjes. Invullen: PDF met tekst = FPDFPageObj_NewTextObj(Helvetica) op de pagina;
   scan = pdf_maken met zichtbare tekst. invulvenster::Bron (Velden/PlatPdf/PlatScan). Proef `--proef-plat`, tests/plat-*.
+  Ook in 0.0.0.7 (Jaaps wens, nog niet getest): meer formaten in `formaten.rs` (RTF met kopstijlen uit de stylesheet, oud Word
+  .doc via cfb + piece table, OpenDocument content.xml, xlsx met bladnamen uit workbook.xml, pptx, html); geen epub, geen braille.
+  `qr.rs` (rxing 0.9.3 zonder image-crate: QR, streepjescodes; EPC-betaal-QR "BCD", links nooit vanzelf openen; PDF-pagina's met
+  tekst worden op 150 dpi gerenderd voor QR, hooguit 20), Ctrl+Q. `taken.rs` "Wat moet ik doen?" (Ctrl+T): IBAN met mod-97,
+  bedragen (belangrijkste vooraan), betalingskenmerk, uiterste datums, telefoon; samenvatting via `beeldmodel::vraag_over_tekst`
+  (tekst-only, max 12000 tekens). `win::kopieer` (klembord). Testbestanden tests/voorbeeld-brief.{rtf,doc,odt,html},
+  voorbeeld-tabel.*, voorbeeld-dia.*, qr-*, streepjescode.png, voorbeeld-aanslag.txt (gemaakt met LibreOffice, segno, PIL).

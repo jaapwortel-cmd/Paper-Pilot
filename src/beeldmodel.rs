@@ -1,4 +1,4 @@
-// Paper Pilot - het taalmodel dat kan kijken: handschrift lezen en beschrijven wat er op een foto of tekening staat.
+﻿// Paper Pilot - het taalmodel dat kan kijken: handschrift lezen en beschrijven wat er op een foto of tekening staat.
 //
 // Alles gebeurt op de eigen computer, zonder internet (alleen de eenmalige download gebruikt internet):
 // - de motor is llama.cpp (llama-server.exe, MIT-licentie), een vaste versie met Vulkan (videokaart, anders processor);
@@ -299,7 +299,6 @@ pub fn vraag(beeld: &Beeld, soort: Soort) -> Result<String, String> {
     if !geinstalleerd() {
         return Err(t("ModelNietGeinstalleerd"));
     }
-    let poort = zorg_voor_motor()?;
     // Als JPG naar het model sturen (kleiner), hooguit 1280 beeldpunten aan de lange kant.
     let tijdelijk = std::env::temp_dir().join("Paper Pilot");
     let _ = fs::create_dir_all(&tijdelijk);
@@ -307,16 +306,29 @@ pub fn vraag(beeld: &Beeld, soort: Soort) -> Result<String, String> {
     crate::beeld::schrijf(&jpg, &[beeld.verklein(1280)])?;
     let data = fs::read(&jpg).map_err(|e| e.to_string())?;
     let _ = fs::remove_file(&jpg);
+    stuur(serde_json::json!([
+        { "type": "image_url", "image_url": { "url": format!("data:image/jpeg;base64,{}", base64(&data)) } },
+        { "type": "text", "text": opdracht(&soort) }
+    ]), 1500)
+}
+
+/// Een vraag over een tekst (zonder afbeelding), bijvoorbeeld "wat moet ik met deze brief doen?".
+pub fn vraag_over_tekst(opdracht: &str, tekst: &str) -> Result<String, String> {
+    if !geinstalleerd() {
+        return Err(t("ModelNietGeinstalleerd"));
+    }
+    // Het model kan ongeveer 8000 stukjes tekst aan; een lange brief wordt ingekort.
+    let tekst: String = tekst.chars().take(12_000).collect();
+    stuur(serde_json::json!([{ "type": "text", "text": format!("{opdracht}\n\n---\n{tekst}\n---") }]), 700)
+}
+
+/// Stuurt één vraag naar de motor en geeft het antwoord.
+fn stuur(inhoud: serde_json::Value, max_tokens: u32) -> Result<String, String> {
+    let poort = zorg_voor_motor()?;
     let lichaam = serde_json::json!({
-        "messages": [{
-            "role": "user",
-            "content": [
-                { "type": "image_url", "image_url": { "url": format!("data:image/jpeg;base64,{}", base64(&data)) } },
-                { "type": "text", "text": opdracht(&soort) }
-            ]
-        }],
+        "messages": [{ "role": "user", "content": inhoud }],
         "temperature": 0.1,
-        "max_tokens": 1500
+        "max_tokens": max_tokens
     })
     .to_string();
     let mut antwoord = Vec::new();

@@ -28,7 +28,7 @@ Use Tab or the arrow keys to move between the buttons. Enter or Space chooses a 
 
 3. Reading a document
 
-Choose Read and fill in (Alt+R). Paper Pilot asks: open a file, or scan. If you choose to open a file, the Open document window appears. Choose a PDF, a Word document (.docx), a text file or a photo or scan (JPG, PNG, TIFF, BMP, GIF, HEIC or WebP) and choose Open.
+Choose Read and fill in (Alt+R). Paper Pilot asks: open a file, or scan. If you choose to open a file, the Open document window appears. Choose a PDF, a Word document (.docx or the old .doc), RTF, OpenDocument (.odt, .ods, .odp), Excel (.xlsx), PowerPoint (.pptx), a web page (.html), a text file or a photo or scan (JPG, PNG, TIFF, BMP, GIF, HEIC or WebP) and choose Open.
 
 Paper Pilot turns it into clean text. At the top is the name of the document, and a line with the number of pages, headings and form fields. Read the text with the arrow keys, just like in Notepad. Each page starts with a line such as "Page 1 of 3". Headings are on a line of their own.
 
@@ -44,6 +44,8 @@ Shortcut keys in the reading window:
 - Ctrl+Shift+S: save a scan or photo (straightened) as a PDF with the text in it, or as a picture.
 - Ctrl+H: read handwriting (with a scan or photo).
 - Ctrl+D: describe what is on the scan or photo.
+- Ctrl+T: What do I need to do? A short summary, and the details for paying.
+- Ctrl+Q: QR codes and barcodes that Paper Pilot found.
 - Escape: close the reading window.
 Use Tab to reach the buttons; the same commands are there as well.
 
@@ -54,6 +56,10 @@ Filling in a form: Paper Pilot asks the questions one by one. First you hear "Qu
 Forms without form fields: many forms only have lines and boxes, or are scanned. Choose Fill in form (Ctrl+I) in that case as well. Paper Pilot finds the places to fill in itself: a question with a colon and empty space after it, lines, dots and boxes to check. Filling in then works the same. When saving, Paper Pilot puts your answers in the right place, with a cross in the boxes you checked. This usually works well, but not always: check the filled-in form carefully, or ask someone to check it with you.
 
 Scans and photos: Paper Pilot recognises the printed text, using Windows text recognition and without the internet. If the scan is upside down, on its side or crooked, Paper Pilot tells you and straightens it. With Ctrl+Shift+S you save the straightened scan as a picture (PNG, JPG, TIFF with all pages, BMP or GIF). Handwriting and photos: choose Read handwriting (Ctrl+H) to have handwritten text read, such as a shopping list or postcard. Choose Describe (Ctrl+D) to hear what is on a photo, drawing or scan. This is done by a language model on your own computer, without the internet. The first time, Paper Pilot asks whether you want to download the model (once, about 3.5 GB). The answer appears in a separate window; read it with the arrow keys, Escape closes it. Neat handwriting usually works well, messy handwriting not always. With a graphics card it is fast; with only the processor it can take a few minutes. A word the model cannot read is shown as [unreadable].
+
+What do I need to do? (Ctrl+T): Paper Pilot tells you in plain words who the letter is from, what it is about, what you need to do and by when. The language model on your own computer makes this summary (without the internet). Paper Pilot also finds the amount, the account number (IBAN, checked), the payment reference, deadlines and phone numbers by itself. Then a list appears: choose Read the summary, or copy a detail and paste it with Ctrl+V into your banking app or a website. After copying you return to the list; Escape closes it. Without the language model you only get the details. Please note: Paper Pilot can make mistakes; always check amounts and account numbers against the letter itself.
+
+QR codes and barcodes: Paper Pilot finds them by itself on scans, photos and PDF pages, and tells you what they contain. A payment QR code (scan to pay) becomes a payment request with name, amount, account number and description. Choose QR codes (Ctrl+Q) to open a link in your browser or copy something. A link never opens by itself: Paper Pilot asks first.
 
 Envelopes: Paper Pilot recognises an envelope by itself, also a window envelope, and tells you at the top who the post is from and who it is addressed to. All the text of the envelope follows below. Small print, such as on a medicine leaflet or a tea bag tag: Paper Pilot enlarges the picture and increases the contrast when that reads better. If it still does not work well, try Read handwriting (Ctrl+H): the language model often reads small and curved letters better.
 
