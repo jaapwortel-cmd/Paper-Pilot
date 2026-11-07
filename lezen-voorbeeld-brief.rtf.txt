@@ -1,0 +1,21 @@
+﻿Bestand: voorbeeld-brief.rtf
+Pagina's: 0
+Zonder tekst: []
+Invulvelden: 0
+Afbeeldingen: 0
+Kop: Brief van de gemeente (0-21)
+Kop: Afspraken (132-141)
+----
+Brief van de gemeente
+
+Beste inwoner,
+
+Dit is een voorbeeldbrief in Word. Paper Pilot moet de koppen en alinea's goed lezen.
+
+Afspraken
+
+Datum | 12 november 2026
+
+Tijd | 10.30 uur
+
+Met vriendelijke groet,

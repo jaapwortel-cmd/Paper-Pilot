@@ -1,0 +1,28 @@
+﻿Bestand: scan-scheef.png
+Pagina's: 0
+Zonder tekst: []
+Invulvelden: 0
+Afbeeldingen: 1
+Melding: Let op: pagina 1 lag ongeveer 6 graden scheef. Paper Pilot heeft hem rechtgezet.
+Kop: Zorgkantoor Voorbeeld (84-105)
+PDF met tekst: 68 woorden, 0 pagina's zonder tekst
+PDF-tekst: Pagina 1 van 1 Zorgkantoor Voorbeeld Datum: 6 november 2026 Betreft: uw persoonsgebonden budget Beste meneer of mevrouw, Wij hebben uw aanvraag ontvangen en bekeken.
+Afbeelding opgeslagen: lezen-scan-scheef.png.txt.png
+----
+Let op: pagina 1 lag ongeveer 6 graden scheef. Paper Pilot heeft hem rechtgezet.
+
+Zorgkantoor Voorbeeld
+
+Datum: 6 november 2026
+
+Betreft: uw persoonsgebonden budget
+
+Beste meneer of mevrouw,
+
+Wij hebben uw aanvraag ontvangen en bekeken. U krijgt
+in 2027 een budget voor zorg thuis. Het bedrag staat in
+de bijlage bij deze brief. Wilt u de gegevens controleren
+en het formulier binnen vier weken terugsturen?
+
+Met vriendelijke groet,
+het zorgkantoor

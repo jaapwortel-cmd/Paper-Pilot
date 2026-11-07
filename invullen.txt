@@ -1,0 +1,16 @@
+﻿Velden: 7
+Vraag 1: Naam (Tekst, Mijn gegevens: naam)
+Vraag 2: Geboortedatum (Tekst, Mijn gegevens: geboortedatum)
+Vraag 3: BSN (Tekst, Mijn gegevens: bsn)
+Vraag 4: Adres (Tekst, Mijn gegevens: straat)
+Vraag 5: Telefoonnummer (Tekst, Mijn gegevens: telefoon)
+Vraag 6: Mijn adres verandert (Vinkje, Mijn gegevens: straat)
+Vraag 7: Mijn zorg verandert (Vinkje, Mijn gegevens: -)
+Opgeslagen.
+Goed Naam: 'Proef 1 é' 
+Goed Geboortedatum: 'Proef 2 é' 
+Goed BSN: 'Proef 3 é' 
+Goed Adres: 'Proef 4 é' 
+Goed Telefoonnummer: 'Proef 5 é' 
+Goed Mijn adres verandert: '' 
+Goed Mijn zorg verandert: '1' 
