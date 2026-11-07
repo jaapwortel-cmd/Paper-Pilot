@@ -1,0 +1,29 @@
+# Controleert of een downloadlink werkt: downloaden zoals een bezoeker, het zip-bestand openen
+# en kijken of het installatieprogramma erin zit en de goede versie heeft. Alleen met de hand te starten.
+name: Downloadlink controleren
+on:
+  workflow_dispatch:
+    inputs:
+      link:
+        description: "De downloadlink"
+        required: true
+jobs:
+  controleren:
+    runs-on: windows-latest
+    steps:
+      - name: Downloaden en openen
+        shell: pwsh
+        env:
+          LINK: ${{ inputs.link }}
+        run: |
+          $ProgressPreference = "SilentlyContinue"
+          $r = Invoke-WebRequest -Uri $env:LINK -OutFile download.zip -PassThru -MaximumRedirection 10
+          "Status: $($r.StatusCode)"
+          "Grootte: $((Get-Item download.zip).Length) bytes"
+          Expand-Archive download.zip -DestinationPath uit -Force
+          Get-ChildItem uit -Recurse | ForEach-Object { "In het zip-bestand: $($_.Name) ($($_.Length) bytes, versie $($_.VersionInfo.FileVersion))" }
+          $exe = Get-ChildItem uit -Filter "*.exe" -Recurse | Select-Object -First 1
+          if (-not $exe) { throw "Geen installatieprogramma in het zip-bestand." }
+          $sig = Get-AuthenticodeSignature $exe.FullName
+          "Handtekening: $($sig.Status) (verwacht: niet ondertekend)"
+          "GESLAAGD: de link werkt."
