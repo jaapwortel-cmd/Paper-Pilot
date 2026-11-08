@@ -126,6 +126,7 @@ Settings
 - Appearance: Automatic (like Windows), Light or Dark. When Windows high contrast is on, Paper Pilot always uses the Windows colours.
 - My details: your name, address, date of birth, phone number, email address, BSN and IBAN. Paper Pilot fills them in for you in forms. They are stored encrypted on your own computer; only you can read them.
 - My signature: sign with a dark pen on white paper and scan it, or choose a photo. Paper Pilot takes out the signature and stores it encrypted. On a form, Paper Pilot puts it at the question for your signature.
+- Ask before exit: when this is on, Paper Pilot asks whether you are sure when you choose Exit (Alt+F4).
 - Keep My post: when this is on, Paper Pilot remembers the letters you read (encrypted, on your own computer).
 - Language model for handwriting and photos: download the language model, or remove it if it is already there.
 - Check for updates at startup: when this is on, Paper Pilot checks once a day for a new version.

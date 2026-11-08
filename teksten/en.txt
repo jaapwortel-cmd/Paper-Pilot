@@ -635,3 +635,6 @@ PostSoort_gemeente = Municipality
 PostSoort_lasten = Fixed costs (energy, rent, phone)
 PostSoort_inkomen = Work and income
 PostSoort_overig = Other
+MenuVraagAfsluiten = Ask before e&xit
+AfsluitenVraag = Are you sure you want to close Paper Pilot?
+AfsluitenVraagTekst = Choose Yes to close, or No to continue. You can turn off this question in the Settings menu, Ask before exit.

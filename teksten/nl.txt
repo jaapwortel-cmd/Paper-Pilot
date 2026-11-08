@@ -635,3 +635,6 @@ PostSoort_gemeente = Gemeente
 PostSoort_lasten = Vaste lasten (energie, huur, telefoon)
 PostSoort_inkomen = Werk en inkomen
 PostSoort_overig = Overig
+MenuVraagAfsluiten = &Vragen bij afsluiten
+AfsluitenVraag = Weet je zeker dat je Paper Pilot wilt afsluiten?
+AfsluitenVraagTekst = Kies Ja om af te sluiten, of Nee om verder te gaan. Deze vraag kun je uitzetten in het menu Instellingen, Vragen bij afsluiten.

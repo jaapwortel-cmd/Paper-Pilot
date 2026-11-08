@@ -126,6 +126,7 @@ Instellingen
 - Weergave: Automatisch (zoals Windows), Licht of Donker. Staat hoog contrast van Windows aan, dan gebruikt Paper Pilot altijd de kleuren van Windows.
 - Mijn gegevens: je naam, adres, geboortedatum, telefoonnummer, e-mailadres, BSN en IBAN. Paper Pilot vult ze alvast in bij formulieren. Ze staan versleuteld op je eigen computer; alleen jij kunt ze lezen.
 - Mijn handtekening: zet je handtekening met een donkere pen op wit papier en scan het, of kies een foto. Paper Pilot haalt de handtekening eruit en bewaart hem versleuteld. Bij een formulier zet Paper Pilot hem bij de vraag naar je handtekening.
+- Vragen bij afsluiten: staat dit aan, dan vraagt Paper Pilot bij Afsluiten (Alt+F4) of je het zeker weet.
 - Mijn post bijhouden: staat dit aan, dan onthoudt Paper Pilot de brieven die je leest (versleuteld, op je eigen computer).
 - Taalmodel voor handschrift en foto's: het taalmodel downloaden, of verwijderen als het er al is.
 - Bij het starten naar updates zoeken: staat dit aan, dan kijkt Paper Pilot één keer per dag of er een nieuwe versie is.
