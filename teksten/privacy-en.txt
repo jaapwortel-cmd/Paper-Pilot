@@ -9,7 +9,7 @@ Paper Pilot is a free program that helps you with letters and forms. This statem
 
 1. Your letters and forms stay on your own computer
 
-Letters, forms and scans that you open, make or fill in with Paper Pilot stay on your own computer. Paper Pilot does not send them anywhere. Text recognition also happens on your own computer.
+Letters, forms and scans that you open, make or fill in with Paper Pilot stay on your own computer. Paper Pilot does not send them anywhere. Text recognition also happens on your own computer. If you scan with the camera, the photos stay on your computer; they are only used to read the letter. Appointments you put in your calendar go to your own calendar program.
 
 
 2. Your personal data

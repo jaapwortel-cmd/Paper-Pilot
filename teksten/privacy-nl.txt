@@ -9,7 +9,7 @@ Paper Pilot is een gratis programma dat je helpt met brieven en formulieren. In 
 
 1. Je brieven en formulieren blijven op je eigen computer
 
-Brieven, formulieren en scans die je met Paper Pilot opent, maakt of invult, blijven op je eigen computer. Paper Pilot stuurt ze nergens naartoe. Ook de tekstherkenning gebeurt op je eigen computer.
+Brieven, formulieren en scans die je met Paper Pilot opent, maakt of invult, blijven op je eigen computer. Paper Pilot stuurt ze nergens naartoe. Ook de tekstherkenning gebeurt op je eigen computer. Scan je met de camera, dan blijven de foto's op je computer; ze worden alleen gebruikt om de brief te lezen. Afspraken die je in je agenda zet, gaan naar je eigen agendaprogramma.
 
 
 2. Je persoonlijke gegevens

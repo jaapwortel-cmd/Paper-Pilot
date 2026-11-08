@@ -125,3 +125,12 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   Jaap zet de bestanden zelf in de updatemap; de openbare link is de bestaande link van de updatemap.
   Jaap: "als je iets vindt om het toegankelijker te maken, mag je dat gewoon doen". Gedaan: lettergrootte in het leesvenster
   (Ctrl+plus/min/0, instelling tekstgrootte, ook tekstvenster), Help, Sneltoetsen (SneltoetsenTekst), pdf_maken met /Lang, DisplayDocTitle en /Info /Title.
+- 0.0.0.9 (8 nov 2026, Jaap: "bouw alle 5 er maar in"): `camera.rs` (MediaCapture-foto's ~1/s, `beoordeel`: Otsu-papier,
+  randen geraakt -> links/rechts/hoger/lager/dichtbij (links op de foto = links van de gebruiker bij een camera boven het scherm),
+  donker, wazig/geen tekst via donkere punten + spreiding; 2x Goed = foto; tests/camera-*.png gemaakt met PIL, echte webcam niet
+  getest), `melden.rs` (UiaRaiseNotificationEvent via UiaHostProviderFromHwnd op het voortgangsvenster, Voortgang.venster),
+  `agenda.rs` (datum + tijd + woorden als afspraak/uitgenodigd/Tijd:, Locatie:/Adres:; .ics met VALARM -P1D, openen met het
+  standaardprogramma; Ctrl+E), `schrijven.rs` (soorten brieven, sjabloon met Mijn gegevens + kenmerk, of taalmodel via
+  beeldmodel::vraag_vrij; schrijfvenster met eigen subclass: Enter = nieuwe regel, Tab/Escape niet; eigen docx met titel en taal;
+  Ctrl+B), vertalen in leesvenster (stukken van 2500 tekens, Ctrl+Shift+T), Mijn post met soorten (post::soort_van) en zoeken.
+  Proeven `--proef-camera tests`, `--proef-afspraken tests/voorbeeld-afspraak.txt`.

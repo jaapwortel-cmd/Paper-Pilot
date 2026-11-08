@@ -1,5 +1,12 @@
 ﻿Wijzigingen in Paper Pilot
 
+Versie 0.0.0.9 (november 2026)
+- Nieuw: scannen met de camera van je laptop (Ctrl+Shift+N). Je schermlezer zegt hoe je de brief moet houden; Paper Pilot maakt vanzelf de foto.
+- Nieuw: een afspraak uit een brief in je agenda zetten (Ctrl+E), met een herinnering een dag van tevoren.
+- Nieuw: een brief terugschrijven (Ctrl+B): bezwaar, opzeggen, een vraag, uitstel van betaling. Opslaan als Word, afdrukken of mailen.
+- Nieuw: een brief vertalen (Ctrl+Shift+T), op je eigen computer.
+- Mijn post is geordend per soort (Belasting, Zorg, Bank, Gemeente ...) en je kunt erin zoeken.
+
 Versie 0.0.0.8 (november 2026)
 - De eerste versie voor iedereen. Alles wat hieronder bij 0.0.0.7 staat, zit erin.
 

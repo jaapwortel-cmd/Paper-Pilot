@@ -46,6 +46,10 @@ Sneltoetsen in het leesvenster:
 - Ctrl+Q: QR-codes en streepjescodes die Paper Pilot vond.
 - Ctrl+R: een herinnering maken.
 - Ctrl+M: het document mailen als bijlage.
+- Ctrl+E: een afspraak uit de brief in je agenda zetten.
+- Ctrl+B: een brief terugschrijven.
+- Ctrl+Shift+T: de brief vertalen.
+- Ctrl+Shift+N: scannen met de camera.
 - Ctrl+plus en Ctrl+min: de letters in het tekstvak groter of kleiner, Ctrl+0 weer gewoon. Paper Pilot onthoudt de grootte, ook voor de handleiding en andere teksten.
 - Escape: het leesvenster sluiten.
 Met Tab ga je naar de knoppen; dezelfde opdrachten staan daar ook.
@@ -66,6 +70,14 @@ Herinneringen (Ctrl+R): Paper Pilot vult de datum en het bedrag alvast in als he
 Mailen (Ctrl+M): Paper Pilot maakt een nieuwe mail in je eigen mailprogramma, met het document als bijlage. Een scan wordt eerst een PDF met de tekst erin. Je kiest zelf aan wie de mail gaat. Werkt je mailprogramma niet samen met Paper Pilot (zoals de nieuwe Outlook of Mail van Windows), dan zet Paper Pilot het bestand op het klembord en opent een nieuwe mail: plak het bestand met Ctrl+V. Na het opslaan van een ingevuld formulier vraagt Paper Pilot ook of je het wilt mailen.
 
 Handtekening op een formulier: heb je je handtekening klaargezet (Instellingen, Mijn handtekening), dan staat bij de vraag naar je handtekening alvast [mijn handtekening]. Bij het opslaan komt daar je handtekening als plaatje. Wis de tekst als je dat niet wilt. De datum bij een vraag naar de datum vult Paper Pilot alvast in met vandaag.
+
+Scannen met de camera (Ctrl+Shift+N, of kies Met de camera bij Lezen en invullen): voor als je geen scanner hebt. Houd de brief voor de camera van je laptop, met de tekst naar de camera, op ongeveer 30 centimeter. Je schermlezer zegt wat je moet doen: "schuif de brief een beetje naar links", "houd de brief iets hoger", "te dichtbij", "te donker" of "geen tekst te zien, draai de brief om". Links en rechts zijn jouw links en rechts. Is de brief goed in beeld, dan maakt Paper Pilot vanzelf de foto en leest de brief. Vindt Paper Pilot geen scanner, dan vraagt het of je de camera wilt gebruiken.
+
+Afspraak in je agenda (Ctrl+E): Paper Pilot zoekt een afspraak in de brief, zoals "Datum: 14 december, Tijd: 10.30 uur, Locatie: ...". Je kijkt de afspraak na, en daarna opent je agenda (bijvoorbeeld Outlook of Agenda van Windows) met de afspraak erin, met een herinnering een dag van tevoren. Kies daar Opslaan. Ook bij Wat moet ik doen? staat de afspraak in het lijstje.
+
+Brief terugschrijven (Ctrl+B): kies wat voor brief (bezwaar maken, iets opzeggen, een vraag stellen, uitstel van betaling vragen, een fout melden of zelf iets schrijven) en zeg in je eigen woorden wat erin moet. Met het taalmodel schrijft Paper Pilot een voorstel; zonder taalmodel krijg je een nette voorbeeldbrief met je gegevens uit Mijn gegevens, de datum en het kenmerk. Pas de brief aan in het tekstvak. Opslaan als Word-bestand (Ctrl+S), afdrukken (Ctrl+P), kopiëren (Ctrl+Shift+C) of mailen (Ctrl+M). Kijk de brief altijd goed na.
+
+Vertalen (Ctrl+Shift+T): een brief in een andere taal, bijvoorbeeld Engels of Duits, wordt vertaald naar het Nederlands. Dit doet het taalmodel op je eigen computer, in stukjes; een lange brief duurt even. Kijk bij belangrijke zaken altijd naar de brief zelf.
 
 QR-codes en streepjescodes: Paper Pilot zoekt ze vanzelf op scans, foto's en PDF-pagina's, en zegt wat erin staat. Een betaal-QR-code (scan en betaal) wordt een betaalverzoek met naam, bedrag, rekeningnummer en omschrijving. Kies QR-codes (Ctrl+Q) om een link te openen in je browser of iets te kopiëren. Een link opent nooit vanzelf: Paper Pilot vraagt het eerst.
 
@@ -105,7 +117,7 @@ Paper Pilot controleert veel, maar niet alles. Laat je document of website ook e
 Druk op Alt om naar de menubalk te gaan.
 
 Bestand
-- Mijn post: de brieven en documenten die je hebt gelezen of gescand, de nieuwste bovenaan, met de datum en de afzender. Kies er een om hem weer te openen, ook een scan die je niet hebt opgeslagen. Je kunt er ook een uithalen, of Mijn post helemaal wissen.
+- Mijn post: de brieven en documenten die je hebt gelezen of gescand, de nieuwste bovenaan, met de datum en de afzender. Paper Pilot zet ze vanzelf bij een soort: Belasting en toeslagen, Zorg en gezondheid, Bank, Gemeente, Vaste lasten, Werk en inkomen of Overig. Kies Zoeken in Mijn post om te zoeken op een woord, naam of datum. Kies een brief om hem weer te openen (ook een scan die je niet hebt opgeslagen), de soort te veranderen of hem eruit te halen.
 - Herinneringen: al je herinneringen. Maak een nieuwe, of kies er een om hem weg te halen.
 - Afsluiten (Alt+F4): Paper Pilot sluiten.
 

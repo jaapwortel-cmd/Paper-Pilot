@@ -46,6 +46,10 @@ Shortcut keys in the reading window:
 - Ctrl+Q: QR codes and barcodes that Paper Pilot found.
 - Ctrl+R: make a reminder.
 - Ctrl+M: email the document as an attachment.
+- Ctrl+E: put an appointment from the letter in your calendar.
+- Ctrl+B: write a reply.
+- Ctrl+Shift+T: translate the letter.
+- Ctrl+Shift+N: scan with the camera.
 - Ctrl+plus and Ctrl+minus: bigger or smaller letters in the text box, Ctrl+0 back to normal. Paper Pilot remembers the size, also for the manual and other texts.
 - Escape: close the reading window.
 Use Tab to reach the buttons; the same commands are there as well.
@@ -66,6 +70,14 @@ Reminders (Ctrl+R): Paper Pilot fills in the date and amount if it finds them in
 Email (Ctrl+M): Paper Pilot creates a new email in your own email program, with the document as an attachment. A scan first becomes a PDF with the text in it. You choose who the email goes to. If your email program does not work together with Paper Pilot (like the new Outlook or Windows Mail), Paper Pilot puts the file on the clipboard and opens a new email: paste the file with Ctrl+V. After saving a filled-in form, Paper Pilot also asks whether you want to email it.
 
 Signature on a form: if you have set up your signature (Settings, My signature), the question for your signature already says [my signature]. When you save, your signature is put there as a picture. Delete the text if you do not want that. Paper Pilot fills in today's date at a question for the date.
+
+Scan with the camera (Ctrl+Shift+N, or choose With the camera under Read and fill in): for when you have no scanner. Hold the letter in front of your laptop camera, with the text facing the camera, at about 30 centimetres. Your screen reader tells you what to do: "move the letter a little to the left", "hold the letter a little higher", "too close", "too dark" or "no text visible, turn the letter over". Left and right are your left and right. When the letter is in view, Paper Pilot takes the photo by itself and reads the letter. If Paper Pilot finds no scanner, it asks whether you want to use the camera.
+
+Appointment in your calendar (Ctrl+E): Paper Pilot looks for an appointment in the letter, such as "Date: 14 December, Time: 10.30, Location: ...". You check the appointment, and then your calendar (for example Outlook or Windows Calendar) opens with the appointment in it, with a reminder one day before. Choose Save there. The appointment is also listed under What do I need to do?.
+
+Write a reply (Ctrl+B): choose the kind of letter (make an objection, cancel something, ask a question, ask for more time to pay, report a mistake or write something yourself) and say in your own words what it should say. With the language model, Paper Pilot writes a draft; without it you get a neat example letter with your details from My details, the date and the reference. Change the letter in the text box. Save as a Word file (Ctrl+S), print (Ctrl+P), copy (Ctrl+Shift+C) or email (Ctrl+M). Always check the letter carefully.
+
+Translate (Ctrl+Shift+T): a letter in another language, for example Dutch or German, is translated into English. The language model does this on your own computer, in parts; a long letter takes a while. For important matters, always check the letter itself.
 
 QR codes and barcodes: Paper Pilot finds them by itself on scans, photos and PDF pages, and tells you what they contain. A payment QR code (scan to pay) becomes a payment request with name, amount, account number and description. Choose QR codes (Ctrl+Q) to open a link in your browser or copy something. A link never opens by itself: Paper Pilot asks first.
 
@@ -105,7 +117,7 @@ Paper Pilot checks a lot, but not everything. Also ask someone who uses a screen
 Press Alt to go to the menu bar.
 
 File
-- My post: the letters and documents you have read or scanned, newest first, with the date and the sender. Choose one to open it again, also a scan you did not save. You can also remove one, or clear My post completely.
+- My post: the letters and documents you have read or scanned, newest first, with the date and the sender. Paper Pilot sorts them into a type by itself: Taxes and allowances, Care and health, Bank, Municipality, Fixed costs, Work and income or Other. Choose Search My post to search for a word, name or date. Choose a letter to open it again (also a scan you did not save), change its type or remove it.
 - Reminders: all your reminders. Make a new one, or choose one to remove it.
 - Exit (Alt+F4): close Paper Pilot.
 

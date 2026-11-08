@@ -42,14 +42,21 @@ const ID_MAIL: i32 = 118;
 const ID_GROTER: i32 = 119;
 const ID_KLEINER: i32 = 120;
 const ID_GEWOON: i32 = 121;
+const ID_AGENDA: i32 = 122;
+const ID_SCHRIJVEN: i32 = 123;
+const ID_VERTALEN: i32 = 124;
+const ID_CAMERA: i32 = 125;
 const ID_SLUITEN: i32 = IDCANCEL;
 const WM_GELADEN: u32 = WM_APP + 10;
 const WM_VOORTGANG: u32 = WM_APP + 11;
 
-const KNOPPEN: [(i32, &str); 16] = [
+const KNOPPEN: [(i32, &str); 19] = [
     (ID_OPENEN, "KnopOpenen"),
     (ID_TAAK, "KnopTaak"),
     (ID_HERINNERING, "KnopHerinnering"),
+    (ID_AGENDA, "KnopAgenda"),
+    (ID_SCHRIJVEN, "KnopSchrijven"),
+    (ID_VERTALEN, "KnopVertalen"),
     (ID_MAIL, "KnopMailen"),
     (ID_INVULLEN, "KnopInvullen"),
     (ID_SCAN, "KnopScannen"),
@@ -119,11 +126,13 @@ pub fn open_en_kies(eigenaar: HWND) {
     v.opdrachtlinks = true;
     v.knoppen.push(dialogen::Knop { id: 3001, tekst: t("KeuzeOpenen") });
     v.knoppen.push(dialogen::Knop { id: 3002, tekst: t("KeuzeScannen") });
+    v.knoppen.push(dialogen::Knop { id: 3003, tekst: t("KeuzeCamera") });
     v.gewone_knoppen = windows_sys::Win32::UI::Controls::TDCBF_CANCEL_BUTTON;
     v.standaard = 3001;
     match v.toon(h) {
         3001 => kies_bestand(),
         3002 => scannen(),
+        3003 => camera_scannen(),
         _ => unsafe {
             if let Some(s) = lees() {
                 SetFocus(s.vak);
@@ -139,7 +148,9 @@ fn kies_scanner(hwnd: HWND) -> Option<crate::scanner::Scanner> {
         crate::scanner::zoek()
     })?;
     if scanners.is_empty() {
-        dialogen::melding(hwnd, &t("GeenScanner"), &t("GeenScannerTekst"), dialogen::ICOON_WAARSCHUWING);
+        if dialogen::ja_nee(hwnd, &t("GeenScanner"), &t("GeenScannerCamera"), true) {
+            camera_scannen();
+        }
         return None;
     }
     let scanner = if scanners.len() == 1 {
@@ -171,6 +182,37 @@ pub fn scan_een_beeld(eigenaar: HWND) -> Option<(crate::beeld::Beeld, u32)> {
             dialogen::melding(eigenaar, &t("ScanMislukt"), &tf("ScanMisluktTekst", &[&e]), dialogen::ICOON_WAARSCHUWING);
             None
         }
+    }
+}
+
+/// Ctrl+Shift+N: een brief scannen met de camera. De schermlezer zegt hoe je de brief moet houden.
+fn camera_scannen() {
+    let Some(s) = lees() else { return };
+    let hwnd = s.hwnd;
+    if !dialogen::ja_nee(hwnd, &t("CameraTitel"), &t("CameraUitleg"), true) {
+        unsafe { SetFocus(s.vak) };
+        return;
+    }
+    let uitkomst = dialogen::werk(hwnd, &t("CameraTitel"), &t("CameraKop"), |v| crate::camera::neem(v));
+    let beeld = match uitkomst {
+        Some(Ok(Some(b))) => b,
+        Some(Err(e)) => {
+            dialogen::melding(hwnd, &t("CameraTitel"), &e, dialogen::ICOON_WAARSCHUWING);
+            unsafe { SetFocus(s.vak) };
+            return;
+        }
+        _ => {
+            unsafe { SetFocus(s.vak) };
+            return;
+        }
+    };
+    let naam = format!("{} {}", t("CameraNaam"), crate::logboek::nu().replace(':', ".").chars().take(16).collect::<String>());
+    let n = naam.clone();
+    let doc = dialogen::werk(hwnd, &t("CameraTitel"), &t("ScanHerkennen"), move |v| {
+        crate::lezen::van_beelden(&n, &[beeld], &|tekst| v.meld(tekst, 0), crate::lezen::Inhoud::Gewoon)
+    });
+    if let Some(doc) = doc {
+        geladen(Ok((doc, PathBuf::new())));
     }
 }
 
@@ -376,6 +418,10 @@ fn maak(eigenaar: HWND) -> HWND {
             ACCEL { fVirt: ctrl, key: b'T' as u16, cmd: ID_TAAK as u16 },
             ACCEL { fVirt: ctrl, key: b'R' as u16, cmd: ID_HERINNERING as u16 },
             ACCEL { fVirt: ctrl, key: b'M' as u16, cmd: ID_MAIL as u16 },
+            ACCEL { fVirt: ctrl, key: b'E' as u16, cmd: ID_AGENDA as u16 },
+            ACCEL { fVirt: (FVIRTKEY | FCONTROL | FSHIFT) as u8, key: b'N' as u16, cmd: ID_CAMERA as u16 },
+            ACCEL { fVirt: ctrl, key: b'B' as u16, cmd: ID_SCHRIJVEN as u16 },
+            ACCEL { fVirt: (FVIRTKEY | FCONTROL | FSHIFT) as u8, key: b'T' as u16, cmd: ID_VERTALEN as u16 },
             ACCEL { fVirt: ctrl, key: VK_OEM_PLUS, cmd: ID_GROTER as u16 },
             ACCEL { fVirt: ctrl, key: VK_ADD, cmd: ID_GROTER as u16 },
             ACCEL { fVirt: ctrl, key: VK_OEM_MINUS, cmd: ID_KLEINER as u16 },
@@ -483,7 +529,7 @@ pub fn opslaan_als_pdf(eigenaar: HWND, naam: &str) -> Option<PathBuf> {
     opslaan_als(eigenaar, naam, "PDF\0*.pdf\0\0", "pdf")
 }
 
-fn opslaan_als(eigenaar: HWND, naam: &str, filter: &str, standaard_ext: &str) -> Option<PathBuf> {
+pub(crate) fn opslaan_als(eigenaar: HWND, naam: &str, filter: &str, standaard_ext: &str) -> Option<PathBuf> {
     let filter: Vec<u16> = filter.encode_utf16().collect();
     let mut buf = vec![0u16; 32768];
     for (i, c) in naam.encode_utf16().take(buf.len() - 1).enumerate() {
@@ -867,6 +913,7 @@ fn opdracht(hwnd: HWND, id: i32) {
         ID_OPENEN => kies_bestand(),
         ID_GROTER | ID_KLEINER | ID_GEWOON => lettergrootte(id),
         ID_SCAN => scannen(),
+        ID_CAMERA => camera_scannen(),
         ID_SLUITEN => unsafe {
             DestroyWindow(hwnd);
         },
@@ -903,6 +950,17 @@ fn opdracht(hwnd: HWND, id: i32) {
             }
         }
         ID_MAIL => mailen(hwnd),
+        ID_AGENDA => {
+            if let Some(doc) = lees().and_then(|s| s.doc) {
+                crate::agenda::venster(hwnd, &doc);
+            }
+        }
+        ID_SCHRIJVEN => {
+            if let Some(doc) = lees().and_then(|s| s.doc) {
+                crate::schrijven::start(hwnd, &doc);
+            }
+        }
+        ID_VERTALEN => vertalen(hwnd),
         _ => {}
     }
 }
@@ -927,6 +985,51 @@ fn lettergrootte(id: i32) {
     weg(s.vakletter as _);
     met(|st| st.vakletter = letter);
     zet_tekst(s.status, &tf("Lettergrootte", &[&nieuw.to_string()]));
+}
+
+/// Ctrl+Shift+T: de brief vertalen naar de taal van het programma (met het taalmodel, in stukken).
+fn vertalen(hwnd: HWND) {
+    let Some(s) = lees() else { return };
+    let Some(doc) = s.doc.clone() else { return };
+    if !crate::beeldmodel::geinstalleerd() && !model_downloaden(hwnd) {
+        unsafe { SetFocus(s.vak) };
+        return;
+    }
+    // In stukken van hooguit 2500 tekens, op de grens van een alinea.
+    let mut stukken: Vec<String> = Vec::new();
+    let mut huidig = String::new();
+    for alinea in doc.tekst.split("\r\n\r\n") {
+        if huidig.chars().count() + alinea.chars().count() > 2500 && !huidig.is_empty() {
+            stukken.push(std::mem::take(&mut huidig));
+        }
+        if !huidig.is_empty() {
+            huidig.push_str("\r\n\r\n");
+        }
+        huidig.push_str(alinea);
+    }
+    if !huidig.trim().is_empty() {
+        stukken.push(huidig);
+    }
+    let aantal = stukken.len();
+    let uitkomst = dialogen::werk(hwnd, &t("VertaalTitel"), &t("VertaalBezig"), move |v| {
+        let mut uit = Vec::new();
+        for (i, stuk) in stukken.iter().enumerate() {
+            v.meld(tf("VertaalStuk", &[&(i + 1).to_string(), &aantal.to_string()]), (i * 100 / aantal.max(1)) as u32);
+            uit.push(crate::beeldmodel::vraag_vrij(&t("VertaalOpdracht"), stuk, 1500)?);
+        }
+        Ok::<String, String>(uit.join("\r\n\r\n"))
+    });
+    match uitkomst {
+        Some(Ok(tekst)) => {
+            logboek::schrijf(&format!("Vertaald: {} stukken.", aantal));
+            let tekst = format!("{}\r\n\r\n{}", tekst.replace("**", ""), t("VertaalLetOp"));
+            crate::tekstvenster::toon(hwnd, &tf("VertaalVensterTitel", &[&doc.naam]), &tekst);
+        }
+        Some(Err(e)) => dialogen::melding(hwnd, &t("ModelMislukt"), &e, dialogen::ICOON_WAARSCHUWING),
+        None => unsafe {
+            SetFocus(s.vak);
+        },
+    }
 }
 
 /// Ctrl+R: een herinnering maken, met de datum en de tekst alvast ingevuld.
@@ -1005,7 +1108,8 @@ fn wat_moet_ik_doen(hwnd: HWND) {
     let titel = format!("{} - {}", t("TaakTitel"), doc.naam);
     let kopieer_lijst = crate::taken::kopieerbaar(&gegevens);
     let datums: Vec<String> = gegevens.datums.iter().map(|d| d.0.clone()).collect();
-    if kopieer_lijst.is_empty() && datums.is_empty() {
+    let afspraken = crate::agenda::zoek(&doc.tekst, &crate::post::afzender(&doc));
+    if kopieer_lijst.is_empty() && datums.is_empty() && afspraken.is_empty() {
         crate::tekstvenster::toon(hwnd, &titel, &geheel);
         return;
     }
@@ -1013,12 +1117,17 @@ fn wat_moet_ik_doen(hwnd: HWND) {
     let mut namen = vec![t("TaakLeesSamenvatting")];
     namen.extend(kopieer_lijst.iter().map(|k| k.0.clone()));
     namen.extend(datums.iter().map(|d| tf("TaakHerinnering", &[d])));
+    namen.extend(afspraken.iter().map(|a| tf("TaakAgenda", &[&a.wanneer()])));
     let mut begin = 0;
     loop {
         match keuzevensters::kies_uit_lijst(hwnd, &t("TaakTitel"), &t("TaakLijstLabel"), &namen, begin) {
             Some(0) => {
                 crate::tekstvenster::toon(hwnd, &titel, &geheel);
                 return;
+            }
+            Some(i) if i > kopieer_lijst.len() + datums.len() => {
+                crate::agenda::in_agenda(hwnd, &afspraken[i - 1 - kopieer_lijst.len() - datums.len()]);
+                begin = i;
             }
             Some(i) if i > kopieer_lijst.len() => {
                 herinnering_maken(hwnd, &doc, &gegevens, datums.get(i - 1 - kopieer_lijst.len()).cloned());

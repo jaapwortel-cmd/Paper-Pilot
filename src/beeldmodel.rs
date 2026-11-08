@@ -322,6 +322,15 @@ pub fn vraag_over_tekst(opdracht: &str, tekst: &str) -> Result<String, String> {
     stuur(serde_json::json!([{ "type": "text", "text": format!("{opdracht}\n\n---\n{tekst}\n---") }]), 700)
 }
 
+/// Een vraag over een tekst met een eigen lengte voor het antwoord (brief schrijven, vertalen).
+pub fn vraag_vrij(opdracht: &str, tekst: &str, max_tokens: u32) -> Result<String, String> {
+    if !geinstalleerd() {
+        return Err(t("ModelNietGeinstalleerd"));
+    }
+    let tekst: String = tekst.chars().take(12_000).collect();
+    stuur(serde_json::json!([{ "type": "text", "text": format!("{opdracht}\n\n---\n{tekst}\n---") }]), max_tokens)
+}
+
 /// Stuurt één vraag naar de motor en geeft het antwoord.
 fn stuur(inhoud: serde_json::Value, max_tokens: u32) -> Result<String, String> {
     let poort = zorg_voor_motor()?;

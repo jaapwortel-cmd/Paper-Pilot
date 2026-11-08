@@ -146,6 +146,16 @@ jobs:
           if ($p.ExitCode -ne 0) { throw "De handtekening werkt niet." }
           if (-not (Get-Content handtekening.txt -Raw -Encoding utf8).Contains("Handtekeningveld gevonden")) { throw "Het handtekeningveld is niet gevonden." }
 
+      - name: Camera, agenda, brief terugschrijven en Mijn post
+        shell: pwsh
+        run: |
+          $p = Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-camera", "tests", "camera.txt" -Wait -PassThru
+          Get-Content camera.txt -Encoding utf8
+          if ($p.ExitCode -ne 0) { throw "De camera-beoordeling klopt niet." }
+          $p = Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-afspraken", "tests\voorbeeld-afspraak.txt", "afspraken.txt" -Wait -PassThru
+          Get-Content afspraken.txt -Encoding utf8
+          if ($p.ExitCode -ne 0) { throw "Agenda, brief of Mijn post werkt niet." }
+
       - name: Controleren (PDF, Word en website)
         shell: pwsh
         run: |
@@ -301,7 +311,7 @@ jobs:
         run: |
           New-Item -ItemType Directory uit | Out-Null
           Copy-Item "uitvoer\*.exe", "uitvoer\*.zip", "scherm-*.png", "proef.txt", "toegankelijkheid.txt" uit\
-          Copy-Item "lezen-*.txt", "beeldmodel*.txt", "invullen.txt", "ingevuld.pdf", "plat-*.txt", "plat-*.pdf", "herinneringen.txt", "handtekening.txt", "getekend.pdf", "controle-*.txt" uit\ -ErrorAction SilentlyContinue
+          Copy-Item "lezen-*.txt", "beeldmodel*.txt", "invullen.txt", "ingevuld.pdf", "plat-*.txt", "plat-*.pdf", "herinneringen.txt", "handtekening.txt", "getekend.pdf", "controle-*.txt", "camera.txt", "afspraken.txt" uit\ -ErrorAction SilentlyContinue
           @"
           # Paper Pilot $env:VERSIE
 

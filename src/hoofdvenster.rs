@@ -560,41 +560,80 @@ fn na_start(hwnd: HWND) {
     }
 }
 
-/// Menu Bestand, Mijn post: de gelezen brieven, de nieuwste bovenaan.
+/// Menu Bestand, Mijn post: zoeken, per soort (Belasting, Zorg ...) of alles, de nieuwste bovenaan.
 fn mijn_post(hwnd: HWND) {
-    let lijst = crate::post::laad();
-    if lijst.is_empty() {
-        let tekst = if crate::post::aan() { t("PostLeegTekst") } else { t("PostUitTekst") };
-        dialogen::melding(hwnd, &t("PostTitel"), &tekst, dialogen::ICOON_INFO);
-        return;
-    }
-    let mut namen: Vec<String> = lijst.iter().map(crate::post::regel).collect();
-    namen.push(t("PostWissen"));
-    let Some(i) = crate::keuzevensters::kies_uit_lijst(hwnd, &t("PostTitel"), &tf("PostLabel", &[&lijst.len().to_string()]), &namen, 0) else { return };
-    if i == lijst.len() {
-        if dialogen::ja_nee(hwnd, &t("PostTitel"), &t("PostWissenVraag"), false) {
-            crate::post::wis();
-            dialogen::melding(hwnd, &t("PostTitel"), &t("PostGewist"), dialogen::ICOON_INFO);
+    use crate::post::{self, SOORTEN};
+    loop {
+        let lijst = post::laad();
+        if lijst.is_empty() {
+            let tekst = if post::aan() { t("PostLeegTekst") } else { t("PostUitTekst") };
+            dialogen::melding(hwnd, &t("PostTitel"), &tekst, dialogen::ICOON_INFO);
+            return;
         }
-        return;
-    }
-    let stuk = &lijst[i];
-    let keuzes = vec![t("PostOpenen"), t("PostWeg")];
-    match crate::keuzevensters::kies_uit_lijst(hwnd, &t("PostTitel"), &crate::post::regel(stuk), &keuzes, 0) {
-        Some(0) => {
-            let pad = std::path::PathBuf::from(&stuk.pad);
-            if !stuk.pad.is_empty() && pad.is_file() {
-                crate::leesvenster::open_bestand(hwnd, &pad);
-            } else {
-                crate::leesvenster::open_tekst(hwnd, &stuk.naam, &stuk.tekst);
+        // Eerst: zoeken, alles, of een soort.
+        let mut keuzes = vec![t("PostZoeken"), tf("PostAlles", &[&lijst.len().to_string()])];
+        let mut soorten = Vec::new();
+        for s in SOORTEN {
+            let n = lijst.iter().filter(|x| x.soort == s).count();
+            if n > 0 {
+                keuzes.push(format!("{} ({n})", t(&format!("PostSoort_{s}"))));
+                soorten.push(s);
             }
         }
-        Some(1) => {
-            if let Err(e) = crate::post::verwijder(i) {
-                dialogen::melding(hwnd, &t("OpslaanMislukt"), &e, dialogen::ICOON_WAARSCHUWING);
+        keuzes.push(t("PostWissen"));
+        let Some(k) = crate::keuzevensters::kies_uit_lijst(hwnd, &t("PostTitel"), &t("PostKiesLabel"), &keuzes, 1) else { return };
+        let (gekozen, label): (Vec<usize>, String) = if k == 0 {
+            let Some(zoek) = crate::keuzevensters::vraag_tekst(hwnd, &t("PostTitel"), &t("PostZoekVraag"), "") else { continue };
+            let gevonden: Vec<usize> = (0..lijst.len()).filter(|i| post::past_bij(&lijst[*i], &zoek)).collect();
+            if gevonden.is_empty() {
+                dialogen::melding(hwnd, &t("PostTitel"), &tf("PostNietsGevonden", &[&zoek]), dialogen::ICOON_INFO);
+                continue;
             }
+            let label = tf("PostGevonden", &[&gevonden.len().to_string(), &zoek]);
+            (gevonden, label)
+        } else if k == 1 {
+            ((0..lijst.len()).collect(), tf("PostLabel", &[&lijst.len().to_string()]))
+        } else if k == keuzes.len() - 1 {
+            if dialogen::ja_nee(hwnd, &t("PostTitel"), &t("PostWissenVraag"), false) {
+                post::wis();
+                dialogen::melding(hwnd, &t("PostTitel"), &t("PostGewist"), dialogen::ICOON_INFO);
+            }
+            return;
+        } else {
+            let s = soorten[k - 2];
+            ((0..lijst.len()).filter(|i| lijst[*i].soort == s).collect(), t(&format!("PostSoort_{s}")))
+        };
+        let namen: Vec<String> = gekozen.iter().map(|i| post::regel(&lijst[*i])).collect();
+        let Some(j) = crate::keuzevensters::kies_uit_lijst(hwnd, &t("PostTitel"), &label, &namen, 0) else { continue };
+        let i = gekozen[j];
+        let stuk = &lijst[i];
+        let acties = vec![t("PostOpenen"), t("PostSoortVeranderen"), t("PostWeg")];
+        match crate::keuzevensters::kies_uit_lijst(hwnd, &t("PostTitel"), &post::regel(stuk), &acties, 0) {
+            Some(0) => {
+                let pad = std::path::PathBuf::from(&stuk.pad);
+                if !stuk.pad.is_empty() && pad.is_file() {
+                    crate::leesvenster::open_bestand(hwnd, &pad);
+                } else {
+                    crate::leesvenster::open_tekst(hwnd, &stuk.naam, &stuk.tekst);
+                }
+                return;
+            }
+            Some(1) => {
+                let namen: Vec<String> = SOORTEN.iter().map(|s| t(&format!("PostSoort_{s}"))).collect();
+                let nu = SOORTEN.iter().position(|s| *s == stuk.soort).unwrap_or(0);
+                if let Some(n) = crate::keuzevensters::kies_uit_lijst(hwnd, &t("PostTitel"), &t("PostSoortKies"), &namen, nu) {
+                    if let Err(e) = post::zet_soort(i, SOORTEN[n]) {
+                        dialogen::melding(hwnd, &t("OpslaanMislukt"), &e, dialogen::ICOON_WAARSCHUWING);
+                    }
+                }
+            }
+            Some(2) => {
+                if let Err(e) = post::verwijder(i) {
+                    dialogen::melding(hwnd, &t("OpslaanMislukt"), &e, dialogen::ICOON_WAARSCHUWING);
+                }
+            }
+            _ => {}
         }
-        _ => {}
     }
 }
 
@@ -843,6 +882,13 @@ fn berichtenlus() -> i32 {
             }
         } else if !boven.is_null() && boven == crate::leesvenster::hwnd() {
             if unsafe { TranslateAcceleratorW(boven, crate::leesvenster::toetsen(), &msg) } != 0 {
+                continue;
+            }
+            if unsafe { IsDialogMessageW(boven, &msg) } != 0 {
+                continue;
+            }
+        } else if !boven.is_null() && boven == crate::schrijven::hwnd() {
+            if unsafe { TranslateAcceleratorW(boven, crate::schrijven::toetsen(), &msg) } != 0 {
                 continue;
             }
             if unsafe { IsDialogMessageW(boven, &msg) } != 0 {

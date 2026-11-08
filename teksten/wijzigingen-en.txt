@@ -1,5 +1,12 @@
 ﻿Changes in Paper Pilot
 
+Version 0.0.0.9 (November 2026)
+- New: scan with your laptop camera (Ctrl+Shift+N). Your screen reader tells you how to hold the letter; Paper Pilot takes the photo by itself.
+- New: put an appointment from a letter in your calendar (Ctrl+E), with a reminder one day before.
+- New: write a reply (Ctrl+B): objection, cancellation, a question, more time to pay. Save as Word, print or email.
+- New: translate a letter (Ctrl+Shift+T), on your own computer.
+- My post is sorted by type (Taxes, Care, Bank, Municipality ...) and you can search it.
+
 Version 0.0.0.8 (November 2026)
 - The first version for everyone. Everything listed below under 0.0.0.7 is included.
 

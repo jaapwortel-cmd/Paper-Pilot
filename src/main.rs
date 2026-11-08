@@ -15,7 +15,9 @@ mod controle_web;
 mod controle_word;
 mod controleren;
 mod beeldmodel;
+mod camera;
 mod afdrukken;
+mod agenda;
 mod bijwerken;
 mod dialogen;
 mod envelop;
@@ -33,6 +35,7 @@ mod keuzevensters;
 mod leesvenster;
 mod lezen;
 mod logboek;
+mod melden;
 mod pdf_maken;
 mod plat;
 mod post;
@@ -40,6 +43,7 @@ mod proef;
 mod taken;
 mod qr;
 mod scanner;
+mod schrijven;
 mod tekstvenster;
 mod versturen;
 mod teksten;
@@ -102,6 +106,16 @@ fn main() {
         let i = args.iter().position(|a| a == "--proef-controleren").unwrap_or(0);
         let verslag = args.get(i + 2).cloned().unwrap_or_else(|| "controle.txt".into());
         std::process::exit(proef::proef_controleren(&bestand, &verslag));
+    }
+    if let Some(map) = waarde("--proef-camera") {
+        let i = args.iter().position(|a| a == "--proef-camera").unwrap_or(0);
+        let verslag = args.get(i + 2).cloned().unwrap_or_else(|| "camera.txt".into());
+        std::process::exit(proef::proef_camera(&map, &verslag));
+    }
+    if let Some(bestand) = waarde("--proef-afspraken") {
+        let i = args.iter().position(|a| a == "--proef-afspraken").unwrap_or(0);
+        let verslag = args.get(i + 2).cloned().unwrap_or_else(|| "afspraken.txt".into());
+        std::process::exit(proef::proef_afspraken(&bestand, &verslag));
     }
     if let Some(verslag) = waarde("--proef-herinneringen") {
         std::process::exit(proef::proef_herinneringen(&verslag));

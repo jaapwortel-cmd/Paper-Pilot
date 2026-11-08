@@ -1,4 +1,4 @@
-// Paper Pilot - vensters met een vraag of melding (TaskDialog van Windows).
+﻿// Paper Pilot - vensters met een vraag of melding (TaskDialog van Windows).
 // Schermlezers lezen zo'n venster in zijn geheel voor zodra het opent, en voor zienden ziet het er netjes uit.
 
 use crate::teksten::t;
@@ -162,13 +162,15 @@ use std::sync::{Arc, Mutex};
 /// Gedeelde stand tussen het werk (op een eigen draad) en het voortgangsvenster.
 pub struct Voortgang {
     pub gestopt: AtomicBool,
+    /// Het voortgangsvenster zelf (voor meldingen aan de schermlezer vanuit het werk).
+    pub venster: std::sync::atomic::AtomicIsize,
     stand: Mutex<(String, u32, bool)>,
     getoond: Mutex<(String, u32)>,
 }
 
 impl Voortgang {
     pub fn nieuw() -> Voortgang {
-        Voortgang { gestopt: AtomicBool::new(false), stand: Mutex::new((String::from("\u{a0}"), 0, false)), getoond: Mutex::new((String::new(), 0)) }
+        Voortgang { gestopt: AtomicBool::new(false), venster: std::sync::atomic::AtomicIsize::new(0), stand: Mutex::new((String::from("\u{a0}"), 0, false)), getoond: Mutex::new((String::new(), 0)) }
     }
 
     pub fn meld(&self, tekst: String, procent: u32) {
@@ -189,6 +191,7 @@ unsafe extern "system" fn werk_terug(hwnd: HWND, msg: u32, wp: WPARAM, _lp: LPAR
     let v = &*(data as *const Voortgang);
     match msg {
         TDN_TIMER => {
+            v.venster.store(hwnd as isize, Ordering::Relaxed);
             let (tekst, pct, klaar) = v.stand.lock().unwrap().clone();
             let mut getoond = v.getoond.lock().unwrap();
             if tekst != getoond.0 {

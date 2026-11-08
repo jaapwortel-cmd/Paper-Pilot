@@ -212,6 +212,14 @@ pub fn proef_beeldmodel(hfmap: &str, afbeelding: &str, verslag: &str) -> i32 {
             }
         }
     }
+    // Vertalen (zelfde weg als bij Ctrl+Shift+T).
+    match crate::beeldmodel::vraag_vrij(&crate::teksten::t("VertaalOpdracht"), "Dear Sir, your appointment is on Monday at ten.", 200) {
+        Ok(t) => uit.push_str(&format!("== Vertalen\r\n{t}\r\n")),
+        Err(e) => {
+            fout = true;
+            uit.push_str(&format!("FOUT: Vertalen: {e}\r\n"));
+        }
+    }
     // "Wat moet ik doen?": een vraag over een tekst, zonder afbeelding.
     let brief = "Gemeente Voorbeeld. U moet nog 245,80 euro betalen voor 1 december 2026 op NL91 ABNA 0417 1643 00.";
     let begin = std::time::Instant::now();
@@ -566,4 +574,78 @@ pub fn proef_controleren(bestand: &str, verslag: &str) -> i32 {
             1
         }
     }
+}
+
+/// Camera: beoordeelt testfoto's (de naam zegt wat het antwoord moet zijn) zonder echte camera.
+pub fn proef_camera(map: &str, verslag: &str) -> i32 {
+    use crate::camera::Oordeel;
+    crate::beeld::com_start();
+    let verwacht = [("goed", Oordeel::Goed), ("links-uit", Oordeel::NaarLinks), ("rechts-uit", Oordeel::NaarRechts),
+        ("boven-uit", Oordeel::Lager), ("onder-uit", Oordeel::Hoger), ("dichtbij", Oordeel::Dichtbij), ("donker", Oordeel::Donker),
+        ("wazig", Oordeel::Wazig), ("leeg", Oordeel::GeenBrief), ("achterkant", Oordeel::GeenTekst)];
+    let mut uit = String::new();
+    let mut fout = false;
+    for (naam, moet) in verwacht {
+        let pad = std::path::Path::new(map).join(format!("camera-{naam}.png"));
+        let oordeel = crate::beeld::lees(&pad).ok().and_then(|v| v.into_iter().next()).map(|b| crate::camera::beoordeel(&b));
+        let goed = oordeel == Some(moet);
+        if !goed {
+            fout = true;
+        }
+        uit.push_str(&format!("{}: {naam} -> {:?} (verwacht {moet:?}) {}\r\n", if goed { "GOED" } else { "FOUT" }, oordeel,
+            oordeel.map(|o| crate::teksten::t(o.sleutel())).unwrap_or_default()));
+    }
+    let _ = std::fs::write(verslag, format!("\u{feff}{uit}"));
+    if fout { 1 } else { 0 }
+}
+
+/// Agenda, brief schrijven en de soorten van Mijn post (zonder taalmodel).
+pub fn proef_afspraken(bestand: &str, verslag: &str) -> i32 {
+    crate::beeld::com_start();
+    let mut uit = String::new();
+    let mut fout = false;
+    let mut controle = |naam: &str, ok: bool, uit: &mut String| {
+        uit.push_str(&format!("{}: {naam}\r\n", if ok { "GOED" } else { "FOUT" }));
+        fout |= !ok;
+    };
+    let doc = match crate::lezen::open(std::path::Path::new(bestand), &|_| {}) {
+        Ok(d) => d,
+        Err(e) => {
+            let _ = std::fs::write(verslag, format!("FOUT: {e}"));
+            return 1;
+        }
+    };
+    let afzender = crate::post::afzender(&doc);
+    let afspraken = crate::agenda::zoek(&doc.tekst, &afzender);
+    for a in &afspraken {
+        uit.push_str(&format!("Afspraak: {} | {} | {}\r\n", a.wanneer(), a.plaats, a.wat));
+    }
+    controle("een afspraak gevonden", afspraken.len() == 1, &mut uit);
+    if let Some(a) = afspraken.first() {
+        controle("tijd 10.30", a.tijd == Some((10, 30)), &mut uit);
+        controle("plaats gevonden", a.plaats.contains("Voorbeeldziekenhuis"), &mut uit);
+        let ics = crate::agenda::ics(a);
+        controle("agendabestand klopt", ics.contains("BEGIN:VEVENT") && ics.contains("T103000") && ics.contains("TRIGGER:-P1D"), &mut uit);
+        uit.push_str(&ics);
+    }
+    // Brief terugschrijven (voorbeeld zonder taalmodel) en als Word-bestand.
+    let brief = crate::schrijven::sjabloon("vraag", "Kan de afspraak ook later op de dag?", &afzender, &doc.naam, &doc.tekst);
+    controle("brief met kenmerk", brief.contains("ZH-2026-7781"), &mut uit);
+    uit.push_str(&format!("---- brief\r\n{brief}\r\n----\r\n"));
+    let docx = std::env::temp_dir().join("paperpilot-proefbrief.docx");
+    match crate::schrijven::schrijf_docx(&docx, "Vraag over de afspraak", &brief) {
+        Ok(_) => {
+            let terug = crate::lezen::open(&docx, &|_| {}).map(|d| d.tekst).unwrap_or_default();
+            controle("Word-bestand terug te lezen", terug.contains("Kan de afspraak ook later"), &mut uit);
+            let c = crate::controleren::controleer(&docx).map(|v| v.als_document().tekst).unwrap_or_default();
+            controle("eigen Word-bestand heeft titel en taal", c.contains("Vraag over de afspraak") && !c.contains("Het document heeft geen titel"), &mut uit);
+        }
+        Err(e) => controle(&format!("Word-bestand schrijven: {e}"), false, &mut uit),
+    }
+    // Soorten van Mijn post.
+    controle("soort zorg", crate::post::soort_van(&doc.tekst) == "zorg", &mut uit);
+    controle("soort belasting", crate::post::soort_van("Belastingdienst. Uw aanslag inkomstenbelasting 2025") == "belasting", &mut uit);
+    controle("soort bank", crate::post::soort_van("ING Bank. Uw rekeningafschrift") == "bank", &mut uit);
+    let _ = std::fs::write(verslag, format!("\u{feff}{uit}"));
+    if fout { 1 } else { 0 }
 }

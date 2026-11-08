@@ -238,7 +238,7 @@ const MAANDEN: [&str; 24] = ["januari", "februari", "maart", "april", "mei", "ju
     "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
 
 /// Datums in de tekst, met de plaats: "1 december 2026", "01-12-2026", "1/12/2026".
-fn datums_in(zin: &str) -> Vec<String> {
+pub fn datums_in(zin: &str) -> Vec<String> {
     let woorden: Vec<&str> = zin.split_whitespace().collect();
     let mut uit = Vec::new();
     for (i, w) in woorden.iter().enumerate() {

@@ -19,6 +19,51 @@ pub struct Stuk {
     /// Leeg bij een scan.
     pub pad: String,
     pub tekst: String,
+    /// Soort post: belasting, zorg, bank, gemeente, lasten, inkomen of overig.
+    pub soort: String,
+}
+
+/// De soorten post, in de volgorde van de lijst.
+pub const SOORTEN: [&str; 7] = ["belasting", "zorg", "bank", "gemeente", "lasten", "inkomen", "overig"];
+
+/// Welke soort post is dit? Op woorden in de tekst; de soort met de meeste treffers wint.
+pub fn soort_van(tekst: &str) -> &'static str {
+    let klein = format!(" {} ", tekst.to_lowercase().replace(|c: char| !c.is_alphanumeric(), " "));
+    let telt = |woorden: &[&str]| woorden.iter().filter(|w| klein.contains(&format!(" {w} ")) || (w.len() > 6 && klein.contains(*w))).count();
+    let lijst: [(&str, &[&str]); 6] = [
+        ("belasting", &["belastingdienst", "aanslag", "toeslagen", "zorgtoeslag", "huurtoeslag", "aangifte", "inkomstenbelasting", "belastingrente", "cjib"]),
+        ("zorg", &["zorgverzekering", "zorgverzekeraar", "ziekenhuis", "huisarts", "apotheek", "zorgkantoor", "wlz", "pgb", "cz", "vgz", "menzis", "zilveren", "kruis", "eigen risico", "tandarts", "cak", "polikliniek", "fysiotherapie", "declaratie"]),
+        ("bank", &["ing", "rabobank", "abn", "amro", "sns", "asn", "bunq", "triodos", "rekeningafschrift", "creditcard", "hypotheek", "spaarrekening", "betaalrekening"]),
+        ("gemeente", &["gemeente", "wmo", "burgerzaken", "paspoort", "identiteitskaart", "rijbewijs", "afvalstoffenheffing", "ozb", "rioolheffing", "parkeervergunning", "stembureau"]),
+        ("lasten", &["energie", "eneco", "vattenfall", "essent", "stroom", "gas", "waterbedrijf", "vitens", "evides", "internet", "ziggo", "kpn", "odido", "huur", "woningcorporatie", "verzekering", "abonnement", "termijnbedrag", "jaarafrekening"]),
+        ("inkomen", &["uwv", "svb", "aow", "pensioen", "salaris", "loonstrook", "uitkering", "werkgever", "wajong", "bijstand", "jaaropgave"]),
+    ];
+    let mut beste = ("overig", 0usize);
+    for (soort, woorden) in lijst {
+        let n = telt(woorden);
+        if n > beste.1 {
+            beste = (soort, n);
+        }
+    }
+    beste.0
+}
+
+/// Zoeken: alle woorden moeten erin staan (hoofdletters en accenten maken niet uit).
+pub fn past_bij(s: &Stuk, zoek: &str) -> bool {
+    let plat = |t: &str| t.to_lowercase().chars().map(|c| match c {
+        'á' | 'à' | 'ä' | 'â' => 'a', 'é' | 'è' | 'ë' | 'ê' => 'e', 'í' | 'ì' | 'ï' | 'î' => 'i',
+        'ó' | 'ò' | 'ö' | 'ô' => 'o', 'ú' | 'ù' | 'ü' | 'û' => 'u', c => c,
+    }).collect::<String>();
+    let alles = plat(&format!("{} {} {} {}", s.naam, s.afzender, s.datum, s.tekst));
+    plat(zoek).split_whitespace().all(|w| alles.contains(w))
+}
+
+pub fn zet_soort(index: usize, soort: &str) -> Result<(), String> {
+    let mut lijst = laad();
+    if let Some(s) = lijst.get_mut(index) {
+        s.soort = soort.to_string();
+    }
+    bewaar(&lijst)
 }
 
 pub fn aan() -> bool {
@@ -34,11 +79,12 @@ pub fn laad() -> Vec<Stuk> {
         afzender: s["afzender"].as_str().unwrap_or("").to_string(),
         pad: s["pad"].as_str().unwrap_or("").to_string(),
         tekst: s["tekst"].as_str().unwrap_or("").to_string(),
+        soort: s["soort"].as_str().map(|x| x.to_string()).unwrap_or_else(|| soort_van(s["tekst"].as_str().unwrap_or("")).to_string()),
     }).collect()).unwrap_or_default()
 }
 
 fn bewaar(lijst: &[Stuk]) -> Result<(), String> {
-    let v: Vec<Value> = lijst.iter().map(|s| json!({ "datum": s.datum, "naam": s.naam, "afzender": s.afzender, "pad": s.pad, "tekst": s.tekst })).collect();
+    let v: Vec<Value> = lijst.iter().map(|s| json!({ "datum": s.datum, "naam": s.naam, "afzender": s.afzender, "pad": s.pad, "tekst": s.tekst, "soort": s.soort })).collect();
     crate::gegevens::schrijf_versleuteld(BESTAND, Value::Array(v).to_string().as_bytes())
 }
 
@@ -80,6 +126,7 @@ pub fn onthoud(doc: &crate::lezen::Document, pad: &str) {
         afzender: afzender(doc),
         pad: pad.to_string(),
         tekst: doc.tekst.clone(),
+        soort: soort_van(&doc.tekst).to_string(),
     });
     lijst.truncate(MAX);
     if let Err(e) = bewaar(&lijst) {
