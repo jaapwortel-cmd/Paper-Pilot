@@ -135,5 +135,6 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   Ctrl+B), vertalen in leesvenster (stukken van 2500 tekens, Ctrl+Shift+T), Mijn post met soorten (post::soort_van) en zoeken.
   Proeven `--proef-camera tests`, `--proef-afspraken tests/voorbeeld-afspraak.txt`.
   Ook in 0.0.0.9: vraag bij afsluiten (WM_CLOSE, instelling vraag_afsluiten). 0.0.0.9 staat in de Dropbox-updatemap (8 nov 2026);
-  daar blijft "Paper Pilot 0.0.0.8 installatie.zip" staan voor de link in het bericht (nieuwe mensen krijgen daarna de update).
+  Sinds 8 nov 2026 (avond) staat daar "Paper Pilot 0.0.0.9 installatie.zip" met een eigen link (dl=0, Dropbox-pagina met
+  Downloaden; werkt beter op telefoons en in Facebook/WhatsApp); de zip van 0.0.0.8 is weg. Het bericht vermeldt: alleen Windows.
   Controle van links en de updatemap: workflow link-controleren.yml (Run workflow met de link; ?dl=1).
