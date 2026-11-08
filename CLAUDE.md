@@ -134,3 +134,6 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   beeldmodel::vraag_vrij; schrijfvenster met eigen subclass: Enter = nieuwe regel, Tab/Escape niet; eigen docx met titel en taal;
   Ctrl+B), vertalen in leesvenster (stukken van 2500 tekens, Ctrl+Shift+T), Mijn post met soorten (post::soort_van) en zoeken.
   Proeven `--proef-camera tests`, `--proef-afspraken tests/voorbeeld-afspraak.txt`.
+  Ook in 0.0.0.9: vraag bij afsluiten (WM_CLOSE, instelling vraag_afsluiten). 0.0.0.9 staat in de Dropbox-updatemap (8 nov 2026);
+  daar blijft "Paper Pilot 0.0.0.8 installatie.zip" staan voor de link in het bericht (nieuwe mensen krijgen daarna de update).
+  Controle van links en de updatemap: workflow link-controleren.yml (Run workflow met de link; ?dl=1).
