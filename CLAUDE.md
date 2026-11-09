@@ -138,3 +138,11 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   Sinds 8 nov 2026 (avond) staat daar "Paper Pilot 0.0.0.9 installatie.zip" met een eigen link (dl=0, Dropbox-pagina met
   Downloaden; werkt beter op telefoons en in Facebook/WhatsApp); de zip van 0.0.0.8 is weg. Het bericht vermeldt: alleen Windows.
   Controle van links en de updatemap: workflow link-controleren.yml (Run workflow met de link; ?dl=1).
+- 0.0.0.10 (9 nov 2026, Jaap: Brother-scanner niet gevonden, geen foutmelding; Meer programma's deed ogenschijnlijk niets):
+  `scanner::zoek` geeft `Zoekuitkomst` (scanners + andere = printers zonder bruikbare scanner). Alles tegelijk op draden met
+  tijdslimiet: WIA (Windows.Devices.Scanners), DNS-SD via Windows (AEP-service, _uscan/_uscans/_ipp/_ipps/_pdl-datastream/_printer),
+  eigen mDNS op elke netwerkkaart (IP_MULTICAST_IF), printers uit EnumPrintersW (IP uit de poortnaam), en eSCL-proef op elk IP
+  (http :80 en https :443 /eSCL/ScannerCapabilities). http.rs: lokale adressen zonder proxy en zonder certificaatcontrole.
+  Geen scanner: melding met gevonden printers + Opnieuw zoeken / Printers en scanners (ms-settings:printers) / camera.
+  Meer programma's: lijst -> uitleg (Prog*Uitleg) met knop Jaap mailen (eerst melding dat het mailprogramma opent) of terug;
+  R-Wave Studio erbij. Andere programma's van Jaap (privé of persoonlijk) bewust niet in de lijst; Jaap beslist.

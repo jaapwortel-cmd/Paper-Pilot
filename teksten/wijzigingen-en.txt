@@ -1,5 +1,10 @@
 ﻿Changes in Paper Pilot
 
+Version 0.0.0.10 (November 2026)
+- Scanning: Paper Pilot searches for scanners much better. It also uses the search service of Windows, searches on every network card, and asks every printer in Windows and on your network whether it has a scanner (AirScan/eSCL, also over a secure connection).
+- If Paper Pilot finds no scanner, it tells you which printers it did find and what you can do. You can search again, open Printers and scanners in Windows, or scan with the camera.
+- More programs by Jaap: each program now has an explanation, with a button to email Jaap asking whether you may try it. Paper Pilot first tells you that your email program will open. R-Wave Studio is now in the list too.
+
 Version 0.0.0.9 (November 2026)
 - New: scan with your laptop camera (Ctrl+Shift+N). Your screen reader tells you how to hold the letter; Paper Pilot takes the photo by itself.
 - New: put an appointment from a letter in your calendar (Ctrl+E), with a reminder one day before.

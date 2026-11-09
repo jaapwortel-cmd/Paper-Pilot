@@ -71,7 +71,7 @@ Email (Ctrl+M): Paper Pilot creates a new email in your own email program, with 
 
 Signature on a form: if you have set up your signature (Settings, My signature), the question for your signature already says [my signature]. When you save, your signature is put there as a picture. Delete the text if you do not want that. Paper Pilot fills in today's date at a question for the date.
 
-Scan with the camera (Ctrl+Shift+N, or choose With the camera under Read and fill in): for when you have no scanner. Hold the letter in front of your laptop camera, with the text facing the camera, at about 30 centimetres. Your screen reader tells you what to do: "move the letter a little to the left", "hold the letter a little higher", "too close", "too dark" or "no text visible, turn the letter over". Left and right are your left and right. When the letter is in view, Paper Pilot takes the photo by itself and reads the letter. If Paper Pilot finds no scanner, it asks whether you want to use the camera.
+Scan with the camera (Ctrl+Shift+N, or choose With the camera under Read and fill in): for when you have no scanner. Hold the letter in front of your laptop camera, with the text facing the camera, at about 30 centimetres. Your screen reader tells you what to do: "move the letter a little to the left", "hold the letter a little higher", "too close", "too dark" or "no text visible, turn the letter over". Left and right are your left and right. When the letter is in view, Paper Pilot takes the photo by itself and reads the letter. If Paper Pilot finds no scanner, you can choose Scan with the camera.
 
 Appointment in your calendar (Ctrl+E): Paper Pilot looks for an appointment in the letter, such as "Date: 14 December, Time: 10.30, Location: ...". You check the appointment, and then your calendar (for example Outlook or Windows Calendar) opens with the appointment in it, with a reminder one day before. Choose Save there. The appointment is also listed under What do I need to do?.
 
@@ -89,7 +89,9 @@ For HEIC photos (iPhone) and WebP, Windows needs a free extension from the Micro
 
 Scanning: choose Scan (Ctrl+N). Paper Pilot looks for scanners: connected scanners, scanners on the network, and the scanner in your printer. If there are several, you choose one; Paper Pilot remembers your choice. Then you choose what you are scanning: a letter or document, an envelope, or something small with small print (a label, medicine leaflet or tea bag tag). For small print Paper Pilot scans at high resolution. If the scanner has both a glass plate and a document feeder, you choose where the letter is. With the glass you scan page by page: after each page Paper Pilot asks whether there is another page. Paper Pilot then recognises the text, and tells you if a page was crooked or upside down. Save the scan with Ctrl+Shift+S; choose PDF and the text is included invisibly, so the PDF can be searched later.
 
-Paper Pilot does not find a scanner? Check that the scanner or printer is switched on and connected to the computer or on the same network. Add a new scanner in Windows first: Settings, Bluetooth and devices, Printers and scanners.
+This is how Paper Pilot searches: scanners that Windows knows (USB or network), scanners on the network that Windows does not know yet (AirScan or eSCL, which most printers with a scanner from Brother, HP, Canon, Epson and other brands support), and every printer installed in Windows: Paper Pilot asks that printer whether it has a scanner. This takes at most 20 seconds.
+
+Paper Pilot does not find a scanner? Then it tells you which printers it did find, and you can choose: Search again, Open Printers and scanners in Windows, or Scan with the camera. Check that the scanner or printer is switched on and connected to the computer or on the same network. Is the scanner connected with USB, or does Paper Pilot only find the printer? Then install the full driver from the manufacturer; Brother calls it "Full Driver & Software Package" (on support.brother.com). You can also add a new scanner in Windows: Settings, Bluetooth and devices, Printers and scanners.
 
 Printing: choose Print (Ctrl+P). With a scan or photo you first choose: the text, or the scan or photo. Then the normal Windows print window appears, where you choose the printer.
 
@@ -138,7 +140,7 @@ Help
 - Changes: what changed in each version.
 - Privacy statement: what Paper Pilot does and does not do with your data.
 - Mail the maker: an email to Jaap Wortel in your own mail program, with the version number included.
-- More programs by Jaap: other programs by the maker. Choose one to send Jaap an email about it.
+- More programs by Jaap: other programs by the maker. Choose a program to read what it does. With the "Email Jaap" button your email program creates an email to Jaap asking whether you may try it; you only need to send it. With "Back to the list" you look at the other programs.
 - Check for updates: check now whether there is a new version.
 - About Paper Pilot: version and maker.
 

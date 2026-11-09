@@ -1,5 +1,10 @@
 ﻿Wijzigingen in Paper Pilot
 
+Versie 0.0.0.10 (november 2026)
+- Scannen: Paper Pilot zoekt veel beter naar scanners. Ook via de zoekdienst van Windows, op elke netwerkkaart, en hij vraagt elke printer in Windows en in je netwerk of er een scanner in zit (AirScan/eSCL, ook met een beveiligde verbinding).
+- Vindt Paper Pilot geen scanner, dan zegt hij welke printers hij wel vond en wat je kunt doen. Je kunt opnieuw zoeken, Printers en scanners van Windows openen of met de camera scannen.
+- Meer programma's van Jaap: bij elk programma staat nu een uitleg, met een knop om Jaap te mailen of je het mag uitproberen. Paper Pilot zegt eerst dat je mailprogramma opent. R-Wave Studio staat er nu ook bij.
+
 Versie 0.0.0.9 (november 2026)
 - Nieuw: scannen met de camera van je laptop (Ctrl+Shift+N). Je schermlezer zegt hoe je de brief moet houden; Paper Pilot maakt vanzelf de foto.
 - Nieuw: een afspraak uit een brief in je agenda zetten (Ctrl+E), met een herinnering een dag van tevoren.

@@ -490,6 +490,7 @@ dependencies = [
  "rxing",
  "serde_json",
  "windows",
+ "windows-collections",
  "windows-sys",
  "zip",
 ]

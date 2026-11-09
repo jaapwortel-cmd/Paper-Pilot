@@ -349,11 +349,12 @@ pub fn proef_plat(bestand: &str, verslag: &str) -> i32 {
 
 /// Zoekt scanners (ter informatie; op de bouwcomputer zijn er geen).
 pub fn proef_scanners(verslag: &str) -> i32 {
-    let lijst = crate::scanner::zoek();
-    let mut uit = format!("Scanners gevonden: {}\r\n", lijst.len());
-    for s in &lijst {
+    let gevonden = crate::scanner::zoek();
+    let mut uit = format!("Scanners gevonden: {}\r\n", gevonden.scanners.len());
+    for s in &gevonden.scanners {
         uit.push_str(&format!("- {} (glasplaat {}, invoer {})\r\n", s.naam, s.glasplaat, s.invoer));
     }
+    uit.push_str(&format!("Printers zonder scanner: {}\r\n", gevonden.andere.join(", ")));
     let _ = std::fs::write(verslag, uit);
     0
 }

@@ -71,7 +71,7 @@ Mailen (Ctrl+M): Paper Pilot maakt een nieuwe mail in je eigen mailprogramma, me
 
 Handtekening op een formulier: heb je je handtekening klaargezet (Instellingen, Mijn handtekening), dan staat bij de vraag naar je handtekening alvast [mijn handtekening]. Bij het opslaan komt daar je handtekening als plaatje. Wis de tekst als je dat niet wilt. De datum bij een vraag naar de datum vult Paper Pilot alvast in met vandaag.
 
-Scannen met de camera (Ctrl+Shift+N, of kies Met de camera bij Lezen en invullen): voor als je geen scanner hebt. Houd de brief voor de camera van je laptop, met de tekst naar de camera, op ongeveer 30 centimeter. Je schermlezer zegt wat je moet doen: "schuif de brief een beetje naar links", "houd de brief iets hoger", "te dichtbij", "te donker" of "geen tekst te zien, draai de brief om". Links en rechts zijn jouw links en rechts. Is de brief goed in beeld, dan maakt Paper Pilot vanzelf de foto en leest de brief. Vindt Paper Pilot geen scanner, dan vraagt het of je de camera wilt gebruiken.
+Scannen met de camera (Ctrl+Shift+N, of kies Met de camera bij Lezen en invullen): voor als je geen scanner hebt. Houd de brief voor de camera van je laptop, met de tekst naar de camera, op ongeveer 30 centimeter. Je schermlezer zegt wat je moet doen: "schuif de brief een beetje naar links", "houd de brief iets hoger", "te dichtbij", "te donker" of "geen tekst te zien, draai de brief om". Links en rechts zijn jouw links en rechts. Is de brief goed in beeld, dan maakt Paper Pilot vanzelf de foto en leest de brief. Vindt Paper Pilot geen scanner, dan kun je kiezen voor Met de camera scannen.
 
 Afspraak in je agenda (Ctrl+E): Paper Pilot zoekt een afspraak in de brief, zoals "Datum: 14 december, Tijd: 10.30 uur, Locatie: ...". Je kijkt de afspraak na, en daarna opent je agenda (bijvoorbeeld Outlook of Agenda van Windows) met de afspraak erin, met een herinnering een dag van tevoren. Kies daar Opslaan. Ook bij Wat moet ik doen? staat de afspraak in het lijstje.
 
@@ -89,7 +89,9 @@ Voor HEIC-foto's (iPhone) en WebP heeft Windows een gratis extensie nodig uit de
 
 Scannen: kies Scannen (Ctrl+N). Paper Pilot zoekt scanners: aangesloten scanners, scanners in het netwerk, en de scanner in je printer. Zijn er meer, dan kies je er een; Paper Pilot onthoudt je keuze. Daarna kies je wat je scant: een brief of document, een envelop, of iets kleins met kleine letters (een etiket, bijsluiter of het label van een theezakje). Voor kleine letters scant Paper Pilot op hoge resolutie. Heeft de scanner een glasplaat en een documentinvoer, dan kies je waar de brief ligt. Bij de glasplaat scan je pagina voor pagina: na elke pagina vraagt Paper Pilot of er nog een pagina is. Daarna herkent Paper Pilot de tekst, en hoor je of een pagina scheef of op zijn kop lag. Bewaar de scan met Ctrl+Shift+S; kies PDF, dan staat de tekst er onzichtbaar in en is de PDF later te doorzoeken.
 
-Vindt Paper Pilot geen scanner? Kijk of de scanner of printer aan staat en aan de computer of in hetzelfde netwerk zit. Een nieuwe scanner voeg je eerst toe in Windows: Instellingen, Bluetooth en apparaten, Printers en scanners.
+Zo zoekt Paper Pilot: scanners die Windows kent (met USB of via het netwerk), scanners in het netwerk die Windows nog niet kent (AirScan of eSCL, dat kunnen de meeste printers met een scanner van Brother, HP, Canon, Epson en andere merken), en elke printer die in Windows staat: Paper Pilot vraagt die printer of er een scanner in zit. Dat duurt hooguit 20 seconden.
+
+Vindt Paper Pilot geen scanner? Dan zegt hij welke printers hij wel vond, en kun je kiezen: Opnieuw zoeken, Printers en scanners van Windows openen, of Met de camera scannen. Kijk of de scanner of printer aan staat en aan de computer of in hetzelfde netwerk zit. Zit de scanner met USB aan de computer, of vindt Paper Pilot alleen de printer? Installeer dan het volledige stuurprogramma van de maker; bij Brother heet dat "Full Driver & Software Package" (op support.brother.com). Een nieuwe scanner kun je ook toevoegen in Windows: Instellingen, Bluetooth en apparaten, Printers en scanners.
 
 Afdrukken: kies Afdrukken (Ctrl+P). Bij een scan of foto kies je eerst: de tekst, of de scan of foto. Daarna komt het gewone afdrukvenster van Windows, waar je de printer kiest.
 
@@ -138,7 +140,7 @@ Help
 - Wijzigingen: wat er in elke versie veranderd is.
 - Privacyverklaring: wat Paper Pilot wel en niet doet met je gegevens.
 - Mail de maker: een mail aan Jaap Wortel in je eigen mailprogramma, met het versienummer erbij.
-- Meer programma's van Jaap: andere programma's van de maker. Kies er een om Jaap er een mail over te sturen.
+- Meer programma's van Jaap: andere programma's van de maker. Kies een programma om te lezen wat het doet. Met de knop "Jaap mailen" maakt je mailprogramma een mail aan Jaap om te vragen of je het mag uitproberen; je hoeft hem alleen nog te versturen. Met "Terug naar de lijst" bekijk je de andere programma's.
 - Zoeken naar updates: nu kijken of er een nieuwe versie is.
 - Over Paper Pilot: versie en maker.
 

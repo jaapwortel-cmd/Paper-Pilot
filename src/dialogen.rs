@@ -124,23 +124,50 @@ pub fn rondleiding(eigenaar: HWND) {
     }
 }
 
-/// Meer programma's van Jaap: elk programma is een knop. Kiezen = Jaap er een mail over sturen.
+/// Meer programma's van Jaap: eerst de lijst, dan per programma een uitleg met een knop om Jaap te mailen
+/// of je het mag uitproberen. Na de uitleg kom je terug in de lijst.
 pub fn meer_programmas(eigenaar: HWND) {
-    let programmas = ["SpraakNaarTekst", "Maatje", "AudioEditor", "Taxi"];
-    let titel = t("MeerProgrammas");
-    let kop = t("MeerProgrammasKop");
-    let tekst = t("MeerProgrammasTekst");
-    let mut v = Vraag::nieuw(&titel, &kop, &tekst);
-    v.opdrachtlinks = true;
-    v.gewone_knoppen = TDCBF_CLOSE_BUTTON;
-    for (i, p) in programmas.iter().enumerate() {
-        v.knoppen.push(Knop { id: 2000 + i as i32, tekst: format!("{}\n{}", t(&format!("Prog{p}Naam")), t(&format!("Prog{p}Over"))) });
-    }
-    let gekozen = v.toon(eigenaar);
-    if (2000..2000 + programmas.len() as i32).contains(&gekozen) {
-        let naam = t(&format!("Prog{}Naam", programmas[(gekozen - 2000) as usize]));
-        crate::hoofdvenster::mail(&crate::teksten::tf("MailOnderwerpProgramma", &[&naam]),
-            &crate::teksten::tf("MailTekstProgramma", &[&naam]));
+    const PROGRAMMAS: [&str; 5] = ["SpraakNaarTekst", "Maatje", "AudioEditor", "RWave", "Taxi"];
+    const MAILEN: i32 = 2100;
+    const TERUG: i32 = 2101;
+    let mut vorige = 2000;
+    loop {
+        let titel = t("MeerProgrammas");
+        let kop = t("MeerProgrammasKop");
+        let tekst = t("MeerProgrammasTekst");
+        let mut v = Vraag::nieuw(&titel, &kop, &tekst);
+        v.opdrachtlinks = true;
+        v.gewone_knoppen = TDCBF_CLOSE_BUTTON;
+        v.standaard = vorige;
+        for (i, p) in PROGRAMMAS.iter().enumerate() {
+            v.knoppen.push(Knop { id: 2000 + i as i32, tekst: format!("{}\n{}", t(&format!("Prog{p}Naam")), t(&format!("Prog{p}Over"))) });
+        }
+        let gekozen = v.toon(eigenaar);
+        if !(2000..2000 + PROGRAMMAS.len() as i32).contains(&gekozen) {
+            return;
+        }
+        vorige = gekozen;
+        let p = PROGRAMMAS[(gekozen - 2000) as usize];
+        let naam = t(&format!("Prog{p}Naam"));
+        let uitleg = t(&format!("Prog{p}Uitleg"));
+        let mut u = Vraag::nieuw(&titel, &naam, &uitleg);
+        u.icoon = ICOON_INFO;
+        u.opdrachtlinks = true;
+        u.knoppen.push(Knop { id: MAILEN, tekst: crate::teksten::tf("KnopProgrammaMailen", &[&naam]) });
+        u.knoppen.push(Knop { id: TERUG, tekst: t("KnopTerugNaarLijst") });
+        u.gewone_knoppen = TDCBF_CLOSE_BUTTON;
+        u.standaard = MAILEN;
+        match u.toon(eigenaar) {
+            MAILEN => {
+                // Een mailprogramma opent soms pas na een paar seconden: eerst zeggen wat er gaat gebeuren.
+                melding(eigenaar, &t("MailOpenenKop"), &crate::teksten::tf("MailOpenenTekst", &[&naam]), ICOON_INFO);
+                crate::hoofdvenster::mail(&crate::teksten::tf("MailOnderwerpProgramma", &[&naam]),
+                    &crate::teksten::tf("MailTekstProgramma", &[&naam]));
+                return;
+            }
+            TERUG => continue,
+            _ => return,
+        }
     }
 }
 

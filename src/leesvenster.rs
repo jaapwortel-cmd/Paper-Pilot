@@ -142,17 +142,48 @@ pub fn open_en_kies(eigenaar: HWND) {
 }
 
 /// Scanners zoeken en er een kiezen (de vorige keuze staat vooraan).
+/// Vindt Paper Pilot niets, dan zegt hij wat hij wel zag en wat je kunt doen.
 fn kies_scanner(hwnd: HWND) -> Option<crate::scanner::Scanner> {
-    let scanners = dialogen::werk(hwnd, &t("ScanTitel"), &t("ScannersZoeken"), |v| {
-        v.meld(t("ScannersZoekenTekst"), 0);
-        crate::scanner::zoek()
-    })?;
-    if scanners.is_empty() {
-        if dialogen::ja_nee(hwnd, &t("GeenScanner"), &t("GeenScannerCamera"), true) {
-            camera_scannen();
+    const OPNIEUW: i32 = 3101;
+    const PRINTERS: i32 = 3102;
+    const CAMERA: i32 = 3103;
+    let scanners = loop {
+        let uitkomst = dialogen::werk(hwnd, &t("ScanTitel"), &t("ScannersZoeken"), |v| {
+            v.meld(t("ScannersZoekenTekst"), 0);
+            crate::scanner::zoek()
+        })?;
+        if !uitkomst.scanners.is_empty() {
+            break uitkomst.scanners;
         }
-        return None;
-    }
+        let tekst = if uitkomst.andere.is_empty() {
+            t("GeenScannerTekst")
+        } else {
+            let lijst: Vec<String> = uitkomst.andere.iter().map(|n| format!("- {n}")).collect();
+            tf("GeenScannerPrinters", &[&lijst.join("\n")])
+        };
+        let titel = t("ScanTitel");
+        let kop = t("GeenScanner");
+        let mut v = dialogen::Vraag::nieuw(&titel, &kop, &tekst);
+        v.icoon = dialogen::ICOON_WAARSCHUWING;
+        v.opdrachtlinks = true;
+        v.knoppen.push(dialogen::Knop { id: OPNIEUW, tekst: t("KnopOpnieuwZoeken") });
+        v.knoppen.push(dialogen::Knop { id: PRINTERS, tekst: t("KnopPrintersOpenen") });
+        v.knoppen.push(dialogen::Knop { id: CAMERA, tekst: t("KnopCameraScannen") });
+        v.gewone_knoppen = windows_sys::Win32::UI::Controls::TDCBF_CANCEL_BUTTON;
+        v.standaard = OPNIEUW;
+        match v.toon(hwnd) {
+            OPNIEUW => continue,
+            PRINTERS => {
+                crate::win::open_adres("ms-settings:printers");
+                return None;
+            }
+            CAMERA => {
+                camera_scannen();
+                return None;
+            }
+            _ => return None,
+        }
+    };
     let scanner = if scanners.len() == 1 {
         scanners[0].clone()
     } else {

@@ -1,4 +1,4 @@
-// Paper Pilot - internet en het eigen taalmodel aanspreken met WinHTTP (van Windows zelf).
+﻿// Paper Pilot - internet en het eigen taalmodel aanspreken met WinHTTP (van Windows zelf).
 // Volgt doorverwijzingen (Dropbox, Hugging Face), gebruikt de proxy van Windows, en kan grote downloads hervatten.
 
 use crate::win::w;
@@ -60,12 +60,15 @@ pub fn verzoek_met_locatie(
     };
     unsafe {
         let agent = w(&format!("PaperPilot/{}", crate::VERSIE));
-        let toegang = if host == "127.0.0.1" || host == "localhost" { WINHTTP_ACCESS_TYPE_NO_PROXY } else { WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY };
+        // Apparaten in het eigen netwerk (scanners): zonder proxy, en hun eigen certificaat is goed genoeg.
+        let thuis = lokaal(host);
+        let toegang = if thuis { WINHTTP_ACCESS_TYPE_NO_PROXY } else { WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY };
         let sessie = Greep(WinHttpOpen(agent.as_ptr(), toegang, std::ptr::null(), std::ptr::null(), 0));
         if sessie.0.is_null() {
             return Err(fout("WinHttpOpen"));
         }
-        WinHttpSetTimeouts(sessie.0, 15000, 15000, wachttijd_ms, wachttijd_ms);
+        let verbinden = if thuis { wachttijd_ms.min(15000) } else { 15000 };
+        WinHttpSetTimeouts(sessie.0, verbinden, verbinden, wachttijd_ms, wachttijd_ms);
         let h = w(host);
         let verbinding = Greep(WinHttpConnect(sessie.0, h.as_ptr(), poort, 0));
         if verbinding.0.is_null() {
@@ -77,6 +80,11 @@ pub fn verzoek_met_locatie(
             std::ptr::null(), if veilig { WINHTTP_FLAG_SECURE } else { 0 }));
         if verzoek.0.is_null() {
             return Err(fout("verzoek"));
+        }
+        if veilig && thuis {
+            // SECURITY_FLAG_IGNORE_UNKNOWN_CA | _CERT_DATE_INVALID | _CERT_CN_INVALID | _CERT_WRONG_USAGE
+            let vlaggen: u32 = 0x0100 | 0x2000 | 0x1000 | 0x0200;
+            WinHttpSetOption(verzoek.0, WINHTTP_OPTION_SECURITY_FLAGS, &vlaggen as *const u32 as *const _, 4);
         }
         let k: Vec<u16> = kopregels.encode_utf16().collect();
         let (lp, ll) = match lichaam {
@@ -115,6 +123,17 @@ pub fn verzoek_met_locatie(
             ontvang(&buf[..gelezen as usize], status, if heeft_lengte { Some(totaal) } else { None })?;
         }
         Ok((status, if heeft_lengte { Some(totaal) } else { None }, locatie))
+    }
+}
+
+/// Is dit een adres in het eigen netwerk (of de eigen computer)?
+pub fn lokaal(host: &str) -> bool {
+    if host == "localhost" || host.ends_with(".local") {
+        return true;
+    }
+    match host.parse::<std::net::Ipv4Addr>() {
+        Ok(ip) => ip.is_private() || ip.is_loopback() || ip.is_link_local(),
+        Err(_) => false,
     }
 }
 
