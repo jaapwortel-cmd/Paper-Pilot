@@ -179,3 +179,10 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   (`slim_volgorde`). Staat.volgorde; Ctrl+PageDown/PageUp = pagina. Proef `--proef-tabellen tests/formulier-budgetplan.pdf`
   (reportlab, 81 vakjes, harde stap). camera::neem geeft Uitkomst::GeenBrief na 10 s GeenBrief/GeenTekst; leesvenster vraagt
   Verder proberen / Toch lezen / Annuleren. formulier_pdf::tekst_in haalt nul-tekens weg. Echt PGB-budgetplan niet getest (geen bestand).
+  Ook in 0.0.0.12 (Jaap gaf voorbeeldbestanden van een PGB-budgetplan; ALLEEN lokaal als voorbeeld, nooit in
+  de repo: persoonlijke gegevens): 410 vakjes, pagina 2-7 = zorgverlener A-F (zelfde blok), tabellen met 6 regels, rekentabellen p8-9.
+  Nieuw: `zoek_blokken` (opeenvolgende pagina's met hetzelfde kenmerk, >= 5 vakjes) en de vraag hoeveel; Veld.kop via
+  formulier_pdf::kop_boven (stroken van 8 pt omhoog tot de eerste lege strook, x-18 .. x+4) en invulvenster::kolomkop;
+  formulier_pdf::zonder_rommel (kleine 'woorden' zonder klinker of alleen leestekens vooraan: vinkjes in een symboolfont).
+  Uitkomst bij het voorbeeld: 410 -> 86 vragen met 1 zorgverlener (zonder de al ingevulde regels nog minder).
+  Updates: bij elke start zoeken (niet meer 1x per dag), na rondleiding/apparaten.

@@ -152,7 +152,7 @@ pub fn open_plat(eigenaar: HWND, bron: Bron, naam: &str) {
             }
         }
         velden.push(Veld { pagina: p.pagina as i32, annots: Vec::new(), soort, naam: String::new(), vraag, opties: Vec::new(),
-            meerregelig: false, verplicht: false, waarde, links: p.x, boven: p.onder, handtekening, vak: [0.0; 4] });
+            meerregelig: false, verplicht: false, waarde, links: p.x, boven: p.onder, handtekening, vak: [0.0; 4], kop: String::new() });
     }
     logboek::schrijf(&format!("Formulier zonder invulvelden: {} plekken gevonden.", velden.len()));
     maak(eigenaar, velden, voorgesteld, bron, naam);
@@ -166,6 +166,47 @@ pub struct Tabel {
     pub regels: Vec<Vec<usize>>,
     /// De kolommen, met de vraag van de eerste regel.
     pub kolommen: Vec<String>,
+}
+
+/// Een blok pagina's met precies dezelfde vragen, zoals "A. Naam zorgverlener" tot en met "F. Naam zorgverlener".
+#[derive(Debug)]
+pub struct Blok {
+    /// De pagina's (0 = eerste), op volgorde.
+    pub paginas: Vec<i32>,
+    /// De eerste vraag van het blok, om te zeggen waar het om gaat.
+    pub begin: String,
+}
+
+/// Zoekt pagina's die direct na elkaar komen en precies dezelfde vakjes op dezelfde plekken hebben (minstens 5 vakjes).
+pub fn zoek_blokken(velden: &[Veld]) -> Vec<Blok> {
+    let mut paginas: BTreeMap<i32, Vec<(i32, i32, u8)>> = BTreeMap::new();
+    for v in velden {
+        paginas.entry(v.pagina).or_default().push(((v.links / 4.0).round() as i32, (v.boven / 4.0).round() as i32, v.soort as u8));
+    }
+    for k in paginas.values_mut() {
+        k.sort();
+    }
+    let lijst: Vec<(i32, Vec<(i32, i32, u8)>)> = paginas.into_iter().collect();
+    let mut uit = Vec::new();
+    let mut k = 0;
+    while k < lijst.len() {
+        let mut eind = k + 1;
+        while eind < lijst.len() && lijst[eind].0 == lijst[eind - 1].0 + 1 && lijst[eind].1 == lijst[k].1 {
+            eind += 1;
+        }
+        if eind - k >= 2 && lijst[k].1.len() >= 5 {
+            let eerste = lijst[k].0;
+            let begin = velden.iter().find(|v| v.pagina == eerste).map(|v| v.vraag.clone()).unwrap_or_default();
+            uit.push(Blok { paginas: lijst[k..eind].iter().map(|(p, _)| *p).collect(), begin });
+        }
+        k = eind;
+    }
+    uit
+}
+
+/// Staat er op deze pagina al iets (niet uit Mijn gegevens)?
+fn pagina_gevuld(velden: &[Veld], voorgesteld: &[bool], pagina: i32) -> bool {
+    velden.iter().enumerate().any(|(i, v)| v.pagina == pagina && !v.waarde.is_empty() && !voorgesteld[i])
 }
 
 /// Alleen letters, klein: "Naam zorgverlener 3" en "Naam zorgverlener 4" worden hetzelfde.
@@ -216,11 +257,39 @@ pub fn zoek_tabellen(velden: &[Veld]) -> Vec<Tabel> {
     uit
 }
 
+/// Een korte kolomnaam uit de kop boven een kolom: "Tijdsduur In minuten" -> "Tijdsduur (In minuten)";
+/// "Zorgactiviteit Wat doet de zorgverlener en wanneer? ..." -> "Zorgactiviteit" (lange uitleg eraf).
+fn kolomkop(kop: &str) -> String {
+    let woorden: Vec<&str> = kop.split_whitespace().collect();
+    if woorden.is_empty() {
+        return String::new();
+    }
+    // De naam loopt tot het eerste volgende woord met een hoofdletter (niet na een "/").
+    let mut eind = 1;
+    while eind < woorden.len() {
+        let w = woorden[eind];
+        let hoofdletter = w.chars().next().is_some_and(|c| c.is_uppercase());
+        if hoofdletter && woorden[eind - 1] != "/" {
+            break;
+        }
+        eind += 1;
+    }
+    let naam = woorden[..eind].join(" ");
+    let rest = &woorden[eind..];
+    if !rest.is_empty() && rest.len() <= 3 {
+        format!("{naam} ({})", rest.join(" "))
+    } else {
+        naam
+    }
+}
+
 /// Geeft elk vakje in een tabel een duidelijke vraag: "Naam zorgverlener, regel 3" (de kolom uit de eerste regel).
 pub fn benoem_tabellen(velden: &mut [Veld], tabellen: &[Tabel]) {
     for tb in tabellen {
         let kolommen: Vec<String> = tb.regels[0].iter().enumerate().map(|(c, &i)| {
-            let v = velden[i].vraag.split_whitespace().collect::<Vec<_>>().join(" ");
+            // Eerst de kop boven de kolom, anders de vraag die Paper Pilot bij het eerste vakje vond.
+            let k = kolomkop(&velden[i].kop);
+            let v = if !k.is_empty() { k } else { velden[i].vraag.split_whitespace().collect::<Vec<_>>().join(" ") };
             if v.is_empty() { tf("VeldNummer", &[&t("Kolom"), &(c + 1).to_string()]) } else { v }
         }).collect();
         // Liep de kop van de kolom ernaast mee ("Omschrijving Bedrag" + "Bedrag per jaar")? Dat stuk eraf.
@@ -250,15 +319,16 @@ fn gevulde_regels(velden: &[Veld], voorgesteld: &[bool], tb: &Tabel) -> usize {
 
 /// Slim invullen: per tabel alleen de eerste `aantallen[n]` regels (en regels waar al iets in staat); losse vragen die al
 /// in de PDF ingevuld zijn overslaan (behalve als Paper Pilot ze uit Mijn gegevens invulde: die check je even).
-pub fn slim_volgorde(velden: &[Veld], voorgesteld: &[bool], tabellen: &[Tabel], aantallen: &[usize]) -> Vec<usize> {
-    let mut weg = vec![false; velden.len()];
+pub fn slim_volgorde(velden: &[Veld], voorgesteld: &[bool], tabellen: &[Tabel], aantallen: &[usize],
+    paginas_weg: &std::collections::HashSet<i32>) -> Vec<usize> {
+    let mut weg: Vec<bool> = velden.iter().map(|v| paginas_weg.contains(&v.pagina)).collect();
     let mut in_tabel = vec![false; velden.len()];
     for (tb, &aantal) in tabellen.iter().zip(aantallen) {
         let houden = aantal.max(gevulde_regels(velden, voorgesteld, tb));
         for (k, r) in tb.regels.iter().enumerate() {
             for &i in r {
                 in_tabel[i] = true;
-                weg[i] = k >= houden;
+                weg[i] = weg[i] || k >= houden;
             }
         }
     }
@@ -272,8 +342,9 @@ fn kies_volgorde(eigenaar: HWND, velden: &mut [Veld], voorgesteld: &[bool]) -> O
     let alles: Vec<usize> = (0..velden.len()).collect();
     let tabellen = zoek_tabellen(velden);
     benoem_tabellen(velden, &tabellen);
+    let blokken = zoek_blokken(velden);
     let velden = &*velden;
-    if velden.len() <= 25 && tabellen.is_empty() {
+    if velden.len() <= 25 && tabellen.is_empty() && blokken.is_empty() {
         return Some(alles);
     }
     const SLIM: i32 = 3401;
@@ -283,9 +354,13 @@ fn kies_volgorde(eigenaar: HWND, velden: &mut [Veld], voorgesteld: &[bool]) -> O
     let verplicht: Vec<usize> = (0..velden.len()).filter(|&i| velden[i].verplicht || velden[i].handtekening).collect();
     let titel = t("InvullenTitel");
     let kop = tf("SlimKop", &[&velden.len().to_string()]);
-    let tekst = if tabellen.is_empty() { t("SlimTekstZonderTabel") } else {
+    let mut tekst = if tabellen.is_empty() { t("SlimTekstZonderTabel") } else {
         tf("SlimTekst", &[&in_tabel.to_string(), &tabellen.len().to_string()])
     };
+    if !blokken.is_empty() {
+        let paginas: usize = blokken.iter().map(|b| b.paginas.len()).sum();
+        tekst = format!("{}\n\n{tekst}", tf("SlimBlokken", &[&paginas.to_string()]));
+    }
     let mut v = dialogen::Vraag::nieuw(&titel, &kop, &tekst);
     v.icoon = dialogen::ICOON_INFO;
     v.opdrachtlinks = true;
@@ -301,9 +376,30 @@ fn kies_volgorde(eigenaar: HWND, velden: &mut [Veld], voorgesteld: &[bool]) -> O
         ALLES => alles,
         VERPLICHT => verplicht,
         SLIM => {
+            // Eerst de herhaalde blokken (bijvoorbeeld één pagina per zorgverlener): hoeveel heb je er nodig?
+            let mut paginas_weg = std::collections::HashSet::new();
+            for (n, b) in blokken.iter().enumerate() {
+                let gevuld = b.paginas.iter().rposition(|&p| pagina_gevuld(velden, voorgesteld, p)).map(|x| x + 1).unwrap_or(0);
+                let mut keuzes = Vec::new();
+                for k in 1..=b.paginas.len() {
+                    keuzes.push(if k == 1 { tf("BlokEen", &[&(b.paginas[0] + 1).to_string()]) } else {
+                        tf("BlokMeer", &[&k.to_string(), &(b.paginas[0] + 1).to_string(), &(b.paginas[k - 1] + 1).to_string()]) });
+                }
+                let label = tf("BlokVraag", &[&(b.paginas[0] + 1).to_string(), &(b.paginas.last().unwrap() + 1).to_string(),
+                    &b.paginas.len().to_string(), &b.begin]);
+                let titel = tf("BlokVan", &[&(n + 1).to_string(), &blokken.len().to_string()]);
+                let k = keuzevensters::kies_uit_lijst(eigenaar, &titel, &label, &keuzes, gevuld.max(1) - 1)? + 1;
+                for &p in &b.paginas[k.max(gevuld)..] {
+                    paginas_weg.insert(p);
+                }
+            }
             // Per tabel: hoeveel regels heb je nodig? (Regels met al iets erin tellen altijd mee.)
             let mut aantallen = Vec::new();
             for (n, tb) in tabellen.iter().enumerate() {
+                if paginas_weg.contains(&tb.pagina) {
+                    aantallen.push(0);
+                    continue;
+                }
                 let gevuld = gevulde_regels(velden, voorgesteld, tb);
                 let mut keuzes = vec![t("RegelsGeen")];
                 for k in 1..=tb.regels.len() {
@@ -314,11 +410,12 @@ fn kies_volgorde(eigenaar: HWND, velden: &mut [Veld], voorgesteld: &[bool]) -> O
                 let titel = tf("TabelVan", &[&(n + 1).to_string(), &tabellen.len().to_string()]);
                 aantallen.push(keuzevensters::kies_uit_lijst(eigenaar, &titel, &label, &keuzes, gevuld.max(1).min(tb.regels.len()))?);
             }
-            slim_volgorde(velden, voorgesteld, &tabellen, &aantallen)
+            slim_volgorde(velden, voorgesteld, &tabellen, &aantallen, &paginas_weg)
         }
         _ => return None,
     };
-    logboek::schrijf(&format!("Formulier: {} velden, {} tabellen ({} vakjes), keuze {keuze}, {} vragen.", velden.len(), tabellen.len(), in_tabel, volgorde.len()));
+    logboek::schrijf(&format!("Formulier: {} velden, {} tabellen ({} vakjes), {} herhaalde blokken, keuze {keuze}, {} vragen.",
+        velden.len(), tabellen.len(), in_tabel, blokken.len(), volgorde.len()));
     Some(volgorde)
 }
 

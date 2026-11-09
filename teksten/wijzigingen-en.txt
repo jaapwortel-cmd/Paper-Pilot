@@ -3,7 +3,9 @@
 Version 0.0.0.12 (November 2026)
 - Fixed: Enter on the Check button always opened the reading window. Now Enter opens the button you are on.
 - Large forms, such as a care budget plan: Paper Pilot recognises tables and asks how many rows you need. With Smart fill-in you only answer those questions, instead of hundreds. You can also choose only the required questions.
-- Fields in a table have a clear name, such as "Name care provider, row 2".
+- Paper Pilot also recognises pages that are the same each time (such as one page per care provider): you choose how many you need. For a care budget plan with 410 fields and one care provider, about 85 questions remain instead of 410.
+- Fields in a table have a clear name from the table header, such as "Care activity, row 2" or "Total travel costs per year, row 1". Strange characters before questions (from check boxes in the PDF) are gone.
+- Updates: Paper Pilot now checks for a new version every time it starts, instead of once a day.
 - Filling in a form: Ctrl+Page Down and Ctrl+Page Up go to the next or previous page.
 - Camera: if you do not hold a letter in front of the camera for 10 seconds, Paper Pilot tells you. You choose: Keep trying, Take a photo and read it anyway, or Cancel.
 

@@ -3,7 +3,9 @@
 Versie 0.0.0.12 (november 2026)
 - Opgelost: Enter op de knop Controleren opende steeds het leesvenster. Nu opent Enter de knop waar je op staat.
 - Grote formulieren, zoals een PGB-budgetplan: Paper Pilot herkent tabellen en vraagt hoeveel regels je nodig hebt. Met Slim invullen beantwoord je alleen die vragen, in plaats van honderden. Ook kun je kiezen voor alleen de verplichte vragen.
-- Vakjes in een tabel hebben een duidelijke naam, zoals "Naam zorgverlener, regel 2".
+- Pagina's die steeds hetzelfde zijn (zoals één pagina per zorgverlener) herkent Paper Pilot ook: je kiest hoeveel je er nodig hebt. Bij een PGB-budgetplan met 410 vakjes en één zorgverlener blijven er zo ongeveer 85 vragen over, in plaats van 410.
+- Vakjes in een tabel hebben een duidelijke naam uit de kop van de tabel, zoals "Zorgactiviteit, regel 2" of "Totale reiskosten per jaar, regel 1". Vreemde tekens voor vragen (van vinkjes in de PDF) zijn weg.
+- Updates: Paper Pilot kijkt nu bij elke start of er een nieuwe versie is, in plaats van één keer per dag.
 - Formulier invullen: Ctrl+Page Down en Ctrl+Page Up gaan naar de volgende of vorige pagina.
 - Camera: houd je 10 seconden geen brief voor de camera, dan zegt Paper Pilot dat. Je kiest: Verder proberen, Toch een foto maken en lezen, of Annuleren.
 

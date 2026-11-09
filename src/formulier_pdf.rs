@@ -253,6 +253,8 @@ pub struct Veld {
     pub handtekening: bool,
     /// Het vak van het veld in PDF-punten: links, onder, rechts, boven.
     pub vak: [f32; 4],
+    /// Tekst vlak boven het veld, binnen zijn eigen breedte (de kop van een kolom in een tabel).
+    pub kop: String,
 }
 
 /// Een open document met formulier-omgeving; alles wordt netjes gesloten bij het weggooien.
@@ -349,12 +351,54 @@ fn nette_naam(naam: &str) -> Option<String> {
 }
 
 /// De vraag bij een veld: de beschrijving in de PDF (tooltip), of de tekst links of boven het veld, of de naam.
+/// Haalt "woorden" zonder klinker weg aan het begin, zoals "ggg" of "pg(gp": dat zijn vinkjes en hokjes in een
+/// symbool-lettertype, geen echte tekst. Woorden met hoofdletters of cijfers (BSN, KvK) blijven staan.
+pub fn zonder_rommel(s: &str) -> String {
+    let rommel = |w: &str| {
+        let letters: String = w.chars().filter(|c| c.is_alphabetic()).collect();
+        // Alleen leestekens (zoals "()") of kleine letters zonder klinker (zoals "ggg", "ypgg").
+        (letters.is_empty() && !w.chars().any(|c| c.is_ascii_digit() || c == '€' || c == 'Є'))
+            || (!letters.is_empty() && letters.chars().all(|c| c.is_lowercase()) && !letters.chars().any(|c| "aeiouáéíóúëïöüè".contains(c))
+                && !w.chars().any(|c| c.is_ascii_digit()))
+    };
+    let woorden: Vec<&str> = s.split_whitespace().collect();
+    let begin = woorden.iter().position(|w| !rommel(w)).unwrap_or(0);
+    woorden[begin..].join(" ")
+}
+
+/// De kop boven een veld (zoals de kop van een kolom): het tekstblok direct erboven. Paper Pilot kijkt in stroken van
+/// 8 punten omhoog, begint bij de eerste strook met tekst en stopt bij de eerste lege strook daarna (dan begint ander werk,
+/// zoals uitleg boven de tabel). Iets breder dan het veld, want koppen staan vaak verder naar links (bijvoorbeeld voor een €).
+fn kop_boven(p: &Pdfium, tp: *mut c_void, r: &Rect) -> String {
+    let (l, rr, top) = (r.left as f64 - 18.0, r.right as f64 + 4.0, r.top as f64);
+    let strook = 8.0;
+    let mut begin: Option<f64> = None;
+    let mut eind = top;
+    let mut h = 0.0;
+    while h < 90.0 {
+        let tekst = tekst_in(p, tp, l, top + h + strook, rr, top + h);
+        if !tekst.is_empty() {
+            if begin.is_none() {
+                begin = Some(top + h);
+            }
+            eind = top + h + strook;
+        } else if begin.is_some() {
+            break;
+        }
+        h += strook;
+    }
+    match begin {
+        Some(b) => zonder_rommel(&tekst_in(p, tp, l, eind, rr, b)),
+        None => String::new(),
+    }
+}
+
 fn zoek_vraag(p: &Pdfium, tp: *mut c_void, soort: Soort, r: &Rect, alternatief: &str, naam: &str) -> String {
     if !alternatief.is_empty() {
         return alternatief.to_string();
     }
     let (l, b, rr, o) = (r.left as f64, r.top as f64, r.right as f64, r.bottom as f64);
-    let schoon = |s: String| s.trim().trim_end_matches(['.', '…', '_']).trim().trim_end_matches(':').trim().to_string();
+    let schoon = |s: String| zonder_rommel(s.trim().trim_end_matches(['.', '…', '_']).trim().trim_end_matches(':').trim());
     let mut v = String::new();
     if soort == Soort::Vinkje || soort == Soort::Rondje {
         v = schoon(tekst_in(p, tp, rr + 1.0, b + 2.0, rr + 260.0, o - 2.0));
@@ -422,6 +466,7 @@ pub fn lees_velden(pad: &Path) -> Result<Vec<Veld>, String> {
                     std::mem::swap(&mut r.top, &mut r.bottom);
                 }
                 let vraag = zoek_vraag(p, tp, soort, &r, &alternatief, &naam);
+                let kop = if soort == Soort::Tekst { kop_boven(p, tp, &r) } else { String::new() };
                 match soort {
                     Soort::Rondje => {
                         let optie = {
@@ -443,7 +488,7 @@ pub fn lees_velden(pad: &Path) -> Result<Vec<Veld>, String> {
                             };
                             op_pagina.push(Veld { pagina: nr, annots: vec![i], soort, naam, vraag: groep, opties: vec![optie],
                                 meerregelig: false, verplicht: vlaggen & 2 != 0, waarde: if aan { "0".into() } else { String::new() },
-                                links: r.left, boven: r.top, handtekening: false, vak: [r.left, r.bottom, r.right, r.top] });
+                                links: r.left, boven: r.top, handtekening: false, vak: [r.left, r.bottom, r.right, r.top], kop: String::new() });
                         }
                     }
                     _ => {
@@ -465,7 +510,7 @@ pub fn lees_velden(pad: &Path) -> Result<Vec<Veld>, String> {
                             || (soort == Soort::Tekst && (crate::handtekening::is_vraag(&vraag) || crate::handtekening::is_vraag(&naam)));
                         op_pagina.push(Veld { pagina: nr, annots: vec![i], soort, naam, vraag, opties,
                             meerregelig: vlaggen & 4096 != 0, verplicht: vlaggen & 2 != 0, waarde, links: r.left, boven: r.top,
-                            handtekening, vak: [r.left, r.bottom, r.right, r.top] });
+                            handtekening, vak: [r.left, r.bottom, r.right, r.top], kop });
                     }
                 }
                 (p.FPDFPage_CloseAnnot)(a);

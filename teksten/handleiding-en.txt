@@ -56,7 +56,7 @@ Use Tab to reach the buttons; the same commands are there as well.
 
 If the document is a PDF form with fields, Paper Pilot tells you how many fields it has. Then choose Fill in form (Ctrl+I).
 
-Large forms, such as a care budget plan (PGB budgetplan): if a form has many fields or tables (for example 20 rows for care providers or costs), Paper Pilot first asks how you want to fill it in. Smart fill-in (recommended): Paper Pilot asks for each table how many rows you need, and only asks those rows. What is already filled in is skipped. Each field in a table is then called, for example, "Name care provider, row 2". You can also choose Only the required questions, or All questions. Ctrl+Page Down goes to the first question on the next page; Ctrl+Page Up goes back.
+Large forms, such as a care budget plan (PGB budgetplan): if a form has many fields or tables (for example 20 rows for care providers or costs), Paper Pilot first asks how you want to fill it in. Smart fill-in (recommended): Paper Pilot asks for each table how many rows you need, and only asks those rows. What is already filled in is skipped. Each field in a table is then called, for example, "Name care provider, row 2". If the form has pages that are the same each time, such as one page per care provider, Paper Pilot first asks how many of those pages you need. It skips the rest. You can also choose Only the required questions, or All questions. Ctrl+Page Down goes to the first question on the next page; Ctrl+Page Up goes back.
 
 Filling in a form: Paper Pilot asks the questions one by one. First you hear "Question 3 of 12", then the question itself. Type or dictate the answer and press Enter for the next question. With a check box, Space turns it on or off. With a choice, use the arrow keys. Alt+Left arrow goes back to the previous question. Ctrl+L gives an overview of all questions and answers; choose one to change it. Ctrl+S saves the filled-in form as a new PDF. Required questions end with "(required)". For questions such as name, address or BSN, Paper Pilot fills in My details for you; if it is not right, type something else. Escape closes the form window.
 
@@ -137,7 +137,7 @@ Settings
 - My signature: sign with a dark pen on white paper and scan it, or choose a photo. Paper Pilot takes out the signature and stores it encrypted. On a form, Paper Pilot puts it at the question for your signature.
 - Keep My post: when this is on, Paper Pilot remembers the letters you read (encrypted, on your own computer).
 - Language model for handwriting and photos: download the language model, or remove it if it is already there.
-- Check for updates at startup: when this is on, Paper Pilot checks once a day for a new version.
+- Check for updates at startup: when this is on, Paper Pilot checks for a new version every time it starts.
 
 Help
 - Manual (F1): this manual.
@@ -167,7 +167,7 @@ The first time you start Paper Pilot, you see a short guided tour. After an upda
 
 8. Updates
 
-Paper Pilot checks once a day whether there is a new version (you can turn this off in the Settings menu). If there is, Paper Pilot asks whether you want to install it. If you choose Yes, Windows asks for permission. Paper Pilot closes for a moment, the new version is installed and Paper Pilot starts again by itself. The old program files are removed. Your own data and settings are kept.
+Paper Pilot checks every time it starts whether there is a new version (you can turn this off in the Settings menu). If there is, Paper Pilot asks whether you want to install it. If you choose Yes, Windows asks for permission. Paper Pilot closes for a moment, the new version is installed and Paper Pilot starts again by itself. The old program files are removed. Your own data and settings are kept.
 
 
 9. Installing and uninstalling

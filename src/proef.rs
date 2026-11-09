@@ -377,9 +377,19 @@ pub fn proef_tabellen(pdf: &str, verslag: &str) -> i32 {
     for tb in &tabellen {
         uit.push_str(&format!("- pagina {}: {} regels x {} ({})\r\n", tb.pagina + 1, tb.regels.len(), tb.regels[0].len(), tb.kolommen.join(", ")));
     }
+    let blokken = crate::invulvenster::zoek_blokken(&velden);
+    uit.push_str(&format!("Herhaalde blokken: {}\r\n", blokken.len()));
+    for b in &blokken {
+        uit.push_str(&format!("- pagina {} t/m {} ({}x): {}\r\n", b.paginas[0] + 1, b.paginas.last().unwrap() + 1, b.paginas.len(), b.begin));
+    }
     let voorgesteld = vec![false; velden.len()];
-    let volgorde = crate::invulvenster::slim_volgorde(&velden, &voorgesteld, &tabellen, &vec![2; tabellen.len()]);
+    let leeg = std::collections::HashSet::new();
+    let volgorde = crate::invulvenster::slim_volgorde(&velden, &voorgesteld, &tabellen, &vec![2; tabellen.len()], &leeg);
     uit.push_str(&format!("Slim met 2 regels per tabel: {} vragen\r\n", volgorde.len()));
+    // Ook: per blok alleen het eerste exemplaar.
+    let weg: std::collections::HashSet<i32> = blokken.iter().flat_map(|b| b.paginas[1..].iter().copied()).collect();
+    let met_blokken = crate::invulvenster::slim_volgorde(&velden, &voorgesteld, &tabellen, &vec![2; tabellen.len()], &weg);
+    uit.push_str(&format!("Slim, 2 regels per tabel en 1 per blok: {} vragen\r\n", met_blokken.len()));
     for &i in &volgorde {
         uit.push_str(&format!("  {} (pagina {})\r\n", velden[i].vraag, velden[i].pagina + 1));
     }

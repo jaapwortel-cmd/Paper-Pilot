@@ -688,12 +688,11 @@ fn na_start(hwnd: HWND) {
     }
     // Herinneringen van vandaag (ook als de geplande taak van Windows ze nog niet liet zien).
     crate::herinneringen::meld(hwnd);
+    // Bij elke start meteen kijken of er een nieuwe versie is (Jaap, 9 nov 2026; op de achtergrond, dus het starten
+    // wacht er niet op). Is er niets nieuws of geen internet, dan zegt Paper Pilot niets.
     if instellingen::aan("updates_bij_start", true) {
-        let vandaag = logboek::nu()[..10].to_string();
-        if instellingen::get("laatste_updatecontrole").as_deref() != Some(&vandaag) {
-            instellingen::zet("laatste_updatecontrole", &vandaag);
-            zoek_updates(false);
-        }
+        instellingen::zet("laatste_updatecontrole", &logboek::nu()[..10]);
+        zoek_updates(false);
     }
 }
 
