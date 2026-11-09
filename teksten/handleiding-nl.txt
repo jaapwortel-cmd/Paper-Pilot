@@ -49,7 +49,9 @@ Sneltoetsen in het leesvenster:
 - Ctrl+E: een afspraak uit de brief in je agenda zetten.
 - Ctrl+B: een brief terugschrijven.
 - Ctrl+Shift+T: de brief vertalen.
-- Ctrl+Shift+N: scannen met de camera.
+- Ctrl+Shift+N: de camera: een brief scannen, een foto laten beschrijven of een product opzoeken.
+- Ctrl+Shift+D: een foto maken en laten beschrijven.
+- Ctrl+Shift+B: de streepjescode van een product opzoeken.
 - Ctrl+plus en Ctrl+min: de letters in het tekstvak groter of kleiner, Ctrl+0 weer gewoon. Paper Pilot onthoudt de grootte, ook voor de handleiding en andere teksten.
 - Escape: het leesvenster sluiten.
 Met Tab ga je naar de knoppen; dezelfde opdrachten staan daar ook.
@@ -74,6 +76,12 @@ Mailen (Ctrl+M): Paper Pilot maakt een nieuwe mail in je eigen mailprogramma, me
 Handtekening op een formulier: heb je je handtekening klaargezet (Instellingen, Mijn handtekening), dan staat bij de vraag naar je handtekening alvast [mijn handtekening]. Bij het opslaan komt daar je handtekening als plaatje. Wis de tekst als je dat niet wilt. De datum bij een vraag naar de datum vult Paper Pilot alvast in met vandaag.
 
 Scannen met de camera (Ctrl+Shift+N, of kies Met de camera bij Lezen en invullen): voor als je geen scanner hebt. Houd de brief voor de camera van je laptop, met de tekst naar de camera, op ongeveer 30 centimeter. Je schermlezer zegt wat je moet doen: "schuif de brief een beetje naar links", "houd de brief iets hoger", "te dichtbij", "te donker" of "geen tekst te zien, draai de brief om". Links en rechts zijn jouw links en rechts. Is de brief goed in beeld, dan maakt Paper Pilot vanzelf de foto en leest de brief. Vindt Paper Pilot geen scanner, dan kun je kiezen voor Met de camera scannen. Ziet Paper Pilot 10 seconden geen brief, bijvoorbeeld omdat je iets anders voor de camera houdt, dan zegt hij dat. Je kiest dan: Verder proberen, Toch een foto maken en lezen (bijvoorbeeld een doosje met tekst), of Annuleren.
+
+De camera (Ctrl+Shift+N, de knop Camera, of Met de camera bij Lezen en invullen): je kiest wat je wilt doen. Een brief scannen (zie hierboven), een foto maken en laten beschrijven, of de streepjescode van een product opzoeken.
+
+Een foto maken en laten beschrijven (Ctrl+Shift+D): van iemand, van jezelf, van een voorwerp of van een kamer. Na 3 seconden maakt Paper Pilot de foto. Daarna hoor je eerst iets over de gezichten: hoeveel gezichten er in beeld zijn, en per gezicht of het helemaal in beeld is of maar half (en aan welke kant het buiten beeld valt), of de persoon ver weg of heel dichtbij is. Links en rechts zijn jouw links en rechts. Daarna vertelt het taalmodel wat er te zien is en hoe iemand eruitziet: ongeveer hoe oud, haar, bril, kleding en gezichtsuitdrukking. Paper Pilot zegt nooit wie iemand is. Het zoeken naar gezichten doet Windows zelf; voor de beschrijving is het taalmodel nodig (menu Instellingen, Taalmodel). Alles gebeurt op je eigen computer, de foto gaat nergens naartoe. Ziet Paper Pilot bij het scannen van een brief geen brief, dan kun je ook kiezen voor Vertel wat de camera ziet.
+
+De streepjescode van een product (Ctrl+Shift+B): houd het product voor de camera, op ongeveer 20 centimeter, en draai het langzaam rond. Paper Pilot zegt het als hij de streepjescode ziet en zoekt dan op wat het is: de naam, het merk, de inhoud, de allergenen, of er sporen van iets in kunnen zitten, de Nutri-Score en de ingrediënten. Dat komt uit Open Food Facts, een vrije databank op internet die door vrijwilligers wordt ingevuld. Alleen het nummer van de streepjescode gaat naar internet; de eerste keer vraagt Paper Pilot of dat mag. Twijfel je, bijvoorbeeld bij een allergie, vraag dan iemand om de verpakking te lezen. Vindt Paper Pilot geen streepjescode of kent Open Food Facts het product niet, dan kun je de tekst op de verpakking laten lezen of laten beschrijven wat er op de foto staat.
 
 Afspraak in je agenda (Ctrl+E): Paper Pilot zoekt een afspraak in de brief, zoals "Datum: 14 december, Tijd: 10.30 uur, Locatie: ...". Je kijkt de afspraak na, en daarna opent je agenda (bijvoorbeeld Outlook of Agenda van Windows) met de afspraak erin, met een herinnering een dag van tevoren. Kies daar Opslaan. Ook bij Wat moet ik doen? staat de afspraak in het lijstje.
 

@@ -9,7 +9,7 @@ Paper Pilot is een gratis programma dat je helpt met brieven en formulieren. In 
 
 1. Je brieven en formulieren blijven op je eigen computer
 
-Brieven, formulieren en scans die je met Paper Pilot opent, maakt of invult, blijven op je eigen computer. Paper Pilot stuurt ze nergens naartoe. Ook de tekstherkenning gebeurt op je eigen computer. Scan je met de camera, dan blijven de foto's op je computer; ze worden alleen gebruikt om de brief te lezen. Afspraken die je in je agenda zet, gaan naar je eigen agendaprogramma.
+Brieven, formulieren en scans die je met Paper Pilot opent, maakt of invult, blijven op je eigen computer. Paper Pilot stuurt ze nergens naartoe. Ook de tekstherkenning gebeurt op je eigen computer. Scan je met de camera of laat je een foto beschrijven, dan blijven de foto's op je computer. Ook het zoeken naar gezichten gebeurt op je eigen computer; Paper Pilot zoekt alleen waar een gezicht staat, nooit wie het is. Afspraken die je in je agenda zet, gaan naar je eigen agendaprogramma.
 
 
 2. Je persoonlijke gegevens
@@ -22,6 +22,7 @@ Als je in Paper Pilot persoonlijke gegevens bewaart, zoals je naam, adres, geboo
 Paper Pilot gebruikt alleen internet:
 - om te kijken of er een nieuwe versie is (in een map van de maker bij Dropbox). Dat kun je uitzetten in het menu Instellingen. Daarbij gaan geen persoonlijke gegevens mee. Dropbox ziet wel, zoals elke website, het internetadres (IP-adres) van je computer.
 - als je zelf een website laat controleren. Paper Pilot haalt dan die website op.
+- als je zelf de streepjescode van een product laat opzoeken. Alleen het nummer van de streepjescode gaat dan naar Open Food Facts (en, als het product daar niet staat, naar Open Beauty Facts, Open Pet Food Facts en Open Products Facts). De foto blijft op je computer. De eerste keer vraagt Paper Pilot of dat mag.
 - als je zelf kiest om het taalmodel voor handschrift, foto's en samenvattingen te downloaden (eenmalig, bij Hugging Face en GitHub). Daarna werkt het taalmodel op je eigen computer, zonder internet: je brieven en foto's gaan nooit naar het internet. Ook bij deze download gaan geen persoonlijke gegevens mee.
 
 

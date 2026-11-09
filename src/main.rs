@@ -23,6 +23,7 @@ mod dialogen;
 mod envelop;
 mod formaten;
 mod formulier_pdf;
+mod gezicht;
 mod handtekening;
 mod gegevens;
 mod herkennen;
@@ -39,6 +40,7 @@ mod melden;
 mod pdf_maken;
 mod plat;
 mod post;
+mod product;
 mod proef;
 mod taken;
 mod qr;
@@ -146,6 +148,20 @@ fn main() {
     }
     if let Some(verslag) = waarde("--proef-werk") {
         std::process::exit(proef::proef_werk(&verslag));
+    }
+    if let Some(bestand) = waarde("--proef-gezicht") {
+        let verslag = args.iter().position(|a| a == "--proef-gezicht").and_then(|i| args.get(i + 2)).cloned().unwrap_or_else(|| "gezicht.txt".into());
+        std::process::exit(proef::proef_gezicht(&bestand, &verslag));
+    }
+    if let Some(code) = waarde("--proef-product") {
+        // --proef-product <streepjescode of afbeelding> <verslag>
+        let verslag = args.iter().position(|a| a == "--proef-product").and_then(|i| args.get(i + 2)).cloned().unwrap_or_else(|| "product.txt".into());
+        std::process::exit(proef::proef_product(&code, &verslag));
+    }
+    if let Some(doel) = waarde("--proef-foto") {
+        // --proef-foto <foto.jpg> <verslag>: met de echte camera
+        let verslag = args.iter().position(|a| a == "--proef-foto").and_then(|i| args.get(i + 2)).cloned().unwrap_or_else(|| "foto.txt".into());
+        std::process::exit(proef::proef_foto(&doel, &verslag));
     }
     if let Some(verslag) = waarde("--proef-updates") {
         std::process::exit(proef::proef_updates(&verslag));

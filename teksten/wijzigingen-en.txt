@@ -1,5 +1,11 @@
 ﻿Changes in Paper Pilot
 
+Version 0.0.0.13 (November 2026)
+- New: the Camera button (Ctrl+Shift+N). You choose: scan a letter, take a photo and have it described, or look up the barcode of a product.
+- New: take a photo and describe it (Ctrl+Shift+D). Of someone, of yourself or of something you hold in front of the camera. Paper Pilot tells you how many faces are in view, whether a face is fully or only partly in view and on which side it is cut off. The language model tells you what is in the photo and what someone looks like. All on your own computer.
+- New: the barcode of a product (Ctrl+Shift+B). Hold the product in front of the camera; Paper Pilot looks up the name, brand, allergens and ingredients at Open Food Facts. Only the number goes to the internet, and only if you agree.
+- Camera: if Paper Pilot does not see a letter while scanning a letter, you can now also choose Tell me what the camera sees.
+
 Version 0.0.0.12 (November 2026)
 - Fixed: Enter on the Check button always opened the reading window. Now Enter opens the button you are on.
 - Large forms, such as a care budget plan: Paper Pilot recognises tables and asks how many rows you need. With Smart fill-in you only answer those questions, instead of hundreds. You can also choose only the required questions.

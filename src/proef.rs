@@ -711,3 +711,58 @@ pub fn proef_afspraken(bestand: &str, verslag: &str) -> i32 {
     let _ = std::fs::write(verslag, format!("\u{feff}{uit}"));
     if fout { 1 } else { 0 }
 }
+
+/// Gezichten zoeken op een afbeelding (ter informatie: niet elke computer heeft gezichtsherkenning).
+pub fn proef_gezicht(bestand: &str, verslag: &str) -> i32 {
+    crate::beeld::com_start();
+    let uit = match crate::beeld::lees(std::path::Path::new(bestand)).ok().and_then(|v| v.into_iter().next()) {
+        None => "FOUT: afbeelding niet te lezen\r\n".to_string(),
+        Some(b) => match crate::gezicht::zoek(&b) {
+            Ok(g) => format!("{} gezicht(en): {:?}\r\n{}\r\n", g.len(), g, crate::gezicht::uitleg(&g, b.breed, b.hoog, true)),
+            Err(e) => format!("Geen gezichtsherkenning: {e}\r\n"),
+        },
+    };
+    let _ = std::fs::write(verslag, format!("\u{feff}{uit}"));
+    0
+}
+
+/// Een product opzoeken met de streepjescode (internet). Met een afbeelding: eerst de code van de afbeelding lezen.
+pub fn proef_product(code_of_beeld: &str, verslag: &str) -> i32 {
+    crate::beeld::com_start();
+    let mut uit = String::new();
+    let mut code = code_of_beeld.to_string();
+    if std::path::Path::new(code_of_beeld).is_file() {
+        let codes = crate::beeld::lees(std::path::Path::new(code_of_beeld)).ok().and_then(|v| v.into_iter().next())
+            .map(|b| crate::qr::zoek(&b, 1)).unwrap_or_default();
+        uit.push_str(&format!("Codes op de afbeelding: {:?}\r\n", codes.iter().map(|c| &c.tekst).collect::<Vec<_>>()));
+        code = codes.iter().find(|c| crate::product::is_productcode(&c.tekst)).map(|c| c.tekst.clone()).unwrap_or_default();
+    }
+    uit.push_str(&format!("Productcode {code}: kloppend controlecijfer = {}\r\n", crate::product::is_productcode(&code)));
+    match crate::product::zoek(&code) {
+        Ok(Some(p)) => uit.push_str(&format!("GEVONDEN\r\n{}\r\n", crate::product::uitleg(&p))),
+        Ok(None) => uit.push_str("NIET GEVONDEN\r\n"),
+        Err(e) => uit.push_str(&format!("FOUT: {e}\r\n")),
+    }
+    let _ = std::fs::write(verslag, format!("\u{feff}{uit}"));
+    0
+}
+
+/// Met de echte camera één foto maken, bewaren en de gezichten zoeken (alleen op een computer met camera).
+pub fn proef_foto(doel: &str, verslag: &str) -> i32 {
+    crate::beeld::com_start();
+    let v = crate::dialogen::Voortgang::nieuw();
+    let uit = match crate::camera::een_foto(&v) {
+        Ok(Some((b, voorkant))) => {
+            let _ = crate::beeld::schrijf(std::path::Path::new(doel), &[b.clone()]);
+            let gezichten = match crate::gezicht::zoek(&b) {
+                Ok(g) => crate::gezicht::uitleg(&g, b.breed, b.hoog, voorkant),
+                Err(e) => format!("Geen gezichtsherkenning: {e}"),
+            };
+            format!("Foto {}x{}, voorkant {voorkant}, oordeel brief: {:?}\r\n{gezichten}\r\n", b.breed, b.hoog, crate::camera::beoordeel(&b))
+        }
+        Ok(None) => "Gestopt\r\n".into(),
+        Err(e) => format!("FOUT: {e}\r\n"),
+    };
+    let _ = std::fs::write(verslag, format!("\u{feff}{uit}"));
+    if uit.starts_with("FOUT") { 1 } else { 0 }
+}

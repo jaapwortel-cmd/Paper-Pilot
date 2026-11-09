@@ -24,6 +24,8 @@ const MAPPEN: [&str; 3] = ["Qwen/Qwen3-VL-4B-Instruct-GGUF", "unsloth/Qwen3-VL-4
 pub enum Soort {
     Handschrift,
     Beschrijven,
+    /// Een foto van de camera: wat is er te zien, en hoe zien mensen eruit.
+    Foto,
 }
 
 pub fn map() -> PathBuf {
@@ -291,6 +293,7 @@ fn opdracht(soort: &Soort) -> String {
     match soort {
         Soort::Handschrift => t("ModelVraagHandschrift"),
         Soort::Beschrijven => t("ModelVraagBeschrijven"),
+        Soort::Foto => t("ModelVraagFoto"),
     }
 }
 

@@ -49,7 +49,9 @@ Shortcut keys in the reading window:
 - Ctrl+E: put an appointment from the letter in your calendar.
 - Ctrl+B: write a reply.
 - Ctrl+Shift+T: translate the letter.
-- Ctrl+Shift+N: scan with the camera.
+- Ctrl+Shift+N: the camera: scan a letter, have a photo described or look up a product.
+- Ctrl+Shift+D: take a photo and describe it.
+- Ctrl+Shift+B: look up the barcode of a product.
 - Ctrl+plus and Ctrl+minus: bigger or smaller letters in the text box, Ctrl+0 back to normal. Paper Pilot remembers the size, also for the manual and other texts.
 - Escape: close the reading window.
 Use Tab to reach the buttons; the same commands are there as well.
@@ -74,6 +76,12 @@ Email (Ctrl+M): Paper Pilot creates a new email in your own email program, with 
 Signature on a form: if you have set up your signature (Settings, My signature), the question for your signature already says [my signature]. When you save, your signature is put there as a picture. Delete the text if you do not want that. Paper Pilot fills in today's date at a question for the date.
 
 Scan with the camera (Ctrl+Shift+N, or choose With the camera under Read and fill in): for when you have no scanner. Hold the letter in front of your laptop camera, with the text facing the camera, at about 30 centimetres. Your screen reader tells you what to do: "move the letter a little to the left", "hold the letter a little higher", "too close", "too dark" or "no text visible, turn the letter over". Left and right are your left and right. When the letter is in view, Paper Pilot takes the photo by itself and reads the letter. If Paper Pilot finds no scanner, you can choose Scan with the camera. If Paper Pilot sees no letter for 10 seconds, for example because you are holding something else in front of the camera, it tells you. You then choose: Keep trying, Take a photo and read it anyway (for example a box with text), or Cancel.
+
+The camera (Ctrl+Shift+N, the Camera button, or With the camera under Read and fill in): you choose what you want to do. Scan a letter (see above), take a photo and have it described, or look up the barcode of a product.
+
+Take a photo and describe it (Ctrl+Shift+D): of someone, of yourself, of an object or of a room. After 3 seconds Paper Pilot takes the photo. First you hear about the faces: how many faces are in view, and for each face whether it is fully in view or only partly (and on which side it is cut off), and whether the person is far away or very close. Left and right are your left and right. Then the language model tells you what is in the photo and what someone looks like: roughly how old, hair, glasses, clothes and facial expression. Paper Pilot never says who someone is. Windows itself looks for the faces; the description needs the language model (Settings menu, Language model). Everything happens on your own computer; the photo does not go anywhere. If Paper Pilot does not see a letter while scanning a letter, you can also choose Tell me what the camera sees.
+
+The barcode of a product (Ctrl+Shift+B): hold the product in front of the camera, at about 20 centimetres, and turn it slowly. Paper Pilot tells you when it sees the barcode and then looks up what it is: the name, the brand, the contents, the allergens, possible traces, the Nutri-Score and the ingredients. This comes from Open Food Facts, a free database on the internet filled in by volunteers. Only the barcode number goes to the internet; the first time, Paper Pilot asks whether that is all right. If you are unsure, for example because of an allergy, ask someone to read the package. If Paper Pilot finds no barcode, or Open Food Facts does not know the product, you can have the text on the package read out or have the photo described.
 
 Appointment in your calendar (Ctrl+E): Paper Pilot looks for an appointment in the letter, such as "Date: 14 December, Time: 10.30, Location: ...". You check the appointment, and then your calendar (for example Outlook or Windows Calendar) opens with the appointment in it, with a reminder one day before. Choose Save there. The appointment is also listed under What do I need to do?.
 

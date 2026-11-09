@@ -182,33 +182,39 @@ pub fn beoordeel(beeld: &Beeld) -> Oordeel {
     Oordeel::Goed
 }
 
-/// De camera klaarzetten (de eerste die Windows kent).
-fn start() -> Result<MediaCapture, String> {
+/// De camera klaarzetten (de eerste die Windows kent). Geeft ook of het de camera aan de voorkant is (die naar jou kijkt).
+fn start() -> Result<(MediaCapture, bool), String> {
     let fout = |e: windows::core::Error| format!("{}", e.message());
     let camera = MediaCapture::new().map_err(fout)?;
     let instellingen = MediaCaptureInitializationSettings::new().map_err(fout)?;
     instellingen.SetStreamingCaptureMode(StreamingCaptureMode::Video).map_err(fout)?;
     // Liever de camera aan de achterkant (tablet); anders de eerste.
+    let mut voorkant = true;
     if let Ok(lijst) = windows::Devices::Enumeration::DeviceInformation::FindAllAsyncDeviceClass(windows::Devices::Enumeration::DeviceClass::VideoCapture)
         .and_then(|a| a.join())
     {
         let mut gekozen: Option<HSTRING> = None;
+        let mut gekozen_achter = false;
         for i in 0..lijst.Size().unwrap_or(0) {
             if let Ok(d) = lijst.GetAt(i) {
                 let achter = d.EnclosureLocation().ok().and_then(|p| p.Panel().ok())
                     == Some(windows::Devices::Enumeration::Panel::Back);
                 if gekozen.is_none() || achter {
                     gekozen = d.Id().ok();
+                    gekozen_achter = achter;
                 }
             }
         }
         match gekozen {
-            Some(id) => instellingen.SetVideoDeviceId(&id).map_err(fout)?,
+            Some(id) => {
+                instellingen.SetVideoDeviceId(&id).map_err(fout)?;
+                voorkant = !gekozen_achter;
+            }
             None => return Err(t("CameraGeen")),
         }
     }
     camera.InitializeWithSettingsAsync(&instellingen).map_err(fout)?.join().map_err(|_| t("CameraGeen"))?;
-    Ok(camera)
+    Ok((camera, voorkant))
 }
 
 /// Eén foto als beeld.
@@ -245,7 +251,7 @@ const GEEN_BRIEF_SECONDEN: u64 = 10;
 /// Is er een tijdje geen brief te zien (bijvoorbeeld omdat je iets anders voor de camera houdt), dan stopt hij met GeenBrief.
 pub fn neem(v: &crate::dialogen::Voortgang) -> Result<Uitkomst, String> {
     use std::sync::atomic::Ordering;
-    let camera = start()?;
+    let (camera, _) = start()?;
     let zeg = |tekst: &str| {
         v.meld(tekst.to_string(), 0);
         let h = v.venster.load(Ordering::Relaxed) as windows_sys::Win32::Foundation::HWND;
@@ -290,4 +296,102 @@ pub fn neem(v: &crate::dialogen::Voortgang) -> Result<Uitkomst, String> {
         }
     }
     Err(t("CameraTeLang"))
+}
+
+/// Even wachten, maar stoppen als de gebruiker Annuleren kiest. Geeft false bij Annuleren.
+fn wacht(v: &crate::dialogen::Voortgang, ms: u64) -> bool {
+    use std::sync::atomic::Ordering;
+    let begin = std::time::Instant::now();
+    while begin.elapsed().as_millis() < ms as u128 {
+        if v.gestopt.load(Ordering::Relaxed) {
+            return false;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(100));
+    }
+    !v.gestopt.load(Ordering::Relaxed)
+}
+
+/// Zegt iets via de schermlezer en zet het in het voortgangsvenster.
+fn zeg_via(v: &crate::dialogen::Voortgang, tekst: &str) {
+    use std::sync::atomic::Ordering;
+    v.meld(tekst.to_string(), 0);
+    let h = v.venster.load(Ordering::Relaxed) as windows_sys::Win32::Foundation::HWND;
+    crate::melden::zeg(h, tekst);
+}
+
+/// Eén foto van wat er voor de camera is (iemand, een voorwerp, de kamer). Eerst drie seconden om klaar te gaan zitten.
+/// Geeft de foto en of hij van de camera aan de voorkant komt. None = Annuleren.
+pub fn een_foto(v: &crate::dialogen::Voortgang) -> Result<Option<(Beeld, bool)>, String> {
+    let (camera, voorkant) = start()?;
+    zeg_via(v, &t("FotoBegin"));
+    // De eerste foto's van een webcam zijn vaak te donker (de camera past het licht nog aan).
+    let _ = foto(&camera);
+    if !wacht(v, 3000) {
+        return Ok(None);
+    }
+    let mut beeld = foto(&camera)?;
+    // Nog te donker? Dan één keer opnieuw, na een seconde.
+    if beoordeel(&beeld) == Oordeel::Donker {
+        if !wacht(v, 1000) {
+            return Ok(None);
+        }
+        beeld = foto(&camera)?;
+    }
+    zeg_via(v, &t("FotoGenomen"));
+    crate::logboek::schrijf(&format!("Camera: foto voor beschrijven ({}x{}, voorkant {voorkant}).", beeld.breed, beeld.hoog));
+    Ok(Some((beeld, voorkant)))
+}
+
+/// Hoe het zoeken naar een streepjescode afliep.
+pub enum CodeUitkomst {
+    /// Een code gevonden, met de foto erbij.
+    Code(crate::qr::Code, Beeld),
+    /// De gebruiker koos Annuleren.
+    Gestopt,
+    /// Een tijdje niets gevonden; met de laatste foto (om toch te lezen of te beschrijven).
+    Niets(Beeld),
+}
+
+/// Hoe lang Paper Pilot zoekt naar een streepjescode voordat hij het vraagt.
+const CODE_SECONDEN: u64 = 30;
+
+/// Foto's maken tot er een streepjescode (of QR-code) in beeld is. De schermlezer zegt hoe je het product moet houden.
+pub fn zoek_code(v: &crate::dialogen::Voortgang) -> Result<CodeUitkomst, String> {
+    use std::sync::atomic::Ordering;
+    let (camera, _) = start()?;
+    zeg_via(v, &t("ProductBegin"));
+    let begin = std::time::Instant::now();
+    let mut laatst_gezegd = std::time::Instant::now();
+    let mut beurt = 0usize;
+    loop {
+        if v.gestopt.load(Ordering::Relaxed) {
+            return Ok(CodeUitkomst::Gestopt);
+        }
+        let beeld = foto(&camera)?;
+        let codes = crate::qr::zoek(&beeld, 1);
+        // Liever een productcode dan een andere code (op een verpakking staat soms ook een QR-code).
+        let gekozen = codes.iter().find(|c| crate::product::is_productcode(&c.tekst)).or(codes.first()).cloned();
+        if let Some(code) = gekozen {
+            zeg_via(v, &t("ProductGevonden"));
+            crate::logboek::schrijf(&format!("Camera: code gevonden na {} s ({}).", begin.elapsed().as_secs(), code.soort));
+            return Ok(CodeUitkomst::Code(code, beeld));
+        }
+        if begin.elapsed().as_secs() >= CODE_SECONDEN {
+            crate::logboek::schrijf(&format!("Camera: {CODE_SECONDEN} s geen streepjescode gevonden."));
+            return Ok(CodeUitkomst::Niets(beeld));
+        }
+        // Om de vier seconden een tip, steeds een andere.
+        if laatst_gezegd.elapsed().as_secs() >= 4 {
+            let tip = if beoordeel(&beeld) == Oordeel::Donker {
+                t("CameraDonker")
+            } else {
+                const TIPS: [&str; 3] = ["ProductTipDraai", "ProductTipAfstand", "ProductTipStil"];
+                let tip = t(TIPS[beurt % TIPS.len()]);
+                beurt += 1;
+                tip
+            };
+            zeg_via(v, &tip);
+            laatst_gezegd = std::time::Instant::now();
+        }
+    }
 }

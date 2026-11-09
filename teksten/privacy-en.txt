@@ -9,7 +9,7 @@ Paper Pilot is a free program that helps you with letters and forms. This statem
 
 1. Your letters and forms stay on your own computer
 
-Letters, forms and scans that you open, make or fill in with Paper Pilot stay on your own computer. Paper Pilot does not send them anywhere. Text recognition also happens on your own computer. If you scan with the camera, the photos stay on your computer; they are only used to read the letter. Appointments you put in your calendar go to your own calendar program.
+Letters, forms and scans that you open, make or fill in with Paper Pilot stay on your own computer. Paper Pilot does not send them anywhere. Text recognition also happens on your own computer. If you scan with the camera or have a photo described, the photos stay on your computer. Looking for faces also happens on your own computer; Paper Pilot only looks for where a face is, never who it is. Appointments you put in your calendar go to your own calendar program.
 
 
 2. Your personal data
@@ -21,6 +21,7 @@ If you store personal data in Paper Pilot, such as your name, address, date of b
 
 Paper Pilot only uses the internet:
 - to check whether there is a new version (in a folder of the maker on Dropbox). You can turn this off in the Settings menu. No personal data is sent. Like any website, Dropbox does see the internet address (IP address) of your computer.
+- when you choose to look up the barcode of a product yourself. Only the barcode number then goes to Open Food Facts (and, if the product is not there, to Open Beauty Facts, Open Pet Food Facts and Open Products Facts). The photo stays on your computer. The first time, Paper Pilot asks whether that is all right.
 - when you choose to check a website yourself. Paper Pilot then fetches that website.
 - when you choose to download the language model for handwriting, photos and summaries (once, from Hugging Face and GitHub). After that the language model works on your own computer, without the internet: your letters and photos never go to the internet. No personal data is sent with this download either.
 

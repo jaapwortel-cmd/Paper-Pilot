@@ -46,11 +46,13 @@ const ID_AGENDA: i32 = 122;
 const ID_SCHRIJVEN: i32 = 123;
 const ID_VERTALEN: i32 = 124;
 const ID_CAMERA: i32 = 125;
+const ID_FOTO: i32 = 126;
+const ID_PRODUCT: i32 = 127;
 const ID_SLUITEN: i32 = IDCANCEL;
 const WM_GELADEN: u32 = WM_APP + 10;
 const WM_VOORTGANG: u32 = WM_APP + 11;
 
-const KNOPPEN: [(i32, &str); 19] = [
+const KNOPPEN: [(i32, &str); 20] = [
     (ID_OPENEN, "KnopOpenen"),
     (ID_TAAK, "KnopTaak"),
     (ID_HERINNERING, "KnopHerinnering"),
@@ -60,6 +62,7 @@ const KNOPPEN: [(i32, &str); 19] = [
     (ID_MAIL, "KnopMailen"),
     (ID_INVULLEN, "KnopInvullen"),
     (ID_SCAN, "KnopScannen"),
+    (ID_CAMERA, "KnopCamera"),
     (ID_AFDRUK, "KnopAfdrukken"),
     (ID_HANDSCHRIFT, "KnopHandschrift"),
     (ID_BESCHRIJF, "KnopBeschrijven"),
@@ -186,7 +189,7 @@ pub fn zoek_en_kies_scanner(hwnd: HWND) -> Option<crate::scanner::Scanner> {
                 return None;
             }
             CAMERA => {
-                camera_scannen();
+                brief_met_camera();
                 return None;
             }
             _ => return None,
@@ -224,8 +227,34 @@ pub fn scan_een_beeld(eigenaar: HWND) -> Option<(crate::beeld::Beeld, u32)> {
     }
 }
 
-/// Ctrl+Shift+N: een brief scannen met de camera. De schermlezer zegt hoe je de brief moet houden.
+/// Ctrl+Shift+N: wat wil je met de camera? Een brief scannen, een foto laten beschrijven, of een streepjescode.
 fn camera_scannen() {
+    let Some(s) = lees() else { return };
+    const BRIEF: i32 = 3601;
+    const FOTO: i32 = 3602;
+    const PRODUCT: i32 = 3603;
+    let titel = t("CameraKiesTitel");
+    let kop = t("CameraKiesKop");
+    let tekst = t("CameraKiesTekst");
+    let mut v = dialogen::Vraag::nieuw(&titel, &kop, &tekst);
+    v.opdrachtlinks = true;
+    v.knoppen.push(dialogen::Knop { id: BRIEF, tekst: t("KnopCameraBrief") });
+    v.knoppen.push(dialogen::Knop { id: FOTO, tekst: t("KnopCameraFoto") });
+    v.knoppen.push(dialogen::Knop { id: PRODUCT, tekst: t("KnopCameraProduct") });
+    v.gewone_knoppen = windows_sys::Win32::UI::Controls::TDCBF_CANCEL_BUTTON;
+    v.standaard = BRIEF;
+    match v.toon(s.hwnd) {
+        BRIEF => brief_met_camera(),
+        FOTO => foto_beschrijven(None),
+        PRODUCT => product_scannen(),
+        _ => unsafe {
+            SetFocus(s.vak);
+        },
+    }
+}
+
+/// Een brief scannen met de camera. De schermlezer zegt hoe je de brief moet houden.
+fn brief_met_camera() {
     let Some(s) = lees() else { return };
     let hwnd = s.hwnd;
     if !dialogen::ja_nee(hwnd, &t("CameraTitel"), &t("CameraUitleg"), true) {
@@ -240,6 +269,7 @@ fn camera_scannen() {
             Some(Ok(crate::camera::Uitkomst::GeenBrief(b))) => {
                 const VERDER: i32 = 3501;
                 const TOCH: i32 = 3502;
+                const BESCHRIJF: i32 = 3503;
                 let titel = t("CameraTitel");
                 let kop = t("CameraGeenBriefKop");
                 let tekst = t("CameraGeenBriefTekst");
@@ -248,11 +278,16 @@ fn camera_scannen() {
                 v.opdrachtlinks = true;
                 v.knoppen.push(dialogen::Knop { id: VERDER, tekst: t("KnopCameraVerder") });
                 v.knoppen.push(dialogen::Knop { id: TOCH, tekst: t("KnopCameraToch") });
+                v.knoppen.push(dialogen::Knop { id: BESCHRIJF, tekst: t("KnopCameraBeschrijf") });
                 v.gewone_knoppen = windows_sys::Win32::UI::Controls::TDCBF_CANCEL_BUTTON;
                 v.standaard = VERDER;
                 match v.toon(hwnd) {
                     VERDER => continue,
                     TOCH => break b,
+                    BESCHRIJF => {
+                        foto_beschrijven(Some((b, true)));
+                        return;
+                    }
                     _ => {
                         unsafe { SetFocus(s.vak) };
                         return;
@@ -270,6 +305,11 @@ fn camera_scannen() {
             }
         }
     };
+    lees_foto(hwnd, beeld);
+}
+
+/// De tekst op een foto van de camera herkennen en in het leesvenster zetten.
+fn lees_foto(hwnd: HWND, beeld: crate::beeld::Beeld) {
     let naam = format!("{} {}", t("CameraNaam"), crate::logboek::nu().replace(':', ".").chars().take(16).collect::<String>());
     let n = naam.clone();
     let doc = dialogen::werk(hwnd, &t("CameraTitel"), &t("ScanHerkennen"), move |v| {
@@ -277,6 +317,186 @@ fn camera_scannen() {
     });
     if let Some(doc) = doc {
         geladen(Ok((doc, PathBuf::new())));
+    }
+}
+
+/// Ctrl+Shift+D: een foto maken van wat er voor de camera is (iemand, een voorwerp, een kamer) en laten vertellen
+/// wat er te zien is: of een gezicht helemaal, half of niet in beeld is, en hoe iemand eruitziet.
+/// Met `gegeven` (een foto die er al is, en of hij van de camera aan de voorkant komt) wordt er geen nieuwe foto gemaakt.
+fn foto_beschrijven(gegeven: Option<(crate::beeld::Beeld, bool)>) {
+    let Some(s) = lees() else { return };
+    let hwnd = s.hwnd;
+    let vak = s.vak;
+    let terug = || unsafe {
+        SetFocus(vak);
+    };
+    let (beeld, voorkant) = match gegeven {
+        Some(x) => x,
+        None => {
+            if !dialogen::ja_nee(hwnd, &t("FotoTitel"), &t("FotoUitleg"), true) {
+                terug();
+                return;
+            }
+            match dialogen::werk(hwnd, &t("FotoTitel"), &t("FotoKop"), |v| crate::camera::een_foto(v)) {
+                Some(Ok(Some(x))) => x,
+                Some(Err(e)) => {
+                    dialogen::melding(hwnd, &t("FotoTitel"), &e, dialogen::ICOON_WAARSCHUWING);
+                    terug();
+                    return;
+                }
+                _ => {
+                    terug();
+                    return;
+                }
+            }
+        }
+    };
+    // Het taalmodel vertelt wat er te zien is. Is het er niet, dan eerst vragen of het gedownload mag worden;
+    // zonder taalmodel zegt Paper Pilot alleen iets over de gezichten.
+    let met_model = crate::beeldmodel::geinstalleerd() || model_downloaden(hwnd);
+    let (breed, hoog) = (beeld.breed, beeld.hoog);
+    let donker = crate::camera::beoordeel(&beeld) == crate::camera::Oordeel::Donker;
+    let uitkomst = dialogen::werk(hwnd, &t("FotoTitel"), &t("FotoBezig"), move |v| {
+        v.meld(t("FotoGezichtenZoeken"), 0);
+        let gezichten = match crate::gezicht::zoek(&beeld) {
+            Ok(g) => {
+                logboek::schrijf(&format!("Gezichten: {}", g.len()));
+                crate::gezicht::uitleg(&g, breed, hoog, voorkant)
+            }
+            Err(e) => {
+                logboek::schrijf(&format!("Gezichtsherkenning: {e}"));
+                e
+            }
+        };
+        let beschrijving = if met_model {
+            v.meld(t("KijkDuurt"), 0);
+            Some(crate::beeldmodel::vraag(&beeld, crate::beeldmodel::Soort::Foto))
+        } else {
+            None
+        };
+        (gezichten, beschrijving)
+    });
+    let Some((gezichten, beschrijving)) = uitkomst else {
+        terug();
+        return;
+    };
+    let mut tekst = String::new();
+    if donker {
+        tekst.push_str(&t("FotoDonker"));
+        tekst.push_str("\r\n\r\n");
+    }
+    tekst.push_str(&t("FotoKopGezichten"));
+    tekst.push_str("\r\n");
+    tekst.push_str(&gezichten);
+    tekst.push_str("\r\n\r\n");
+    tekst.push_str(&t("FotoKopBeschrijving"));
+    tekst.push_str("\r\n");
+    match beschrijving {
+        Some(Ok(b)) => tekst.push_str(&b.replace("\r\n", "\n").replace('\n', "\r\n")),
+        Some(Err(e)) => tekst.push_str(&tf("FotoModelFout", &[&e])),
+        None => tekst.push_str(&t("FotoGeenModel")),
+    }
+    crate::tekstvenster::toon(hwnd, &t("FotoTitel"), &tekst);
+}
+
+/// Ctrl+Shift+B: de streepjescode van een product scannen met de camera en opzoeken wat het is.
+fn product_scannen() {
+    let Some(s) = lees() else { return };
+    let hwnd = s.hwnd;
+    if !dialogen::ja_nee(hwnd, &t("ProductTitel"), &t("ProductUitleg"), true) {
+        unsafe { SetFocus(s.vak) };
+        return;
+    }
+    loop {
+        match dialogen::werk(hwnd, &t("ProductTitel"), &t("ProductKop"), |v| crate::camera::zoek_code(v)) {
+            Some(Ok(crate::camera::CodeUitkomst::Code(code, beeld))) => {
+                toon_product(hwnd, &code, beeld);
+                return;
+            }
+            Some(Ok(crate::camera::CodeUitkomst::Niets(beeld))) => {
+                const VERDER: i32 = 3701;
+                const LEZEN: i32 = 3702;
+                const BESCHRIJF: i32 = 3703;
+                let titel = t("ProductTitel");
+                let kop = t("ProductNietsKop");
+                let tekst = t("ProductNietsTekst");
+                let mut v = dialogen::Vraag::nieuw(&titel, &kop, &tekst);
+                v.icoon = dialogen::ICOON_WAARSCHUWING;
+                v.opdrachtlinks = true;
+                v.knoppen.push(dialogen::Knop { id: VERDER, tekst: t("KnopProductVerder") });
+                v.knoppen.push(dialogen::Knop { id: LEZEN, tekst: t("KnopProductLezen") });
+                v.knoppen.push(dialogen::Knop { id: BESCHRIJF, tekst: t("KnopCameraBeschrijf") });
+                v.gewone_knoppen = windows_sys::Win32::UI::Controls::TDCBF_CANCEL_BUTTON;
+                v.standaard = VERDER;
+                match v.toon(hwnd) {
+                    VERDER => continue,
+                    LEZEN => lees_foto(hwnd, beeld),
+                    BESCHRIJF => foto_beschrijven(Some((beeld, true))),
+                    _ => unsafe {
+                        SetFocus(s.vak);
+                    },
+                }
+                return;
+            }
+            Some(Err(e)) => {
+                dialogen::melding(hwnd, &t("ProductTitel"), &e, dialogen::ICOON_WAARSCHUWING);
+                unsafe { SetFocus(s.vak) };
+                return;
+            }
+            _ => {
+                unsafe { SetFocus(s.vak) };
+                return;
+            }
+        }
+    }
+}
+
+/// Een gevonden code laten zien: een productcode opzoeken (met toestemming; alleen het nummer gaat naar internet),
+/// een andere code (zoals een QR-code) in gewone woorden.
+fn toon_product(hwnd: HWND, code: &crate::qr::Code, beeld: crate::beeld::Beeld) {
+    if !crate::product::is_productcode(&code.tekst) {
+        crate::tekstvenster::toon(hwnd, &t("ProductTitel"), &format!("{}\r\n{}", code.soort, crate::qr::uitleg(code)));
+        return;
+    }
+    if instellingen::get("product_internet").as_deref() != Some("ja") {
+        if !dialogen::ja_nee(hwnd, &t("ProductInternetKop"), &t("ProductInternetTekst"), true) {
+            crate::tekstvenster::toon(hwnd, &t("ProductTitel"), &tf("ProductAlleenNummer", &[&code.tekst]));
+            return;
+        }
+        instellingen::zet("product_internet", "ja");
+    }
+    let nummer = code.tekst.clone();
+    let uitkomst = dialogen::werk(hwnd, &t("ProductTitel"), &t("ProductZoeken"), move |v| {
+        v.meld(tf("ProductZoekenTekst", &[&nummer]), 0);
+        crate::product::zoek(&nummer)
+    });
+    match uitkomst {
+        Some(Ok(Some(p))) => {
+            logboek::schrijf(&format!("Product gevonden bij {}.", p.bron));
+            let titel = if p.naam.is_empty() { t("ProductTitel") } else { format!("{} - {}", t("ProductTitel"), p.naam) };
+            crate::tekstvenster::toon(hwnd, &titel, &crate::product::uitleg(&p));
+        }
+        Some(Ok(None)) => {
+            const LEZEN: i32 = 3711;
+            const BESCHRIJF: i32 = 3712;
+            let titel = t("ProductTitel");
+            let kop = t("ProductOnbekendKop");
+            let tekst = tf("ProductOnbekendTekst", &[&code.tekst]);
+            let mut v = dialogen::Vraag::nieuw(&titel, &kop, &tekst);
+            v.icoon = dialogen::ICOON_INFO;
+            v.opdrachtlinks = true;
+            v.knoppen.push(dialogen::Knop { id: LEZEN, tekst: t("KnopProductLezen") });
+            v.knoppen.push(dialogen::Knop { id: BESCHRIJF, tekst: t("KnopCameraBeschrijf") });
+            v.gewone_knoppen = windows_sys::Win32::UI::Controls::TDCBF_CLOSE_BUTTON;
+            v.standaard = LEZEN;
+            match v.toon(hwnd) {
+                LEZEN => lees_foto(hwnd, beeld),
+                BESCHRIJF => foto_beschrijven(Some((beeld, true))),
+                _ => {}
+            }
+        }
+        Some(Err(e)) => dialogen::melding(hwnd, &t("ProductMislukt"), &e, dialogen::ICOON_WAARSCHUWING),
+        None => {}
     }
 }
 
@@ -508,6 +728,8 @@ fn maak(eigenaar: HWND) -> HWND {
             ACCEL { fVirt: ctrl, key: b'M' as u16, cmd: ID_MAIL as u16 },
             ACCEL { fVirt: ctrl, key: b'E' as u16, cmd: ID_AGENDA as u16 },
             ACCEL { fVirt: (FVIRTKEY | FCONTROL | FSHIFT) as u8, key: b'N' as u16, cmd: ID_CAMERA as u16 },
+            ACCEL { fVirt: (FVIRTKEY | FCONTROL | FSHIFT) as u8, key: b'D' as u16, cmd: ID_FOTO as u16 },
+            ACCEL { fVirt: (FVIRTKEY | FCONTROL | FSHIFT) as u8, key: b'B' as u16, cmd: ID_PRODUCT as u16 },
             ACCEL { fVirt: ctrl, key: b'B' as u16, cmd: ID_SCHRIJVEN as u16 },
             ACCEL { fVirt: (FVIRTKEY | FCONTROL | FSHIFT) as u8, key: b'T' as u16, cmd: ID_VERTALEN as u16 },
             ACCEL { fVirt: ctrl, key: VK_OEM_PLUS, cmd: ID_GROTER as u16 },
@@ -913,6 +1135,7 @@ fn kijk(soort: crate::beeldmodel::Soort) {
     let (titel, kop) = match soort {
         Soort::Handschrift => (t("HandschriftTitel"), t("HandschriftBezig")),
         Soort::Beschrijven => (t("BeschrijvenTitel"), t("BeschrijvenBezig")),
+        Soort::Foto => (t("FotoTitel"), t("FotoBezig")),
     };
     let uitkomst = dialogen::werk(s.hwnd, &titel, &kop, move |v| {
         v.meld(t("KijkDuurt"), 0);
@@ -1002,6 +1225,8 @@ fn opdracht(hwnd: HWND, id: i32) {
         ID_GROTER | ID_KLEINER | ID_GEWOON => lettergrootte(id),
         ID_SCAN => scannen(),
         ID_CAMERA => camera_scannen(),
+        ID_FOTO => foto_beschrijven(None),
+        ID_PRODUCT => product_scannen(),
         ID_SLUITEN => unsafe {
             DestroyWindow(hwnd);
         },

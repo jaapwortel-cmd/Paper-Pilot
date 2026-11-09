@@ -1,5 +1,11 @@
 ﻿Wijzigingen in Paper Pilot
 
+Versie 0.0.0.13 (november 2026)
+- Nieuw: de knop Camera (Ctrl+Shift+N). Je kiest: een brief scannen, een foto maken en laten beschrijven, of de streepjescode van een product opzoeken.
+- Nieuw: een foto maken en laten beschrijven (Ctrl+Shift+D). Van iemand, van jezelf of van iets dat je voor de camera houdt. Paper Pilot zegt hoeveel gezichten er in beeld zijn, of een gezicht helemaal of maar half in beeld is en aan welke kant het buiten beeld valt. Het taalmodel vertelt wat er te zien is en hoe iemand eruitziet. Alles op je eigen computer.
+- Nieuw: de streepjescode van een product (Ctrl+Shift+B). Houd het product voor de camera; Paper Pilot zoekt bij Open Food Facts de naam, het merk, de allergenen en de ingrediënten op. Alleen het nummer gaat naar internet, en pas als jij dat goed vindt.
+- Camera: ziet Paper Pilot bij het scannen van een brief geen brief, dan kun je nu ook kiezen voor Vertel wat de camera ziet.
+
 Versie 0.0.0.12 (november 2026)
 - Opgelost: Enter op de knop Controleren opende steeds het leesvenster. Nu opent Enter de knop waar je op staat.
 - Grote formulieren, zoals een PGB-budgetplan: Paper Pilot herkent tabellen en vraagt hoeveel regels je nodig hebt. Met Slim invullen beantwoord je alleen die vragen, in plaats van honderden. Ook kun je kiezen voor alleen de verplichte vragen.

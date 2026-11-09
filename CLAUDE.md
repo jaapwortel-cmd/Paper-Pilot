@@ -187,3 +187,9 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   Uitkomst bij het voorbeeld: 410 -> 86 vragen met 1 zorgverlener (zonder de al ingevulde regels nog minder).
   Updates: bij elke start zoeken (niet meer 1x per dag), na rondleiding/apparaten.
   Jaap (9 nov 2026): 0.0.0.12 getest, alles werkt; in main gezet. Hij zet hem zelf in de Dropbox-updatemap.
+- 0.0.0.13 (10 nov 2026, Jaap: knop om een foto te laten beschrijven met gezichten; streepjescode van een product; ook iets anders voor de camera
+  moet beschreven worden): leesvenster knop Camera (Ctrl+Shift+N) = keuze Brief / Foto (Ctrl+Shift+D) / Product (Ctrl+Shift+B); bij GeenBrief ook
+  Vertel wat de camera ziet. gezicht.rs (Windows.Media.FaceAnalysis.FaceDetector op Gray8, randen geraakt = half in beeld, links/rechts vanuit
+  de gebruiker bij de camera aan de voorkant), beeldmodel Soort::Foto (ModelVraagFoto: geen namen, niet raden wie), camera::een_foto (3 s wachten),
+  camera::zoek_code (30 s, rxing via qr::zoek, productcode eerst), product.rs (Open Food/Beauty/Pet Food/Products Facts API v2; niet gevonden =
+  200 met status 0; toestemming 1x in instelling product_internet; alleen het nummer gaat mee). Proeven --proef-product, --proef-gezicht, --proef-foto (echte camera). Bouwronde-stap voor product/gezicht staat nog niet in build.yml (push zonder workflow-rechten).
