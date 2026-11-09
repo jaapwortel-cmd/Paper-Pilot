@@ -3,6 +3,9 @@
 Version 0.0.0.11 (November 2026)
 - New: in the Help menu you can view the log and email it to Jaap. If something goes wrong, Jaap can see what happened.
 - Scanning: when the scanner gave an error, Paper Pilot only said "an async operation was not properly started". Now you hear what is really wrong, such as no paper, lid open or scanner busy. If scanning fails, Paper Pilot tries again with the scanner's default settings, and then over the network if possible.
+- Scanning: new is the classic Windows scanning method (like Windows Fax and Scan). It works with almost every scanner, also when the newer method fails. After an error you choose: Try again, or Search for a scanner again.
+- At first start Paper Pilot looks once for your printers and scanners (USB, Wi-Fi and network cable), and you choose your default scanner and default printer. Paper Pilot remembers them. You can change this in the Settings menu, Printer and scanner.
+- Scanning starts straight away with your default scanner, without searching first. The print window already has your default printer selected.
 - Every error message is now also written to the log.
 - The menu showed "\t" instead of the shortcut key (for Manual and Exit). Fixed.
 

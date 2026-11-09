@@ -141,9 +141,17 @@ pub fn open_en_kies(eigenaar: HWND) {
     }
 }
 
-/// Scanners zoeken en er een kiezen (de vorige keuze staat vooraan).
-/// Vindt Paper Pilot niets, dan zegt hij wat hij wel zag en wat je kunt doen.
+/// De scanner om mee te scannen: de standaardscanner, of (als die er nog niet is) zoeken en kiezen.
 fn kies_scanner(hwnd: HWND) -> Option<crate::scanner::Scanner> {
+    if let Some(s) = crate::scanner::standaard() {
+        return Some(s);
+    }
+    zoek_en_kies_scanner(hwnd)
+}
+
+/// Scanners zoeken en er een kiezen (de vorige keuze staat vooraan). De keuze wordt de standaardscanner.
+/// Vindt Paper Pilot niets, dan zegt hij wat hij wel zag en wat je kunt doen.
+pub fn zoek_en_kies_scanner(hwnd: HWND) -> Option<crate::scanner::Scanner> {
     const OPNIEUW: i32 = 3101;
     const PRINTERS: i32 = 3102;
     const CAMERA: i32 = 3103;
@@ -191,7 +199,7 @@ fn kies_scanner(hwnd: HWND) -> Option<crate::scanner::Scanner> {
         let vorige = instellingen::get("scanner").and_then(|n| namen.iter().position(|x| *x == n)).unwrap_or(0);
         scanners[keuzevensters::kies_uit_lijst(hwnd, &t("ScanTitel"), &t("ScannerKiezen"), &namen, vorige)?].clone()
     };
-    instellingen::zet("scanner", &scanner.naam);
+    crate::scanner::zet_standaard(&scanner);
     Some(scanner)
 }
 
@@ -260,7 +268,7 @@ fn scannen() {
     let terug = || unsafe {
         SetFocus(s.vak);
     };
-    let Some(scanner) = kies_scanner(hwnd) else { return terug() };
+    let Some(mut scanner) = kies_scanner(hwnd) else { return terug() };
     // Wat ga je scannen? (Kleine letters: hoge resolutie. Envelop: van wie en aan wie.)
     let soorten = vec![t("InhoudBrief"), t("InhoudEnvelop"), t("InhoudKlein")];
     let vorige = instellingen::get("scan_inhoud").and_then(|v| v.parse::<usize>().ok()).unwrap_or(0).min(2);
@@ -295,7 +303,31 @@ fn scannen() {
                 dialogen::melding(hwnd, &t("ScanLeeg"), &t("ScanLeegTekst"), dialogen::ICOON_WAARSCHUWING);
             }
             Some(Err(e)) => {
-                dialogen::melding(hwnd, &t("ScanMislukt"), &tf("ScanMisluktTekst", &[&e]), dialogen::ICOON_WAARSCHUWING);
+                // Opnieuw proberen, een andere scanner zoeken, of stoppen.
+                const OPNIEUW: i32 = 3301;
+                const ZOEKEN: i32 = 3302;
+                crate::logboek::schrijf(&format!("Melding: scannen lukte niet | {e}"));
+                let titel = t("ScanTitel");
+                let kop = t("ScanMislukt");
+                let tekst = tf("ScanMisluktTekst", &[&e]);
+                let mut v = dialogen::Vraag::nieuw(&titel, &kop, &tekst);
+                v.icoon = dialogen::ICOON_WAARSCHUWING;
+                v.opdrachtlinks = true;
+                v.knoppen.push(dialogen::Knop { id: OPNIEUW, tekst: t("KnopScanOpnieuw") });
+                v.knoppen.push(dialogen::Knop { id: ZOEKEN, tekst: t("KnopScannerZoeken") });
+                v.gewone_knoppen = windows_sys::Win32::UI::Controls::TDCBF_CANCEL_BUTTON;
+                v.standaard = OPNIEUW;
+                match v.toon(hwnd) {
+                    OPNIEUW => continue,
+                    ZOEKEN => match zoek_en_kies_scanner(hwnd) {
+                        Some(n) => {
+                            scanner = n;
+                            continue;
+                        }
+                        None => break,
+                    },
+                    _ => break,
+                }
             }
             None => {}
         }

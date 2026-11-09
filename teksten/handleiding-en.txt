@@ -87,13 +87,17 @@ Does Paper Pilot say that text recognition is not available? In Windows, go to S
 
 For HEIC photos (iPhone) and WebP, Windows needs a free extension from the Microsoft Store: HEIF Image Extensions and WebP Image Extensions.
 
-Scanning: choose Scan (Ctrl+N). Paper Pilot looks for scanners: connected scanners, scanners on the network, and the scanner in your printer. If there are several, you choose one; Paper Pilot remembers your choice. Then you choose what you are scanning: a letter or document, an envelope, or something small with small print (a label, medicine leaflet or tea bag tag). For small print Paper Pilot scans at high resolution. If the scanner has both a glass plate and a document feeder, you choose where the letter is. With the glass you scan page by page: after each page Paper Pilot asks whether there is another page. Paper Pilot then recognises the text, and tells you if a page was crooked or upside down. Save the scan with Ctrl+Shift+S; choose PDF and the text is included invisibly, so the PDF can be searched later.
+Printers and scanners at first start: the first time you start Paper Pilot, it looks once for your printers and scanners: connected to the computer (USB) and on your network (Wi-Fi or network cable). If there are several, you choose which ones to use by default. Paper Pilot remembers this. You can change it in the Settings menu, Printer and scanner.
+
+Scanning: choose Scan (Ctrl+N). Paper Pilot scans with your default scanner, without searching first. If you do not have a default scanner yet, Paper Pilot looks for scanners: connected scanners, scanners on the network, and the scanner in your printer. If there are several, you choose one; that becomes your default scanner. Then you choose what you are scanning: a letter or document, an envelope, or something small with small print (a label, medicine leaflet or tea bag tag). For small print Paper Pilot scans at high resolution. If the scanner has both a glass plate and a document feeder, you choose where the letter is. With the glass you scan page by page: after each page Paper Pilot asks whether there is another page. Paper Pilot then recognises the text, and tells you if a page was crooked or upside down. Save the scan with Ctrl+Shift+S; choose PDF and the text is included invisibly, so the PDF can be searched later.
 
 This is how Paper Pilot searches: scanners that Windows knows (USB or network), scanners on the network that Windows does not know yet (AirScan or eSCL, which most printers with a scanner from Brother, HP, Canon, Epson and other brands support), and every printer installed in Windows: Paper Pilot asks that printer whether it has a scanner. This takes at most 20 seconds.
 
 Paper Pilot does not find a scanner? Then it tells you which printers it did find, and you can choose: Search again, Open Printers and scanners in Windows, or Scan with the camera. Check that the scanner or printer is switched on and connected to the computer or on the same network. Is the scanner connected with USB, or does Paper Pilot only find the printer? Then install the full driver from the manufacturer; Brother calls it "Full Driver & Software Package" (on support.brother.com). You can also add a new scanner in Windows: Settings, Bluetooth and devices, Printers and scanners.
 
-Printing: choose Print (Ctrl+P). With a scan or photo you first choose: the text, or the scan or photo. Then the normal Windows print window appears, where you choose the printer.
+Scanning does not work? Then Paper Pilot tells you what is wrong, for example no paper, the lid is open or the scanner is busy. Paper Pilot first tries other ways by itself: the classic Windows scanning method (like Windows Fax and Scan), the scanner's default settings, and over the network. Then you choose: Try again, or Search for a scanner again. If it keeps going wrong, choose Help, Email the log to Jaap.
+
+Printing: choose Print (Ctrl+P). With a scan or photo you first choose: the text, or the scan or photo. Then the normal Windows print window appears, with your default printer already selected. If you choose another printer, Paper Pilot remembers it for next time.
 
 In File Explorer you can also select a PDF, Word document or photo and choose: Open with, Paper Pilot.
 
@@ -127,6 +131,7 @@ Settings
 - Language / Taal: Nederlands or English. Paper Pilot switches language right away.
 - Appearance: Automatic (like Windows), Light or Dark. When Windows high contrast is on, Paper Pilot always uses the Windows colours.
 - My details: your name, address, date of birth, phone number, email address, BSN and IBAN. Paper Pilot fills them in for you in forms. They are stored encrypted on your own computer; only you can read them.
+- Printer and scanner: Paper Pilot looks for printers and scanners again, and you choose your default printer and default scanner.
 - My signature: sign with a dark pen on white paper and scan it, or choose a photo. Paper Pilot takes out the signature and stores it encrypted. On a form, Paper Pilot puts it at the question for your signature.
 - Keep My post: when this is on, Paper Pilot remembers the letters you read (encrypted, on your own computer).
 - Language model for handwriting and photos: download the language model, or remove it if it is already there.

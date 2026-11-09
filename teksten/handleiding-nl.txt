@@ -87,13 +87,17 @@ Zegt Paper Pilot dat de tekstherkenning niet beschikbaar is? Ga dan in Windows n
 
 Voor HEIC-foto's (iPhone) en WebP heeft Windows een gratis extensie nodig uit de Microsoft Store: HEIF-afbeeldingsextensies en WebP-afbeeldingsextensies.
 
-Scannen: kies Scannen (Ctrl+N). Paper Pilot zoekt scanners: aangesloten scanners, scanners in het netwerk, en de scanner in je printer. Zijn er meer, dan kies je er een; Paper Pilot onthoudt je keuze. Daarna kies je wat je scant: een brief of document, een envelop, of iets kleins met kleine letters (een etiket, bijsluiter of het label van een theezakje). Voor kleine letters scant Paper Pilot op hoge resolutie. Heeft de scanner een glasplaat en een documentinvoer, dan kies je waar de brief ligt. Bij de glasplaat scan je pagina voor pagina: na elke pagina vraagt Paper Pilot of er nog een pagina is. Daarna herkent Paper Pilot de tekst, en hoor je of een pagina scheef of op zijn kop lag. Bewaar de scan met Ctrl+Shift+S; kies PDF, dan staat de tekst er onzichtbaar in en is de PDF later te doorzoeken.
+Printers en scanners bij de eerste start: de eerste keer dat je Paper Pilot start, zoekt hij één keer naar je printers en scanners: aan de computer (USB) en in je netwerk (wifi of netwerkkabel). Zijn er meer, dan kies je welke je standaard wilt gebruiken. Paper Pilot onthoudt dat. Veranderen kan in het menu Instellingen, Printer en scanner kiezen.
+
+Scannen: kies Scannen (Ctrl+N). Paper Pilot scant met je standaardscanner, zonder eerst te zoeken. Heb je nog geen standaardscanner, dan zoekt Paper Pilot: aangesloten scanners, scanners in het netwerk, en de scanner in je printer. Zijn er meer, dan kies je er een; dat wordt je standaardscanner. Daarna kies je wat je scant: een brief of document, een envelop, of iets kleins met kleine letters (een etiket, bijsluiter of het label van een theezakje). Voor kleine letters scant Paper Pilot op hoge resolutie. Heeft de scanner een glasplaat en een documentinvoer, dan kies je waar de brief ligt. Bij de glasplaat scan je pagina voor pagina: na elke pagina vraagt Paper Pilot of er nog een pagina is. Daarna herkent Paper Pilot de tekst, en hoor je of een pagina scheef of op zijn kop lag. Bewaar de scan met Ctrl+Shift+S; kies PDF, dan staat de tekst er onzichtbaar in en is de PDF later te doorzoeken.
 
 Zo zoekt Paper Pilot: scanners die Windows kent (met USB of via het netwerk), scanners in het netwerk die Windows nog niet kent (AirScan of eSCL, dat kunnen de meeste printers met een scanner van Brother, HP, Canon, Epson en andere merken), en elke printer die in Windows staat: Paper Pilot vraagt die printer of er een scanner in zit. Dat duurt hooguit 20 seconden.
 
 Vindt Paper Pilot geen scanner? Dan zegt hij welke printers hij wel vond, en kun je kiezen: Opnieuw zoeken, Printers en scanners van Windows openen, of Met de camera scannen. Kijk of de scanner of printer aan staat en aan de computer of in hetzelfde netwerk zit. Zit de scanner met USB aan de computer, of vindt Paper Pilot alleen de printer? Installeer dan het volledige stuurprogramma van de maker; bij Brother heet dat "Full Driver & Software Package" (op support.brother.com). Een nieuwe scanner kun je ook toevoegen in Windows: Instellingen, Bluetooth en apparaten, Printers en scanners.
 
-Afdrukken: kies Afdrukken (Ctrl+P). Bij een scan of foto kies je eerst: de tekst, of de scan of foto. Daarna komt het gewone afdrukvenster van Windows, waar je de printer kiest.
+Lukt scannen niet? Dan zegt Paper Pilot wat er mis is, bijvoorbeeld geen papier, de klep staat open of de scanner is bezig. Paper Pilot probeert zelf eerst andere manieren: de klassieke scanmanier van Windows (zoals Windows Faxen en scannen), de standaardinstellingen van de scanner, en via het netwerk. Daarna kies je: Opnieuw proberen, of Scanner opnieuw zoeken. Blijft het misgaan, kies dan in het menu Help: Logboek naar Jaap mailen.
+
+Afdrukken: kies Afdrukken (Ctrl+P). Bij een scan of foto kies je eerst: de tekst, of de scan of foto. Daarna komt het gewone afdrukvenster van Windows. Daarin staat je standaardprinter al klaar. Kies je een andere printer, dan onthoudt Paper Pilot die voor de volgende keer.
 
 Je kunt ook in de Verkenner op een PDF, Word-bestand of foto gaan staan en kiezen: Openen met, Paper Pilot.
 
@@ -127,6 +131,7 @@ Instellingen
 - Taal / Language: Nederlands of English. Paper Pilot wisselt meteen van taal.
 - Weergave: Automatisch (zoals Windows), Licht of Donker. Staat hoog contrast van Windows aan, dan gebruikt Paper Pilot altijd de kleuren van Windows.
 - Mijn gegevens: je naam, adres, geboortedatum, telefoonnummer, e-mailadres, BSN en IBAN. Paper Pilot vult ze alvast in bij formulieren. Ze staan versleuteld op je eigen computer; alleen jij kunt ze lezen.
+- Printer en scanner kiezen: Paper Pilot zoekt opnieuw naar printers en scanners, en je kiest je standaardprinter en standaardscanner.
 - Mijn handtekening: zet je handtekening met een donkere pen op wit papier en scan het, of kies een foto. Paper Pilot haalt de handtekening eruit en bewaart hem versleuteld. Bij een formulier zet Paper Pilot hem bij de vraag naar je handtekening.
 - Mijn post bijhouden: staat dit aan, dan onthoudt Paper Pilot de brieven die je leest (versleuteld, op je eigen computer).
 - Taalmodel voor handschrift en foto's: het taalmodel downloaden, of verwijderen als het er al is.

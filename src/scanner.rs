@@ -22,6 +22,8 @@ use windows::Storage::StorageFolder;
 #[derive(Clone)]
 pub enum Soort {
     Windows(String),
+    /// Alleen bekend bij de klassieke WIA (DeviceID).
+    Wia(String),
     /// Basisadres, bijvoorbeeld http://192.168.1.20:80/eSCL
     Escl(String),
 }
@@ -34,6 +36,51 @@ pub struct Scanner {
     pub invoer: bool,
     /// Dezelfde scanner via het netwerk (eSCL), om te proberen als scannen via Windows niet lukt.
     pub reserve: Option<String>,
+    /// Dezelfde scanner in de klassieke WIA (DeviceID), om te proberen als de nieuwe weg niet lukt.
+    pub wia: Option<String>,
+}
+
+impl Scanner {
+    /// Om de standaardscanner te bewaren in de instellingen.
+    pub fn naar_tekst(&self) -> String {
+        let (soort, id) = match &self.soort {
+            Soort::Windows(i) => ("windows", i.clone()),
+            Soort::Wia(i) => ("wia", i.clone()),
+            Soort::Escl(i) => ("escl", i.clone()),
+        };
+        serde_json::json!({ "naam": self.naam, "soort": soort, "id": id, "glasplaat": self.glasplaat, "invoer": self.invoer,
+            "reserve": self.reserve, "wia": self.wia }).to_string()
+    }
+
+    pub fn van_tekst(t: &str) -> Option<Scanner> {
+        let v: serde_json::Value = serde_json::from_str(t).ok()?;
+        let id = v["id"].as_str()?.to_string();
+        let soort = match v["soort"].as_str()? {
+            "windows" => Soort::Windows(id),
+            "wia" => Soort::Wia(id),
+            "escl" => Soort::Escl(id),
+            _ => return None,
+        };
+        Some(Scanner {
+            naam: v["naam"].as_str()?.to_string(),
+            soort,
+            glasplaat: v["glasplaat"].as_bool().unwrap_or(true),
+            invoer: v["invoer"].as_bool().unwrap_or(false),
+            reserve: v["reserve"].as_str().map(String::from),
+            wia: v["wia"].as_str().map(String::from),
+        })
+    }
+}
+
+/// De standaardscanner (gekozen bij de eerste start of in Instellingen).
+pub fn standaard() -> Option<Scanner> {
+    crate::instellingen::get("standaard_scanner").and_then(|t| Scanner::van_tekst(&t))
+}
+
+pub fn zet_standaard(s: &Scanner) {
+    crate::instellingen::zet("standaard_scanner", &s.naar_tekst());
+    crate::instellingen::zet("scanner", &s.naam);
+    crate::logboek::schrijf(&format!("Standaardscanner: {}", s.naam));
 }
 
 /// Wat het zoeken opleverde.
@@ -41,6 +88,8 @@ pub struct Zoekuitkomst {
     pub scanners: Vec<Scanner>,
     /// Printers en netwerkapparaten die Paper Pilot wel zag, maar waarmee hij (nog) niet kan scannen.
     pub andere: Vec<String>,
+    /// Alle echte printers in Windows (geen PDF-, XPS- of faxprinters).
+    pub printers: Vec<String>,
 }
 
 /// Een eSCL-scanner in het netwerk: naam, basisadres en het IP-adres.
@@ -84,6 +133,8 @@ pub fn zoek() -> Zoekuitkomst {
     let begin = Instant::now();
     // 1. Scanners die Windows kent (met een stuurprogramma, USB of netwerk).
     let wia = op_achtergrond(|| windows_scanners().map_err(|e| e.to_string()));
+    // 1b. De klassieke WIA (zoals Windows Faxen en scannen): ziet soms scanners die de nieuwe weg mist.
+    let klassiek = op_achtergrond(crate::wia::scanners);
     // 2. Netwerkscanners via de zoekdienst van Windows zelf (mDNS/Bonjour) en via een eigen mDNS-vraag op elke netwerkkaart.
     let diensten: Vec<_> = ["_uscan._tcp", "_uscans._tcp", "_ipp._tcp", "_ipps._tcp", "_pdl-datastream._tcp", "_printer._tcp"]
         .iter().map(|d| (d.to_string(), op_achtergrond(move || dnssd_windows(d)))).collect();
@@ -151,12 +202,26 @@ pub fn zoek() -> Zoekuitkomst {
         }
         None => Vec::new(),
     };
+    match wacht(&klassiek, begin + Duration::from_secs(25), "WIA") {
+        Some(Ok(l)) => {
+            for w in l {
+                let kort = w.naam.to_lowercase();
+                if let Some(s) = lijst.iter_mut().find(|s| zelfde(&s.naam, &kort)) {
+                    s.wia = Some(w.id);
+                } else {
+                    lijst.push(Scanner { naam: w.naam, soort: Soort::Wia(w.id), glasplaat: w.glasplaat, invoer: w.invoer, reserve: None, wia: None });
+                }
+            }
+        }
+        Some(Err(e)) => crate::logboek::schrijf(&format!("Scanners zoeken via WIA: {e}")),
+        None => {}
+    }
     let mogelijkheden: Vec<_> = escl.iter().map(|e| { let b = e.basis.clone(); op_achtergrond(move || escl_mogelijkheden(&b)) }).collect();
     let klaar = Instant::now() + Duration::from_secs(6);
     for (e, rx) in escl.iter().zip(&mogelijkheden) {
         let (glas, invoer) = wacht(rx, klaar, "ScannerCapabilities").unwrap_or((true, false));
         let kort = e.naam.to_lowercase();
-        if let Some(w) = lijst.iter_mut().find(|w| matches!(w.soort, Soort::Windows(_)) && zelfde(&w.naam, &kort)) {
+        if let Some(w) = lijst.iter_mut().find(|w| matches!(w.soort, Soort::Windows(_) | Soort::Wia(_)) && zelfde(&w.naam, &kort)) {
             // Windows kent hem al: het netwerkadres bewaren als reserve.
             if w.reserve.is_none() {
                 w.reserve = Some(e.basis.clone());
@@ -166,15 +231,14 @@ pub fn zoek() -> Zoekuitkomst {
         if lijst.iter().any(|w: &Scanner| zelfde(&w.naam, &kort)) {
             continue;
         }
-        lijst.push(Scanner { naam: format!("{} ({})", e.naam, crate::teksten::t("ScannerNetwerk")), soort: Soort::Escl(e.basis.clone()), glasplaat: glas, invoer, reserve: None });
+        lijst.push(Scanner { naam: format!("{} ({})", e.naam, crate::teksten::t("ScannerNetwerk")), soort: Soort::Escl(e.basis.clone()), glasplaat: glas, invoer, reserve: None, wia: None });
     }
 
     // Printers zonder scanner die Paper Pilot kan gebruiken: die noemt Paper Pilot, zodat je weet wat hij wel zag.
     let mut andere: Vec<String> = Vec::new();
     for a in &apparaten {
         let kort = a.naam.to_lowercase();
-        let virtueel = ["pdf", "xps", "fax", "onenote"].iter().any(|v| kort.contains(v));
-        if virtueel || a.naam.is_empty() || lijst.iter().any(|s| zelfde(&s.naam, &kort)) || andere.iter().any(|x| zelfde(x, &kort)) {
+        if virtueel(&kort) || a.naam.is_empty() || lijst.iter().any(|s| zelfde(&s.naam, &kort)) || andere.iter().any(|x| zelfde(x, &kort)) {
             continue;
         }
         andere.push(a.naam.clone());
@@ -182,7 +246,14 @@ pub fn zoek() -> Zoekuitkomst {
     crate::logboek::schrijf(&format!("Scanners gevonden: {} | printers in Windows: {} | eSCL in het netwerk: {} | zonder scanner: {} ({} ms)",
         lijst.iter().map(|s| s.naam.clone()).collect::<Vec<_>>().join(", "), printernamen.join(", "),
         escl.iter().map(|e| e.basis.clone()).collect::<Vec<_>>().join(", "), andere.join(", "), begin.elapsed().as_millis()));
-    Zoekuitkomst { scanners: lijst, andere }
+    let printers: Vec<String> = printernamen.iter().filter(|n| !virtueel(n)).cloned().collect();
+    Zoekuitkomst { scanners: lijst, andere, printers }
+}
+
+/// Een printer die alleen een bestand maakt (PDF, XPS, OneNote) of faxt.
+fn virtueel(naam: &str) -> bool {
+    let kort = naam.to_lowercase();
+    ["pdf", "xps", "fax", "onenote"].iter().any(|v| kort.contains(v))
 }
 
 /// Lijken twee namen op hetzelfde apparaat? ("Brother MFC-L2710DW series" en "Brother MFC-L2710DW")
@@ -213,7 +284,7 @@ fn windows_scanners() -> windows::core::Result<Vec<Scanner>> {
             ),
             Err(_) => (true, false),
         };
-        uit.push(Scanner { naam, soort: Soort::Windows(id), glasplaat: glas || !invoer, invoer, reserve: None });
+        uit.push(Scanner { naam, soort: Soort::Windows(id), glasplaat: glas || !invoer, invoer, reserve: None, wia: None });
     }
     Ok(uit)
 }
@@ -265,6 +336,18 @@ fn uitleg(e: &windows::core::Error) -> String {
     format!("{} (code {code:#010x}: {})", crate::teksten::t(sleutel), e.message())
 }
 
+/// Een WIA-fout (tekst met "0x8021....") in gewone taal.
+fn wia_uitleg(e: &str) -> String {
+    let code = e.split_whitespace().find_map(|w| w.trim_start_matches(|c: char| !c.is_ascii_digit()).strip_prefix("0x")
+        .and_then(|h| u32::from_str_radix(&h[..h.len().min(8)], 16).ok())).unwrap_or(0x80004005);
+    let fout = windows::core::Error::from_hresult(windows::core::HRESULT(code as i32));
+    let mut u = uitleg(&fout);
+    if code == 0x80004005 {
+        u = format!("{} ({e})", crate::teksten::t("ScanFoutAlgemeen"));
+    }
+    u
+}
+
 /// Scant. Met `invoer` alle pagina's uit de documentinvoer, anders één pagina van de glasplaat.
 /// Lukt het niet, dan probeert Paper Pilot het nog eens met de standaardinstellingen van de scanner,
 /// en daarna via het netwerk (eSCL) als dezelfde scanner daar ook te vinden is.
@@ -277,6 +360,18 @@ pub fn scan(s: &Scanner, invoer: bool, dpi: u32) -> Result<Vec<Beeld>, String> {
                 crate::logboek::schrijf(&format!("Scannen met {} (eigen instellingen) lukte niet: {:#010x} {}", s.naam, e.code().0 as u32, e.message()));
                 // Geen papier, klep open of zelf geannuleerd: nog eens proberen heeft geen zin.
                 let opnieuw = !matches!(e.code().0 as u32, 0x80210003 | 0x80210064 | 0x800704C7 | 0x80210002);
+                // Eerst de klassieke WIA (werkt met vrijwel elk stuurprogramma).
+                if opnieuw {
+                    if let Some(wid) = &s.wia {
+                        match crate::wia::scan(wid, invoer, dpi) {
+                            Ok(b) => {
+                                crate::logboek::schrijf(&format!("Gescand met {} via de klassieke WIA.", s.naam));
+                                return Ok(b);
+                            }
+                            Err(e) => crate::logboek::schrijf(&format!("Scannen met {} via de klassieke WIA lukte niet: {e}", s.naam)),
+                        }
+                    }
+                }
                 if opnieuw {
                     r = windows_scan(id, invoer, dpi, false);
                     if let Err(e2) = &r {
@@ -296,6 +391,16 @@ pub fn scan(s: &Scanner, invoer: bool, dpi: u32) -> Result<Vec<Beeld>, String> {
                 (Err(e), None) => Err(uitleg(&e)),
             }
         }
+        Soort::Wia(id) => match crate::wia::scan(id, invoer, dpi) {
+            Ok(b) => Ok(b),
+            Err(e) => {
+                crate::logboek::schrijf(&format!("Scannen met {} via WIA lukte niet: {e}", s.naam));
+                match &s.reserve {
+                    Some(basis) => escl_scan(basis, invoer, dpi).map_err(|_| wia_uitleg(&e)),
+                    None => Err(wia_uitleg(&e)),
+                }
+            }
+        },
         Soort::Escl(basis) => escl_scan(basis, invoer, dpi).map_err(|e| format!("{} ({e})", crate::teksten::t("ScanFoutAlgemeen"))),
     };
     match &uitkomst {

@@ -16,10 +16,29 @@ fn kies_printer(eigenaar: HWND) -> Option<HDC> {
     pd.hwndOwner = eigenaar;
     pd.Flags = PD_RETURNDC | PD_NOSELECTION | PD_NOPAGENUMS | PD_USEDEVMODECOPIESANDCOLLATE;
     pd.nCopies = 1;
+    // De standaardprinter van Paper Pilot staat al klaar in het venster.
+    if let Some(naam) = crate::instellingen::get("standaard_printer").filter(|n| !n.is_empty()) {
+        pd.hDevNames = maak_devnames(&naam);
+    }
     if unsafe { PrintDlgW(&mut pd) } == 0 || pd.hDC.is_null() {
+        unsafe {
+            if !pd.hDevNames.is_null() {
+                GlobalFree(pd.hDevNames as _);
+            }
+            if !pd.hDevMode.is_null() {
+                GlobalFree(pd.hDevMode as _);
+            }
+        }
         return None;
     }
     unsafe {
+        // De gekozen printer onthouden voor de volgende keer.
+        if let Some(naam) = lees_devnames(pd.hDevNames) {
+            if crate::instellingen::get("standaard_printer").as_deref() != Some(naam.as_str()) {
+                crate::instellingen::zet("standaard_printer", &naam);
+                crate::logboek::schrijf(&format!("Standaardprinter: {naam}"));
+            }
+        }
         if !pd.hDevMode.is_null() {
             GlobalFree(pd.hDevMode as _);
         }
@@ -28,6 +47,48 @@ fn kies_printer(eigenaar: HWND) -> Option<HDC> {
         }
     }
     Some(pd.hDC)
+}
+
+/// Een DEVNAMES-blok met alleen de naam van de printer (voor PrintDlgW).
+fn maak_devnames(printer: &str) -> *mut core::ffi::c_void {
+    use windows_sys::Win32::System::Memory::*;
+    let naam: Vec<u16> = printer.encode_utf16().chain(std::iter::once(0)).collect();
+    // DEVNAMES: vier u16-verwijzingen (in tekens), daarna: lege driver, de naam, lege uitvoer.
+    let mut data: Vec<u16> = vec![4, 5, 5 + naam.len() as u16, 0, 0];
+    data.extend_from_slice(&naam);
+    data.push(0);
+    unsafe {
+        let h = GlobalAlloc(GMEM_MOVEABLE, data.len() * 2);
+        if h.is_null() {
+            return std::ptr::null_mut();
+        }
+        let p = GlobalLock(h) as *mut u16;
+        if !p.is_null() {
+            std::ptr::copy_nonoverlapping(data.as_ptr(), p, data.len());
+            GlobalUnlock(h);
+        }
+        h as _
+    }
+}
+
+/// De naam van de printer uit een DEVNAMES-blok.
+unsafe fn lees_devnames(h: *mut core::ffi::c_void) -> Option<String> {
+    use windows_sys::Win32::System::Memory::*;
+    if h.is_null() {
+        return None;
+    }
+    let p = GlobalLock(h as _) as *const u16;
+    if p.is_null() {
+        return None;
+    }
+    let start = p.add(*p.add(1) as usize);
+    let mut n = 0;
+    while *start.add(n) != 0 && n < 1024 {
+        n += 1;
+    }
+    let naam = String::from_utf16_lossy(std::slice::from_raw_parts(start, n));
+    GlobalUnlock(h as _);
+    if naam.is_empty() { None } else { Some(naam) }
 }
 
 fn begin(dc: HDC, naam: &str) -> bool {

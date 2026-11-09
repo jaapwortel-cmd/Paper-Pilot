@@ -160,3 +160,13 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   Logboek: Help, Logboek naar Jaap mailen (uitleg + Mailen/Eerst bekijken; versturen::mail_aan met MAPI-ontvanger SMTP:,
   anders klembord + mailto:) en Logboek bekijken (tekstvenster). logboek::inhoud = Windows-versie + laatste 300 kB vorige + huidig.
   Elke waarschuwing (dialogen::melding met ICOON_WAARSCHUWING) komt in het logboek. teksten.rs zet nu ook \t om (menu-sneltoetsen).
+  Ook in 0.0.0.11 (Jaap: 'scannen moet echt werken'; eerste start printers/scanners zoeken en standaard onthouden):
+  `wia.rs`: klassieke WIA Automation (WIA.DeviceManager, IDispatch late binding met eigen Var/roep, eigen STA-draad):
+  scanners() (Type 1, 3086-capaciteiten) en scan() (3088 invoer/glas, 6146 grijs, 6147/6148 dpi, Transfer BMP, SaveFile).
+  Scanner heeft `wia: Option<String>` (zelfde naam) en Soort::Wia. Volgorde: WinRT eigen -> WIA -> WinRT standaard -> eSCL.
+  Proef `--proef-wia` (Scripting.Dictionary test de IDispatch-hulpjes; WIA zelf ter informatie) is een harde stap in build.yml.
+  Standaardscanner: JSON in instelling standaard_scanner (Scanner::naar_tekst/van_tekst); kies_scanner gebruikt hem zonder
+  zoeken; bij een scanfout Opnieuw proberen / Scanner opnieuw zoeken. Standaardprinter: instelling standaard_printer,
+  afdrukken::kies_printer zet DEVNAMES vooraf en onthoudt de keuze. hoofdvenster::apparaten_instellen: bij instelling
+  apparaten_gezocht = false (eerste start, of eerste keer na deze update), en menu Instellingen, Printer en scanner kiezen.
+  Echte scanner/printer niet getest (Wine heeft geen WIA); Jaap test met zijn Brother.

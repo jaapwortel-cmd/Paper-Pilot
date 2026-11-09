@@ -265,12 +265,20 @@ jobs:
           Get-Content werk.txt
           if ($p.ExitCode -ne 0) { throw "Het voortgangsvenster gooit de uitkomst weg." }
 
+      - name: Klassieke scanner-onderdelen (WIA via IDispatch)
+        shell: pwsh
+        run: |
+          $p = Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-wia", "wia.txt" -Wait -PassThru
+          Get-Content wia.txt
+          if ($p.ExitCode -ne 0) { throw "De IDispatch-hulpjes voor WIA werken niet." }
+
       - name: Scanners zoeken (ter informatie)
         continue-on-error: true
         shell: pwsh
         run: |
           Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-scanners", "scanners.txt" -Wait
           Get-Content scanners.txt
+          Get-Content "$env:APPDATA\Paper Pilot\logboek.txt" -Tail 20
 
       - name: Updates zoeken in de Dropbox-map
         shell: pwsh

@@ -3,6 +3,9 @@
 Versie 0.0.0.11 (november 2026)
 - Nieuw: in het menu Help kun je het logboek bekijken en naar Jaap mailen. Gaat er iets mis, dan ziet Jaap zo wat er gebeurde.
 - Scannen: gaf de scanner een fout, dan zei Paper Pilot alleen "asynchrone bewerking niet correct gestart". Nu hoor je wat er echt mis is, zoals geen papier, klep open of scanner bezig. Lukt scannen niet, dan probeert Paper Pilot het nog eens met de standaardinstellingen van de scanner, en daarna via het netwerk als dat kan.
+- Scannen: nieuw is de klassieke scanmanier van Windows (zoals Windows Faxen en scannen). Die werkt met vrijwel elke scanner, ook als de nieuwere manier niet lukt. Bij een fout kies je: Opnieuw proberen, of Scanner opnieuw zoeken.
+- Bij de eerste start zoekt Paper Pilot één keer naar je printers en scanners (USB, wifi en netwerkkabel), en kies je je standaardscanner en standaardprinter. Paper Pilot onthoudt ze. Veranderen kan in het menu Instellingen, Printer en scanner kiezen.
+- Scannen gaat meteen met je standaardscanner, zonder eerst te zoeken. In het afdrukvenster staat je standaardprinter al klaar.
 - Elke foutmelding komt nu ook in het logboek.
 - In het menu stond "\t" in plaats van de sneltoets (bij Handleiding en Afsluiten). Opgelost.
 

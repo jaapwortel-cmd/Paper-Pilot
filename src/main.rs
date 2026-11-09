@@ -48,6 +48,7 @@ mod tekstvenster;
 mod versturen;
 mod teksten;
 mod thema;
+mod wia;
 mod win;
 
 pub const VERSIE: &str = env!("PP_VERSIE");
@@ -130,6 +131,14 @@ fn main() {
     }
     if let Some(verslag) = waarde("--proef-scanners") {
         std::process::exit(proef::proef_scanners(&verslag));
+    }
+    if let Some(verslag) = waarde("--proef-wia") {
+        let (tekst, code) = match wia::proef() {
+            Ok(t) => (t, 0),
+            Err(e) => (format!("FOUT: {e}\r\n"), 1),
+        };
+        let _ = std::fs::write(&verslag, tekst);
+        std::process::exit(code);
     }
     if let Some(verslag) = waarde("--proef-werk") {
         std::process::exit(proef::proef_werk(&verslag));

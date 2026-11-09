@@ -45,6 +45,7 @@ const ID_UPDATES_NU: i32 = 306;
 const ID_OVER: i32 = 307;
 const ID_LOGBOEK: i32 = 309;
 const ID_LOGBOEK_MAILEN: i32 = 310;
+const ID_APPARATEN: i32 = 226;
 
 const WM_START: u32 = WM_APP + 1;
 const WM_UPDATE: u32 = WM_APP + 2;
@@ -261,6 +262,7 @@ fn maak_menu() -> HMENU {
         streep(inst);
         voeg(inst, ID_GEGEVENS, "MenuGegevens");
         voeg(inst, ID_HANDTEKENING, "MenuHandtekening");
+        voeg(inst, ID_APPARATEN, "MenuApparaten");
         voeg(inst, ID_POST_AAN, "MenuPostAan");
         voeg(inst, ID_TAALMODEL, "MenuTaalmodel");
         voeg(inst, ID_UPDATES_START, "MenuUpdatesBijStart");
@@ -492,6 +494,84 @@ fn tekst_tonen(titel_sleutel: &str, tekst: &str) {
     tekstvenster::toon(hoofd_hwnd(), &t(titel_sleutel), tekst);
 }
 
+/// De standaardprinter van Windows (of leeg).
+fn windows_standaardprinter() -> String {
+    let mut lengte = 0u32;
+    unsafe {
+        windows_sys::Win32::Graphics::Printing::GetDefaultPrinterW(std::ptr::null_mut(), &mut lengte);
+        if lengte == 0 {
+            return String::new();
+        }
+        let mut buf = vec![0u16; lengte as usize];
+        if windows_sys::Win32::Graphics::Printing::GetDefaultPrinterW(buf.as_mut_ptr(), &mut lengte) == 0 {
+            return String::new();
+        }
+        let n = buf.iter().position(|&c| c == 0).unwrap_or(buf.len());
+        String::from_utf16_lossy(&buf[..n])
+    }
+}
+
+/// Printers en scanners zoeken (wifi, netwerkkabel, USB) en de standaardprinter en -scanner kiezen.
+/// `eerste`: vanzelf bij de eerste start (dan eerst kort uitleggen).
+pub fn apparaten_instellen(hwnd: HWND, eerste: bool) {
+    instellingen::zet_aan("apparaten_gezocht", true);
+    if eerste {
+        dialogen::melding(hwnd, &t("ApparatenKop"), &t("ApparatenUitleg"), dialogen::ICOON_INFO);
+    }
+    let Some(uitkomst) = dialogen::werk(hwnd, &t("ApparatenKop"), &t("ApparatenZoeken"), |v| {
+        v.meld(t("ScannersZoekenTekst"), 0);
+        crate::scanner::zoek()
+    }) else {
+        return;
+    };
+    // De scanner.
+    let scanner = match uitkomst.scanners.len() {
+        0 => None,
+        1 => Some(uitkomst.scanners[0].clone()),
+        _ => {
+            let namen: Vec<String> = uitkomst.scanners.iter().map(|s| s.naam.clone()).collect();
+            let vorige = crate::scanner::standaard().and_then(|v| namen.iter().position(|n| *n == v.naam)).unwrap_or(0);
+            crate::keuzevensters::kies_uit_lijst(hwnd, &t("ApparatenKop"), &t("ApparatenKiesScanner"), &namen, vorige)
+                .map(|i| uitkomst.scanners[i].clone())
+        }
+    };
+    if let Some(s) = &scanner {
+        crate::scanner::zet_standaard(s);
+    }
+    // De printer.
+    let printer = match uitkomst.printers.len() {
+        0 => None,
+        1 => Some(uitkomst.printers[0].clone()),
+        _ => {
+            let windows = windows_standaardprinter();
+            let vorige = instellingen::get("standaard_printer").unwrap_or(windows);
+            let begin = uitkomst.printers.iter().position(|n| *n == vorige).unwrap_or(0);
+            crate::keuzevensters::kies_uit_lijst(hwnd, &t("ApparatenKop"), &t("ApparatenKiesPrinter"), &uitkomst.printers, begin)
+                .map(|i| uitkomst.printers[i].clone())
+        }
+    };
+    if let Some(p) = &printer {
+        instellingen::zet("standaard_printer", p);
+        logboek::schrijf(&format!("Standaardprinter: {p}"));
+    }
+    // Wat Paper Pilot nu gebruikt, en wat je kunt doen als er iets ontbreekt.
+    let geen = t("ApparatenGeen");
+    let mut tekst = tf("ApparatenKlaarTekst", &[
+        &scanner.as_ref().map(|s| s.naam.clone()).or_else(|| crate::scanner::standaard().map(|s| s.naam)).unwrap_or_else(|| geen.clone()),
+        &printer.clone().or_else(|| instellingen::get("standaard_printer")).unwrap_or_else(|| geen.clone()),
+    ]);
+    if uitkomst.scanners.is_empty() {
+        let extra = if uitkomst.andere.is_empty() {
+            t("GeenScannerTekst")
+        } else {
+            let lijst: Vec<String> = uitkomst.andere.iter().map(|n| format!("- {n}")).collect();
+            tf("GeenScannerPrinters", &[&lijst.join("\n")])
+        };
+        tekst = format!("{tekst}\n\n{extra}");
+    }
+    dialogen::melding(hwnd, &t("ApparatenKlaar"), &tekst, if uitkomst.scanners.is_empty() { dialogen::ICOON_WAARSCHUWING } else { dialogen::ICOON_INFO });
+}
+
 /// Help, Logboek bekijken: het logboek in een gewoon tekstvenster.
 fn logboek_bekijken() {
     let tekst = logboek::inhoud();
@@ -599,6 +679,11 @@ fn na_start(hwnd: HWND) {
         if !nieuw.is_empty() {
             tekstvenster::toon(hwnd, &tf("WatIsNieuw", &[crate::VERSIE]), &nieuw);
         }
+    }
+    // Eén keer (bij de eerste start, of de eerste keer na de update die dit bracht): printers en scanners zoeken
+    // en de standaard kiezen.
+    if !instellingen::aan("apparaten_gezocht", false) {
+        apparaten_instellen(hwnd, true);
     }
     // Herinneringen van vandaag (ook als de geplande taak van Windows ze nog niet liet zien).
     crate::herinneringen::meld(hwnd);
@@ -762,6 +847,7 @@ fn opdracht(hwnd: HWND, id: i32) {
         ID_RONDLEIDING => dialogen::rondleiding(hwnd),
         ID_MEER => dialogen::meer_programmas(hwnd),
         ID_LOGBOEK => logboek_bekijken(),
+        ID_APPARATEN => apparaten_instellen(hwnd, false),
         ID_LOGBOEK_MAILEN => logboek_mailen(hwnd),
         ID_MAIL => mail(&tf("MailOnderwerp", &[crate::VERSIE]), &t("MailTekst")),
         ID_UPDATES_NU => zoek_updates(true),
