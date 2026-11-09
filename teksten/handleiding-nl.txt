@@ -139,6 +139,8 @@ Help
 - Wijzigingen: wat er in elke versie veranderd is.
 - Privacyverklaring: wat Paper Pilot wel en niet doet met je gegevens.
 - Mail de maker: een mail aan Jaap Wortel in je eigen mailprogramma, met het versienummer erbij.
+- Logboek naar Jaap mailen: gaat er iets mis, stuur dan het logboek naar Jaap. Je mailprogramma maakt een mail aan Jaap met het logboek als bijlage; schrijf erbij wat je deed en verstuur hem. De inhoud van je brieven staat niet in het logboek.
+- Logboek bekijken: lees wat Paper Pilot heeft gedaan en welke fouten er waren.
 - Meer programma's van Jaap: andere programma's van de maker. Kies een programma om te lezen wat het doet. Met de knop "Jaap mailen" maakt je mailprogramma een mail aan Jaap om te vragen of je het mag uitproberen; je hoeft hem alleen nog te versturen. Met "Terug naar de lijst" bekijk je de andere programma's.
 - Zoeken naar updates: nu kijken of er een nieuwe versie is.
 - Over Paper Pilot: versie en maker.

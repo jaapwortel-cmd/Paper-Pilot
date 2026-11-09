@@ -152,3 +152,11 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   in Wine faalt de oude code en slaagt de nieuwe. Vraag bij afsluiten altijd (menu-vinkje weg, Jaap).
   Lokaal testen: apt wine64 xvfb mingw-w64 xdotool; pdfium.dll uit de wheel in target/x86_64-pc-windows-gnu/release/onderdelen.
   Wine toont geen command links in TaskDialog (alleen Cancel), dus die vensters zijn daar niet aan te klikken.
+- 0.0.0.11 (9 nov 2026, Jaap: scannen gaf 'asynchrone bewerking niet correct gestart (0x80000019)'; wens: logboek mailen):
+  `join()` van windows-future vraagt GetResults ook bij AsyncStatus::Error; dan geeft Windows E_ILLEGAL_METHOD_CALL en de echte
+  WIA-fout gaat verloren. scanner.rs: `klaar()` pollt IAsyncInfo.Status en geeft ErrorCode; `uitleg()` zet WIA_ERROR_* om in
+  ScanFout*-teksten. Scan: eerst eigen instellingen, dan standaardinstellingen (bron Default), dan eSCL-reserve (Scanner.reserve =
+  netwerkadres van dezelfde scanner). Andere WinRT-.join() (camera, OCR) zijn niet aangepast.
+  Logboek: Help, Logboek naar Jaap mailen (uitleg + Mailen/Eerst bekijken; versturen::mail_aan met MAPI-ontvanger SMTP:,
+  anders klembord + mailto:) en Logboek bekijken (tekstvenster). logboek::inhoud = Windows-versie + laatste 300 kB vorige + huidig.
+  Elke waarschuwing (dialogen::melding met ICOON_WAARSCHUWING) komt in het logboek. teksten.rs zet nu ook \t om (menu-sneltoetsen).

@@ -37,7 +37,7 @@ If you send an email yourself via Mail the maker, the maker receives your email 
 
 6. The log file
 
-Paper Pilot keeps a log file on your own computer (in the folder %APPDATA%\Paper Pilot). It records, for example, when the program started and which errors occurred. The log file is never sent to anyone by itself. The maker can only read it if you send it yourself.
+Paper Pilot keeps a log file on your own computer (in the folder %APPDATA%\Paper Pilot). It records, for example, when the program started and which errors occurred. The log file is never sent to anyone by itself. The maker can only read it if you send it yourself. You do that with Help, Email the log to Jaap: your email program then creates an email that you send yourself. The contents of your letters are not in the log, but for example the name of a document you opened and the version of Windows are. With Help, View the log you can read it first.
 
 
 7. Uninstalling

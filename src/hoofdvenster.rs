@@ -43,6 +43,8 @@ const ID_MEER: i32 = 304;
 const ID_MAIL: i32 = 305;
 const ID_UPDATES_NU: i32 = 306;
 const ID_OVER: i32 = 307;
+const ID_LOGBOEK: i32 = 309;
+const ID_LOGBOEK_MAILEN: i32 = 310;
 
 const WM_START: u32 = WM_APP + 1;
 const WM_UPDATE: u32 = WM_APP + 2;
@@ -202,7 +204,7 @@ pub fn maak(opties: Opties) -> HWND {
         SetFocus(tegels[0]);
         PostMessageW(hwnd, WM_START, 0, 0);
     }
-    logboek::schrijf(&format!("Paper Pilot {} gestart (taal {}, thema {}).", crate::VERSIE, crate::teksten::taal(), keuze));
+    logboek::schrijf(&format!("Paper Pilot {} gestart (taal {}, thema {}, {}).", crate::VERSIE, crate::teksten::taal(), keuze, logboek::windows_versie()));
     hwnd
 }
 
@@ -272,6 +274,8 @@ fn maak_menu() -> HMENU {
         voeg(help, ID_PRIVACY, "MenuPrivacy");
         streep(help);
         voeg(help, ID_MAIL, "MenuMail");
+        voeg(help, ID_LOGBOEK_MAILEN, "MenuLogboekMailen");
+        voeg(help, ID_LOGBOEK, "MenuLogboek");
         voeg(help, ID_MEER, "MenuMeer");
         streep(help);
         voeg(help, ID_UPDATES_NU, "MenuUpdatesNu");
@@ -486,6 +490,53 @@ unsafe extern "system" fn tegel_proc(hwnd: HWND, msg: u32, wp: WPARAM, lp: LPARA
 
 fn tekst_tonen(titel_sleutel: &str, tekst: &str) {
     tekstvenster::toon(hoofd_hwnd(), &t(titel_sleutel), tekst);
+}
+
+/// Help, Logboek bekijken: het logboek in een gewoon tekstvenster.
+fn logboek_bekijken() {
+    let tekst = logboek::inhoud();
+    tekstvenster::toon(hoofd_hwnd(), &t("LogboekTitel"), &tekst);
+}
+
+/// Help, Logboek naar Jaap mailen: eerst uitleggen wat erin staat, dan een mail met het logboek als bijlage.
+pub fn logboek_mailen(hwnd: HWND) {
+    const MAILEN: i32 = 3201;
+    const BEKIJKEN: i32 = 3202;
+    loop {
+        let titel = t("Programma");
+        let kop = t("LogboekMailenKop");
+        let tekst = t("LogboekMailenTekst");
+        let mut v = dialogen::Vraag::nieuw(&titel, &kop, &tekst);
+        v.icoon = dialogen::ICOON_INFO;
+        v.opdrachtlinks = true;
+        v.knoppen.push(dialogen::Knop { id: MAILEN, tekst: t("KnopLogboekMailen") });
+        v.knoppen.push(dialogen::Knop { id: BEKIJKEN, tekst: t("KnopLogboekBekijken") });
+        v.gewone_knoppen = windows_sys::Win32::UI::Controls::TDCBF_CANCEL_BUTTON;
+        v.standaard = MAILEN;
+        match v.toon(hwnd) {
+            MAILEN => break,
+            BEKIJKEN => {
+                logboek_bekijken();
+                return;
+            }
+            _ => return,
+        }
+    }
+    logboek::schrijf("Logboek mailen naar de maker.");
+    let pad = match logboek::als_bijlage() {
+        Ok(p) => p,
+        Err(e) => {
+            dialogen::melding(hwnd, &t("MailMislukt"), &e, dialogen::ICOON_WAARSCHUWING);
+            return;
+        }
+    };
+    let tekst = format!("{}\r\n\r\n---\r\nPaper Pilot {}\r\n{}", t("LogboekMailTekst"), crate::VERSIE, logboek::windows_versie());
+    let naam = pad.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
+    match crate::versturen::mail_aan(hwnd, &pad, &tf("LogboekMailOnderwerp", &[crate::VERSIE]), crate::MAIL, &tekst) {
+        crate::versturen::Uitkomst::Mapi => {}
+        crate::versturen::Uitkomst::Klembord => dialogen::melding(hwnd, &t("MailKlembord"), &tf("LogboekKlembordTekst", &[&naam]), dialogen::ICOON_INFO),
+        crate::versturen::Uitkomst::Mislukt => dialogen::melding(hwnd, &t("MailMislukt"), &tf("MailMisluktTekst", &[&pad.to_string_lossy()]), dialogen::ICOON_WAARSCHUWING),
+    }
 }
 
 fn zoek_updates(handmatig: bool) {
@@ -710,6 +761,8 @@ fn opdracht(hwnd: HWND, id: i32) {
         ID_WIJZIGINGEN => tekst_tonen("MenuWijzigingenTitel", crate::teksten::document("wijzigingen")),
         ID_RONDLEIDING => dialogen::rondleiding(hwnd),
         ID_MEER => dialogen::meer_programmas(hwnd),
+        ID_LOGBOEK => logboek_bekijken(),
+        ID_LOGBOEK_MAILEN => logboek_mailen(hwnd),
         ID_MAIL => mail(&tf("MailOnderwerp", &[crate::VERSIE]), &t("MailTekst")),
         ID_UPDATES_NU => zoek_updates(true),
         ID_OVER => dialogen::over(hwnd),

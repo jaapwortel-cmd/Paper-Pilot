@@ -18,6 +18,10 @@ pub enum Uitkomst {
 }
 
 fn mapi(eigenaar: HWND, pad: &Path, onderwerp: &str) -> Result<(), u32> {
+    mapi_aan(eigenaar, pad, onderwerp, None, "")
+}
+
+fn mapi_aan(eigenaar: HWND, pad: &Path, onderwerp: &str, aan: Option<&str>, tekst: &str) -> Result<(), u32> {
     use windows_sys::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryW};
     unsafe {
         let dll = w("mapi32.dll");
@@ -31,7 +35,18 @@ fn mapi(eigenaar: HWND, pad: &Path, onderwerp: &str) -> Result<(), u32> {
         let mut naam = w(&pad.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default());
         let mut onderwerp = w(onderwerp);
         let mut bijlage = MapiFileDescW { nPosition: u32::MAX, lpszPathName: volledig.as_mut_ptr(), lpszFileName: naam.as_mut_ptr(), ..Default::default() };
-        let bericht = MapiMessageW { lpszSubject: onderwerp.as_mut_ptr(), nFileCount: 1, lpFiles: &mut bijlage, ..Default::default() };
+        let mut tekst_w = w(tekst);
+        let mut adres = w(&format!("SMTP:{}", aan.unwrap_or("")));
+        let mut adres_naam = w(aan.unwrap_or(""));
+        let mut ontvanger = MapiRecipDescW { ulRecipClass: MAPI_TO, lpszName: adres_naam.as_mut_ptr(), lpszAddress: adres.as_mut_ptr(), ..Default::default() };
+        let mut bericht = MapiMessageW { lpszSubject: onderwerp.as_mut_ptr(), nFileCount: 1, lpFiles: &mut bijlage, ..Default::default() };
+        if !tekst.is_empty() {
+            bericht.lpszNoteText = tekst_w.as_mut_ptr();
+        }
+        if aan.is_some() {
+            bericht.nRecipCount = 1;
+            bericht.lpRecips = &mut ontvanger;
+        }
         let r = f(0, eigenaar as usize, &bericht, MAPI_DIALOG | MAPI_LOGON_UI, 0);
         // 0 = gelukt, 1 = de gebruiker heeft de mail weggegooid (ook goed).
         if r == 0 || r == 1 { Ok(()) } else { Err(r) }
@@ -64,5 +79,23 @@ pub fn mail_met_uitleg(eigenaar: HWND, pad: &Path, onderwerp: &str) {
         Uitkomst::Mapi => {}
         Uitkomst::Klembord => crate::dialogen::melding(eigenaar, &t("MailKlembord"), &tf("MailKlembordTekst", &[&naam]), crate::dialogen::ICOON_INFO),
         Uitkomst::Mislukt => crate::dialogen::melding(eigenaar, &t("MailMislukt"), &tf("MailMisluktTekst", &[&pad.to_string_lossy()]), crate::dialogen::ICOON_WAARSCHUWING),
+    }
+}
+
+/// Mailt een bestand aan een vast adres (zoals het logboek aan de maker), met een tekst erbij.
+pub fn mail_aan(eigenaar: HWND, pad: &Path, onderwerp: &str, aan: &str, tekst: &str) -> Uitkomst {
+    match mapi_aan(eigenaar, pad, onderwerp, Some(aan), tekst) {
+        Ok(()) => {
+            crate::logboek::schrijf("Mailen via MAPI gelukt.");
+            Uitkomst::Mapi
+        }
+        Err(code) => {
+            crate::logboek::schrijf(&format!("Mailen via MAPI lukte niet ({code}); bestand op het klembord."));
+            if !crate::win::kopieer_bestand(eigenaar, pad) {
+                return Uitkomst::Mislukt;
+            }
+            crate::win::open_adres(&format!("mailto:{aan}?subject={}&body={}", crate::win::adrescode(onderwerp), crate::win::adrescode(tekst)));
+            Uitkomst::Klembord
+        }
     }
 }

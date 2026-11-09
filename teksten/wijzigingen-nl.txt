@@ -1,5 +1,11 @@
 ﻿Wijzigingen in Paper Pilot
 
+Versie 0.0.0.11 (november 2026)
+- Nieuw: in het menu Help kun je het logboek bekijken en naar Jaap mailen. Gaat er iets mis, dan ziet Jaap zo wat er gebeurde.
+- Scannen: gaf de scanner een fout, dan zei Paper Pilot alleen "asynchrone bewerking niet correct gestart". Nu hoor je wat er echt mis is, zoals geen papier, klep open of scanner bezig. Lukt scannen niet, dan probeert Paper Pilot het nog eens met de standaardinstellingen van de scanner, en daarna via het netwerk als dat kan.
+- Elke foutmelding komt nu ook in het logboek.
+- In het menu stond "\t" in plaats van de sneltoets (bij Handleiding en Afsluiten). Opgelost.
+
 Versie 0.0.0.10 (november 2026)
 - Opgelost: na een taak met het venster "Bezig" gebeurde soms niets, zonder melding. Dat gold voor een website of document controleren, scanners zoeken, scannen, scannen met de camera, een formulier invullen en opslaan, vertalen, "Wat moet ik doen?" en een brief schrijven. Nu krijg je altijd de uitkomst, of een melding als er iets mis ging.
 - Bij Afsluiten (Alt+F4) vraagt Paper Pilot altijd of je het zeker weet. Het vinkje "Vragen bij afsluiten" in het menu Instellingen is weg.

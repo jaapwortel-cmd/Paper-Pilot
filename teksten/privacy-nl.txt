@@ -37,7 +37,7 @@ Als je zelf via Mail de maker een mail stuurt, krijgt de maker je e-mailadres en
 
 6. Het logboek
 
-Paper Pilot houdt een logboek bij op je eigen computer (in de map %APPDATA%\Paper Pilot). Daarin staat bijvoorbeeld wanneer het programma startte en welke fouten er waren. Het logboek gaat nooit vanzelf naar iemand toe. Alleen als jij het zelf meestuurt, kan de maker het lezen.
+Paper Pilot houdt een logboek bij op je eigen computer (in de map %APPDATA%\Paper Pilot). Daarin staat bijvoorbeeld wanneer het programma startte en welke fouten er waren. Het logboek gaat nooit vanzelf naar iemand toe. Alleen als jij het zelf meestuurt, kan de maker het lezen. Dat doe je met het menu Help, Logboek naar Jaap mailen: je mailprogramma maakt dan een mail die jij zelf verstuurt. De inhoud van je brieven staat niet in het logboek, wel bijvoorbeeld de naam van een document dat je opende en de versie van Windows. Met Help, Logboek bekijken lees je het eerst.
 
 
 7. Verwijderen

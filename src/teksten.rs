@@ -19,7 +19,7 @@ fn lees(bron: &'static str) -> HashMap<&'static str, String> {
             continue;
         }
         if let Some((k, v)) = regel.split_once(" = ") {
-            m.insert(k.trim(), v.replace("\\n", "\n"));
+            m.insert(k.trim(), v.replace("\\n", "\n").replace("\\t", "\t"));
         }
     }
     m

@@ -32,6 +32,8 @@ pub struct Scanner {
     pub soort: Soort,
     pub glasplaat: bool,
     pub invoer: bool,
+    /// Dezelfde scanner via het netwerk (eSCL), om te proberen als scannen via Windows niet lukt.
+    pub reserve: Option<String>,
 }
 
 /// Wat het zoeken opleverde.
@@ -154,10 +156,17 @@ pub fn zoek() -> Zoekuitkomst {
     for (e, rx) in escl.iter().zip(&mogelijkheden) {
         let (glas, invoer) = wacht(rx, klaar, "ScannerCapabilities").unwrap_or((true, false));
         let kort = e.naam.to_lowercase();
+        if let Some(w) = lijst.iter_mut().find(|w| matches!(w.soort, Soort::Windows(_)) && zelfde(&w.naam, &kort)) {
+            // Windows kent hem al: het netwerkadres bewaren als reserve.
+            if w.reserve.is_none() {
+                w.reserve = Some(e.basis.clone());
+            }
+            continue;
+        }
         if lijst.iter().any(|w: &Scanner| zelfde(&w.naam, &kort)) {
             continue;
         }
-        lijst.push(Scanner { naam: format!("{} ({})", e.naam, crate::teksten::t("ScannerNetwerk")), soort: Soort::Escl(e.basis.clone()), glasplaat: glas, invoer });
+        lijst.push(Scanner { naam: format!("{} ({})", e.naam, crate::teksten::t("ScannerNetwerk")), soort: Soort::Escl(e.basis.clone()), glasplaat: glas, invoer, reserve: None });
     }
 
     // Printers zonder scanner die Paper Pilot kan gebruiken: die noemt Paper Pilot, zodat je weet wat hij wel zag.
@@ -187,71 +196,167 @@ fn zelfde(a: &str, kort_b: &str) -> bool {
 fn windows_scanners() -> windows::core::Result<Vec<Scanner>> {
     let mut uit = Vec::new();
     let kiezer = ImageScanner::GetDeviceSelector()?;
-    let apparaten = DeviceInformation::FindAllAsyncAqsFilter(&kiezer)?.join()?;
+    let op = DeviceInformation::FindAllAsyncAqsFilter(&kiezer)?;
+    klaar(&op, Duration::from_secs(15))?;
+    let apparaten = op.GetResults()?;
     for d in apparaten {
         let naam = d.Name()?.to_string();
         let id = d.Id()?.to_string();
-        let (glas, invoer) = match ImageScanner::FromIdAsync(&HSTRING::from(&id)).and_then(|a| a.join()) {
+        let scanner = ImageScanner::FromIdAsync(&HSTRING::from(&id)).and_then(|op| klaar(&op, Duration::from_secs(15)).and_then(|_| op.GetResults()));
+        if let Err(e) = &scanner {
+            crate::logboek::schrijf(&format!("Scanner {naam} openen: {:#010x} {}", e.code().0 as u32, e.message()));
+        }
+        let (glas, invoer) = match scanner {
             Ok(s) => (
                 s.IsScanSourceSupported(ImageScannerScanSource::Flatbed).unwrap_or(false),
                 s.IsScanSourceSupported(ImageScannerScanSource::Feeder).unwrap_or(false),
             ),
             Err(_) => (true, false),
         };
-        uit.push(Scanner { naam, soort: Soort::Windows(id), glasplaat: glas || !invoer, invoer });
+        uit.push(Scanner { naam, soort: Soort::Windows(id), glasplaat: glas || !invoer, invoer, reserve: None });
     }
     Ok(uit)
 }
 
+/// Wacht tot een opdracht van Windows (async) klaar is, en geeft bij een fout de ECHTE fout van het apparaat.
+/// (`join()` van de windows-crate vraagt bij een fout toch de uitkomst op; Windows antwoordt dan alleen
+/// "asynchrone bewerking niet correct gestart" (0x80000019) en de echte fout van de scanner gaat verloren.)
+fn klaar<I: Interface>(op: &I, max: Duration) -> windows::core::Result<()> {
+    use windows_future::{AsyncStatus, IAsyncInfo};
+    let info: IAsyncInfo = op.cast()?;
+    let begin = Instant::now();
+    loop {
+        let status = info.Status()?;
+        if status == AsyncStatus::Started {
+            if begin.elapsed() > max {
+                let _ = info.Cancel();
+                // ERROR_TIMEOUT
+                return Err(windows::core::Error::from_hresult(windows::core::HRESULT(0x800705B4u32 as i32)));
+            }
+            std::thread::sleep(Duration::from_millis(100));
+        } else if status == AsyncStatus::Completed {
+            return Ok(());
+        } else if status == AsyncStatus::Canceled {
+            // ERROR_CANCELLED
+            return Err(windows::core::Error::from_hresult(windows::core::HRESULT(0x800704C7u32 as i32)));
+        } else {
+            let code = info.ErrorCode()?;
+            return Err(windows::core::Error::from_hresult(code));
+        }
+    }
+}
+
+/// Een fout van de scanner in gewone taal (met de code erachter, voor het logboek en de maker).
+fn uitleg(e: &windows::core::Error) -> String {
+    let code = e.code().0 as u32;
+    let sleutel = match code {
+        0x80210002 => "ScanFoutVastgelopen",
+        0x80210003 => "ScanFoutGeenPapier",
+        0x80210004 | 0x80210065 => "ScanFoutPapier",
+        0x80210005 | 0x80210015 | 0x8021000A => "ScanFoutNietBereikbaar",
+        0x80210006 | 0x8021000D => "ScanFoutBezig",
+        0x80210007 | 0x80210016 => "ScanFoutOpwarmen",
+        0x80210008 => "ScanFoutWacht",
+        0x80210064 => "ScanFoutKlep",
+        0x800705B4 => "ScanFoutDuurtTeLang",
+        0x800704C7 => "ScanFoutGeannuleerd",
+        _ => "ScanFoutAlgemeen",
+    };
+    format!("{} (code {code:#010x}: {})", crate::teksten::t(sleutel), e.message())
+}
+
 /// Scant. Met `invoer` alle pagina's uit de documentinvoer, anders één pagina van de glasplaat.
+/// Lukt het niet, dan probeert Paper Pilot het nog eens met de standaardinstellingen van de scanner,
+/// en daarna via het netwerk (eSCL) als dezelfde scanner daar ook te vinden is.
 pub fn scan(s: &Scanner, invoer: bool, dpi: u32) -> Result<Vec<Beeld>, String> {
     crate::beeld::com_start();
     let uitkomst = match &s.soort {
-        Soort::Windows(id) => windows_scan(id, invoer, dpi).map_err(|e| format!("{e}")),
-        Soort::Escl(basis) => escl_scan(basis, invoer, dpi),
+        Soort::Windows(id) => {
+            let mut r = windows_scan(id, invoer, dpi, true);
+            if let Err(e) = &r {
+                crate::logboek::schrijf(&format!("Scannen met {} (eigen instellingen) lukte niet: {:#010x} {}", s.naam, e.code().0 as u32, e.message()));
+                // Geen papier, klep open of zelf geannuleerd: nog eens proberen heeft geen zin.
+                let opnieuw = !matches!(e.code().0 as u32, 0x80210003 | 0x80210064 | 0x800704C7 | 0x80210002);
+                if opnieuw {
+                    r = windows_scan(id, invoer, dpi, false);
+                    if let Err(e2) = &r {
+                        crate::logboek::schrijf(&format!("Scannen met {} (standaardinstellingen) lukte niet: {:#010x} {}", s.naam, e2.code().0 as u32, e2.message()));
+                    }
+                }
+            }
+            match (r, &s.reserve) {
+                (Ok(b), _) => Ok(b),
+                (Err(e), Some(basis)) => {
+                    crate::logboek::schrijf(&format!("Scannen met {}: nu via het netwerk ({basis}).", s.naam));
+                    escl_scan(basis, invoer, dpi).map_err(|e2| {
+                        crate::logboek::schrijf(&format!("Scannen via het netwerk lukte ook niet: {e2}"));
+                        uitleg(&e)
+                    })
+                }
+                (Err(e), None) => Err(uitleg(&e)),
+            }
+        }
+        Soort::Escl(basis) => escl_scan(basis, invoer, dpi).map_err(|e| format!("{} ({e})", crate::teksten::t("ScanFoutAlgemeen"))),
     };
-    if let Err(e) = &uitkomst {
-        crate::logboek::schrijf(&format!("Scannen met {}: {e}", s.naam));
+    match &uitkomst {
+        Ok(b) => crate::logboek::schrijf(&format!("Gescand met {}: {} pagina('s), {dpi} dpi, {}.", s.naam, b.len(), if invoer { "documentinvoer" } else { "glasplaat" })),
+        Err(e) => crate::logboek::schrijf(&format!("Scannen met {}: {e}", s.naam)),
     }
     uitkomst
 }
 
-fn windows_scan(id: &str, invoer: bool, dpi: u32) -> windows::core::Result<Vec<Beeld>> {
-    let scanner = ImageScanner::FromIdAsync(&HSTRING::from(id))?.join()?;
+/// Scant via Windows. `eigen`: Paper Pilot kiest resolutie, grijs en PNG; anders de standaard van de scanner.
+fn windows_scan(id: &str, invoer: bool, dpi: u32, eigen: bool) -> windows::core::Result<Vec<Beeld>> {
+    let op = ImageScanner::FromIdAsync(&HSTRING::from(id))?;
+    klaar(&op, Duration::from_secs(60))?;
+    let scanner = op.GetResults()?;
     let dpi = ImageScannerResolution { DpiX: dpi as f32, DpiY: dpi as f32 };
+    let glas = scanner.IsScanSourceSupported(ImageScannerScanSource::Flatbed).unwrap_or(false);
     let bron = if invoer {
-        let c = scanner.FeederConfiguration()?;
-        let _ = c.SetDesiredResolution(dpi);
-        if c.IsColorModeSupported(ImageScannerColorMode::Grayscale).unwrap_or(false) {
-            let _ = c.SetColorMode(ImageScannerColorMode::Grayscale);
+        if eigen {
+            let c = scanner.FeederConfiguration()?;
+            let _ = c.SetDesiredResolution(dpi);
+            if c.IsColorModeSupported(ImageScannerColorMode::Grayscale).unwrap_or(false) {
+                let _ = c.SetColorMode(ImageScannerColorMode::Grayscale);
+            }
+            if c.IsFormatSupported(ImageScannerFormat::Png).unwrap_or(false) {
+                let _ = c.SetFormat(ImageScannerFormat::Png);
+            }
+            let _ = c.SetMaxNumberOfPages(0);
         }
-        if c.IsFormatSupported(ImageScannerFormat::Png).unwrap_or(false) {
-            let _ = c.SetFormat(ImageScannerFormat::Png);
-        }
-        let _ = c.SetMaxNumberOfPages(0);
         ImageScannerScanSource::Feeder
-    } else if scanner.IsScanSourceSupported(ImageScannerScanSource::Flatbed).unwrap_or(false) {
-        let c = scanner.FlatbedConfiguration()?;
-        let _ = c.SetDesiredResolution(dpi);
-        if c.IsColorModeSupported(ImageScannerColorMode::Grayscale).unwrap_or(false) {
-            let _ = c.SetColorMode(ImageScannerColorMode::Grayscale);
-        }
-        if c.IsFormatSupported(ImageScannerFormat::Png).unwrap_or(false) {
-            let _ = c.SetFormat(ImageScannerFormat::Png);
+    } else if glas {
+        if eigen {
+            let c = scanner.FlatbedConfiguration()?;
+            let _ = c.SetDesiredResolution(dpi);
+            if c.IsColorModeSupported(ImageScannerColorMode::Grayscale).unwrap_or(false) {
+                let _ = c.SetColorMode(ImageScannerColorMode::Grayscale);
+            }
+            if c.IsFormatSupported(ImageScannerFormat::Png).unwrap_or(false) {
+                let _ = c.SetFormat(ImageScannerFormat::Png);
+            }
         }
         ImageScannerScanSource::Flatbed
     } else {
         ImageScannerScanSource::Default
     };
+    let bron = if !eigen && !invoer { ImageScannerScanSource::Default } else { bron };
+    crate::logboek::schrijf(&format!("Scannen via Windows: bron {}, {}.", bron.0, if eigen { "eigen instellingen" } else { "standaardinstellingen" }));
     let map = std::env::temp_dir().join("Paper Pilot").join(format!("scan-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&map);
     let _ = std::fs::create_dir_all(&map);
-    let folder = StorageFolder::GetFolderFromPathAsync(&HSTRING::from(map.as_os_str()))?.join()?;
-    let uitkomst = scanner.ScanFilesToFolderAsync(bron, &folder)?.join()?;
+    let op = StorageFolder::GetFolderFromPathAsync(&HSTRING::from(map.as_os_str()))?;
+    klaar(&op, Duration::from_secs(30))?;
+    let folder = op.GetResults()?;
+    let op = scanner.ScanFilesToFolderAsync(bron, &folder)?;
+    klaar(&op, Duration::from_secs(600))?;
+    let uitkomst = op.GetResults()?;
     let mut beelden = Vec::new();
     for bestand in uitkomst.ScannedFiles()? {
         let pad = std::path::PathBuf::from(bestand.Path()?.to_string());
-        if let Ok(b) = crate::beeld::lees(&pad) {
-            beelden.extend(b);
+        match crate::beeld::lees(&pad) {
+            Ok(b) => beelden.extend(b),
+            Err(e) => crate::logboek::schrijf(&format!("Gescande pagina {} kon niet gelezen worden: {e}", pad.display())),
         }
         let _ = std::fs::remove_file(&pad);
     }
@@ -318,7 +423,9 @@ fn dnssd_windows(dienst: &str) -> Vec<DnsDienst> {
             "System.Devices.AepService.ProtocolId:=\"{{4526e8c1-8aac-4153-9b16-55e86ada0e54}}\" AND System.Devices.Dnssd.Domain:=\"local\" AND System.Devices.Dnssd.ServiceName:=\"{dienst}\""));
         let namen = ["System.Devices.Dnssd.InstanceName", "System.Devices.Dnssd.PortNumber", "System.Devices.Dnssd.TextAttributes", "System.Devices.IpAddress"];
         let eigenschappen: IIterable<HSTRING> = IIterable::from(namen.iter().map(|n| HSTRING::from(*n)).collect::<Vec<_>>());
-        let lijst = DeviceInformation::FindAllAsyncWithKindAqsFilterAndAdditionalProperties(&filter, &eigenschappen, DeviceInformationKind::AssociationEndpointService)?.join()?;
+        let op = DeviceInformation::FindAllAsyncWithKindAqsFilterAndAdditionalProperties(&filter, &eigenschappen, DeviceInformationKind::AssociationEndpointService)?;
+        klaar(&op, Duration::from_secs(8))?;
+        let lijst = op.GetResults()?;
         for d in lijst {
             let p = d.Properties()?;
             let tekst = |n: &str| -> Vec<String> {

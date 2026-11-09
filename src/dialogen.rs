@@ -75,6 +75,10 @@ impl<'a> Vraag<'a> {
 }
 
 pub fn melding(eigenaar: HWND, kop: &str, tekst: &str, icoon: u16) {
+    // Elke waarschuwing ook in het logboek, zodat de maker kan zien wat er misging.
+    if icoon == ICOON_WAARSCHUWING {
+        crate::logboek::schrijf(&format!("Melding: {kop} | {}", tekst.replace('\n', " ")));
+    }
     let titel = t("Programma");
     let mut v = Vraag::nieuw(&titel, kop, tekst);
     v.icoon = icoon;

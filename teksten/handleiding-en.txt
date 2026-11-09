@@ -139,6 +139,8 @@ Help
 - Changes: what changed in each version.
 - Privacy statement: what Paper Pilot does and does not do with your data.
 - Mail the maker: an email to Jaap Wortel in your own mail program, with the version number included.
+- Email the log to Jaap: if something goes wrong, send the log to Jaap. Your email program creates an email to Jaap with the log attached; write what you were doing and send it. The contents of your letters are not in the log.
+- View the log: read what Paper Pilot did and which errors there were.
 - More programs by Jaap: other programs by the maker. Choose a program to read what it does. With the "Email Jaap" button your email program creates an email to Jaap asking whether you may try it; you only need to send it. With "Back to the list" you look at the other programs.
 - Check for updates: check now whether there is a new version.
 - About Paper Pilot: version and maker.

@@ -1,5 +1,11 @@
 ﻿Changes in Paper Pilot
 
+Version 0.0.0.11 (November 2026)
+- New: in the Help menu you can view the log and email it to Jaap. If something goes wrong, Jaap can see what happened.
+- Scanning: when the scanner gave an error, Paper Pilot only said "an async operation was not properly started". Now you hear what is really wrong, such as no paper, lid open or scanner busy. If scanning fails, Paper Pilot tries again with the scanner's default settings, and then over the network if possible.
+- Every error message is now also written to the log.
+- The menu showed "\t" instead of the shortcut key (for Manual and Exit). Fixed.
+
 Version 0.0.0.10 (November 2026)
 - Fixed: after a task with the "Busy" window, sometimes nothing happened, without a message. This affected checking a website or document, searching for scanners, scanning, scanning with the camera, filling in and saving a form, translating, "What do I need to do?" and writing a letter. Now you always get the result, or a message if something went wrong.
 - When you exit (Alt+F4), Paper Pilot always asks whether you are sure. The "Ask before exit" check box in the Settings menu is gone.
