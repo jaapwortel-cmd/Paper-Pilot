@@ -265,6 +265,13 @@ jobs:
           Get-Content werk.txt
           if ($p.ExitCode -ne 0) { throw "Het voortgangsvenster gooit de uitkomst weg." }
 
+      - name: Grote formulieren (tabellen en slim invullen)
+        shell: pwsh
+        run: |
+          $p = Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-tabellen", "tests\formulier-budgetplan.pdf", "tabellen.txt" -Wait -PassThru
+          Get-Content tabellen.txt
+          if ($p.ExitCode -ne 0) { throw "Tabellen herkennen of slim invullen werkt niet." }
+
       - name: Klassieke scanner-onderdelen (WIA via IDispatch)
         shell: pwsh
         run: |

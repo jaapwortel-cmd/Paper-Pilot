@@ -359,6 +359,36 @@ pub fn proef_scanners(verslag: &str) -> i32 {
     0
 }
 
+/// Grote formulieren (zoals een PGB-budgetplan): tabellen herkennen en slim invullen.
+/// tests/formulier-budgetplan.pdf (81 vakjes): 4 losse vragen, een tabel van 15 regels x 3 (met namen), een tabel van 15 x 2
+/// (Text1 ...), datum en handtekening. Slim met 2 regels per tabel = 4 + 6 + 4 + 2 = 16 vragen.
+pub fn proef_tabellen(pdf: &str, verslag: &str) -> i32 {
+    let mut uit = String::new();
+    let mut velden = match crate::formulier_pdf::lees_velden(std::path::Path::new(pdf)) {
+        Ok(v) => v,
+        Err(e) => {
+            let _ = std::fs::write(verslag, format!("FOUT: {e}\r\n"));
+            return 1;
+        }
+    };
+    let tabellen = crate::invulvenster::zoek_tabellen(&velden);
+    crate::invulvenster::benoem_tabellen(&mut velden, &tabellen);
+    uit.push_str(&format!("Velden: {}\r\nTabellen: {}\r\n", velden.len(), tabellen.len()));
+    for tb in &tabellen {
+        uit.push_str(&format!("- pagina {}: {} regels x {} ({})\r\n", tb.pagina + 1, tb.regels.len(), tb.regels[0].len(), tb.kolommen.join(", ")));
+    }
+    let voorgesteld = vec![false; velden.len()];
+    let volgorde = crate::invulvenster::slim_volgorde(&velden, &voorgesteld, &tabellen, &vec![2; tabellen.len()]);
+    uit.push_str(&format!("Slim met 2 regels per tabel: {} vragen\r\n", volgorde.len()));
+    for &i in &volgorde {
+        uit.push_str(&format!("  {} (pagina {})\r\n", velden[i].vraag, velden[i].pagina + 1));
+    }
+    let goed = velden.len() == 81 && tabellen.len() == 2 && tabellen.iter().all(|t| t.regels.len() == 15) && volgorde.len() == 16;
+    uit.push_str(if goed { "GESLAAGD\r\n" } else { "MISLUKT (verwacht: 81 velden, 2 tabellen van 15 regels, 16 vragen)\r\n" });
+    let _ = std::fs::write(verslag, uit);
+    if goed { 0 } else { 1 }
+}
+
 /// Het voortgangsvenster (dialogen::werk) moet de uitkomst teruggeven als het werk klaar is.
 /// Eerder sloot het venster zichzelf met WM_CLOSE, telde Windows dat als Annuleren en ging de uitkomst verloren
 /// (website controleren, scanners zoeken en scannen deden dan niets).

@@ -228,8 +228,22 @@ fn foto(camera: &MediaCapture) -> Result<Beeld, String> {
     b?.into_iter().next().ok_or_else(|| t("CameraGeen"))
 }
 
+/// Hoe het fotograferen afliep.
+pub enum Uitkomst {
+    /// De brief was goed in beeld: dit is de foto.
+    Foto(Beeld),
+    /// De gebruiker koos Annuleren.
+    Gestopt,
+    /// Al een tijdje geen brief (of geen tekst) in beeld; met de laatste foto, om eventueel toch te lezen.
+    GeenBrief(Beeld),
+}
+
+/// Hoe lang er geen brief in beeld mag zijn voordat Paper Pilot het vraagt.
+const GEEN_BRIEF_SECONDEN: u64 = 10;
+
 /// Foto's maken tot de brief goed in beeld is (hooguit twee minuten). Zegt via de schermlezer wat je moet doen.
-pub fn neem(v: &crate::dialogen::Voortgang) -> Result<Option<Beeld>, String> {
+/// Is er een tijdje geen brief te zien (bijvoorbeeld omdat je iets anders voor de camera houdt), dan stopt hij met GeenBrief.
+pub fn neem(v: &crate::dialogen::Voortgang) -> Result<Uitkomst, String> {
     use std::sync::atomic::Ordering;
     let camera = start()?;
     let zeg = |tekst: &str| {
@@ -242,18 +256,28 @@ pub fn neem(v: &crate::dialogen::Voortgang) -> Result<Option<Beeld>, String> {
     let mut vorige: Option<Oordeel> = None;
     let mut laatst_gezegd = std::time::Instant::now() - std::time::Duration::from_secs(10);
     let mut goed_achter_elkaar = 0;
+    let mut geen_brief_sinds: Option<std::time::Instant> = None;
     while begin.elapsed().as_secs() < 120 {
         if v.gestopt.load(Ordering::Relaxed) {
-            return Ok(None);
+            return Ok(Uitkomst::Gestopt);
         }
         let beeld = foto(&camera)?;
         let oordeel = beoordeel(&beeld);
+        if matches!(oordeel, Oordeel::GeenBrief | Oordeel::GeenTekst) {
+            let sinds = *geen_brief_sinds.get_or_insert_with(std::time::Instant::now);
+            if sinds.elapsed().as_secs() >= GEEN_BRIEF_SECONDEN {
+                crate::logboek::schrijf(&format!("Camera: {GEEN_BRIEF_SECONDEN} s geen brief in beeld ({:?}).", oordeel));
+                return Ok(Uitkomst::GeenBrief(beeld));
+            }
+        } else {
+            geen_brief_sinds = None;
+        }
         if oordeel == Oordeel::Goed {
             goed_achter_elkaar += 1;
             if goed_achter_elkaar >= 2 {
                 zeg(&t("CameraGenomen"));
                 crate::logboek::schrijf(&format!("Camera: foto genomen na {} s.", begin.elapsed().as_secs()));
-                return Ok(Some(beeld));
+                return Ok(Uitkomst::Foto(beeld));
             }
         } else {
             goed_achter_elkaar = 0;

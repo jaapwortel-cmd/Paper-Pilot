@@ -171,3 +171,11 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   apparaten_gezocht = false (eerste start, of eerste keer na deze update), en menu Instellingen, Printer en scanner kiezen.
   Echte scanner/printer niet getest (Wine heeft geen WIA); Jaap test met zijn Brother.
   Jaap (9 nov 2026): 0.0.0.11 getest, alles werkt (ook scannen met zijn Brother); in main gezet. Hij zet hem zelf in de Dropbox-updatemap.
+- 0.0.0.12 (9 nov 2026, Jaap: Controleren ging steeds naar het leesvenster; PGB-budgetplan met ~400 vragen; camera zonder brief):
+  Tegels hadden ID 1 en 2 (= IDOK/IDCANCEL): IsDialogMessage stuurt bij Enter IDOK, dus altijd Lezen. Nu ID_LEZEN 11, ID_CONTROLEREN 12,
+  en Enter op een tegel kiest die tegel (berichtenlus). invulvenster: `zoek_tabellen` (regels = zelfde pagina en hoogte; kenmerk =
+  links/4 + soort; >= 3 regels met zelfde kenmerk en >= 60% herhaalde vragen), `benoem_tabellen` ("kolom, regel n"),
+  `kies_volgorde` bij > 25 velden of tabellen: Slim / Alleen verplicht / Alles; Slim vraagt per tabel het aantal regels
+  (`slim_volgorde`). Staat.volgorde; Ctrl+PageDown/PageUp = pagina. Proef `--proef-tabellen tests/formulier-budgetplan.pdf`
+  (reportlab, 81 vakjes, harde stap). camera::neem geeft Uitkomst::GeenBrief na 10 s GeenBrief/GeenTekst; leesvenster vraagt
+  Verder proberen / Toch lezen / Annuleren. formulier_pdf::tekst_in haalt nul-tekens weg. Echt PGB-budgetplan niet getest (geen bestand).

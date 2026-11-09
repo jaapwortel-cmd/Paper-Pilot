@@ -232,17 +232,42 @@ fn camera_scannen() {
         unsafe { SetFocus(s.vak) };
         return;
     }
-    let uitkomst = dialogen::werk(hwnd, &t("CameraTitel"), &t("CameraKop"), |v| crate::camera::neem(v));
-    let beeld = match uitkomst {
-        Some(Ok(Some(b))) => b,
-        Some(Err(e)) => {
-            dialogen::melding(hwnd, &t("CameraTitel"), &e, dialogen::ICOON_WAARSCHUWING);
-            unsafe { SetFocus(s.vak) };
-            return;
-        }
-        _ => {
-            unsafe { SetFocus(s.vak) };
-            return;
+    // Foto's maken. Is er een tijdje geen brief in beeld, dan vragen: verder proberen, toch lezen, of annuleren.
+    let beeld = loop {
+        let uitkomst = dialogen::werk(hwnd, &t("CameraTitel"), &t("CameraKop"), |v| crate::camera::neem(v));
+        match uitkomst {
+            Some(Ok(crate::camera::Uitkomst::Foto(b))) => break b,
+            Some(Ok(crate::camera::Uitkomst::GeenBrief(b))) => {
+                const VERDER: i32 = 3501;
+                const TOCH: i32 = 3502;
+                let titel = t("CameraTitel");
+                let kop = t("CameraGeenBriefKop");
+                let tekst = t("CameraGeenBriefTekst");
+                let mut v = dialogen::Vraag::nieuw(&titel, &kop, &tekst);
+                v.icoon = dialogen::ICOON_WAARSCHUWING;
+                v.opdrachtlinks = true;
+                v.knoppen.push(dialogen::Knop { id: VERDER, tekst: t("KnopCameraVerder") });
+                v.knoppen.push(dialogen::Knop { id: TOCH, tekst: t("KnopCameraToch") });
+                v.gewone_knoppen = windows_sys::Win32::UI::Controls::TDCBF_CANCEL_BUTTON;
+                v.standaard = VERDER;
+                match v.toon(hwnd) {
+                    VERDER => continue,
+                    TOCH => break b,
+                    _ => {
+                        unsafe { SetFocus(s.vak) };
+                        return;
+                    }
+                }
+            }
+            Some(Err(e)) => {
+                dialogen::melding(hwnd, &t("CameraTitel"), &e, dialogen::ICOON_WAARSCHUWING);
+                unsafe { SetFocus(s.vak) };
+                return;
+            }
+            _ => {
+                unsafe { SetFocus(s.vak) };
+                return;
+            }
         }
     };
     let naam = format!("{} {}", t("CameraNaam"), crate::logboek::nu().replace(':', ".").chars().take(16).collect::<String>());

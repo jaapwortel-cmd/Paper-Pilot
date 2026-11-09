@@ -140,6 +140,10 @@ fn main() {
         let _ = std::fs::write(&verslag, tekst);
         std::process::exit(code);
     }
+    if let Some(pdf) = waarde("--proef-tabellen") {
+        let verslag = args.iter().position(|a| a == "--proef-tabellen").and_then(|i| args.get(i + 2)).cloned().unwrap_or_else(|| "tabellen.txt".into());
+        std::process::exit(proef::proef_tabellen(&pdf, &verslag));
+    }
     if let Some(verslag) = waarde("--proef-werk") {
         std::process::exit(proef::proef_werk(&verslag));
     }

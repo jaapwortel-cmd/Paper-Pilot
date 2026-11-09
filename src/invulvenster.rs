@@ -25,6 +25,8 @@ const ID_VORIGE: i32 = 201;
 const ID_OVERZICHT: i32 = 202;
 const ID_OPSLAAN: i32 = 203;
 const ID_INVOER: i32 = 210;
+const ID_PAGINA_VOLGENDE: i32 = 204;
+const ID_PAGINA_VORIGE: i32 = 205;
 
 /// Waar het formulier vandaan komt, en hoe het wordt opgeslagen.
 #[derive(Clone)]
@@ -54,6 +56,8 @@ struct Staat {
     /// Bij elk veld: kwam de waarde uit Mijn gegevens?
     voorgesteld: Vec<bool>,
     nr: usize,
+    /// De velden die Paper Pilot vraagt (nummers in `velden`, op volgorde). Bij slim invullen niet alles.
+    volgorde: Vec<usize>,
     bron: Bron,
     naam: String,
     gewijzigd: bool,
@@ -154,7 +158,177 @@ pub fn open_plat(eigenaar: HWND, bron: Bron, naam: &str) {
     maak(eigenaar, velden, voorgesteld, bron, naam);
 }
 
-fn maak(eigenaar: HWND, velden: Vec<Veld>, voorgesteld: Vec<bool>, bron: Bron, naam: &str) {
+/// Een tabel in het formulier: regels met dezelfde vakjes naast elkaar (zoals "naam, uren, tarief" voor 20 zorgverleners).
+#[derive(Debug)]
+pub struct Tabel {
+    pub pagina: i32,
+    /// Per regel de nummers van de velden.
+    pub regels: Vec<Vec<usize>>,
+    /// De kolommen, met de vraag van de eerste regel.
+    pub kolommen: Vec<String>,
+}
+
+/// Alleen letters, klein: "Naam zorgverlener 3" en "Naam zorgverlener 4" worden hetzelfde.
+fn kaal(s: &str) -> String {
+    s.chars().filter(|c| c.is_alphabetic()).flat_map(|c| c.to_lowercase()).collect()
+}
+
+/// Zoekt tabellen: minstens drie regels onder elkaar met dezelfde vakjes op dezelfde plekken, en (bijna) dezelfde vragen.
+pub fn zoek_tabellen(velden: &[Veld]) -> Vec<Tabel> {
+    // 1. Regels: velden op dezelfde pagina en (bijna) dezelfde hoogte.
+    let mut regels: Vec<Vec<usize>> = Vec::new();
+    for (i, v) in velden.iter().enumerate() {
+        match regels.last_mut() {
+            Some(r) if velden[r[0]].pagina == v.pagina && (velden[r[0]].boven - v.boven).abs() < 4.0 => r.push(i),
+            _ => regels.push(vec![i]),
+        }
+    }
+    let kenmerk = |r: &Vec<usize>| -> Vec<(i32, u8)> {
+        r.iter().map(|&i| ((velden[i].links / 4.0).round() as i32, velden[i].soort as u8)).collect()
+    };
+    // 2. Opeenvolgende regels met hetzelfde kenmerk.
+    let mut uit = Vec::new();
+    let mut k = 0;
+    while k < regels.len() {
+        let mut eind = k + 1;
+        while eind < regels.len() && velden[regels[eind][0]].pagina == velden[regels[k][0]].pagina && kenmerk(&regels[eind]) == kenmerk(&regels[k]) {
+            eind += 1;
+        }
+        let aantal = eind - k;
+        if aantal >= 3 {
+            // Echte tabel: de vragen herhalen zich (losse vragen als "Naam", "Adres", "Woonplaats" niet).
+            let gelijk = (k + 1..eind).filter(|&r| {
+                regels[r].iter().zip(&regels[r - 1]).all(|(&a, &b)| kaal(&velden[a].vraag) == kaal(&velden[b].vraag))
+            }).count();
+            if gelijk * 10 >= (aantal - 1) * 6 {
+                let mut kolommen: Vec<String> = Vec::new();
+                for &i in &regels[k] {
+                    let v = velden[i].vraag.trim().to_string();
+                    if !v.is_empty() && !kolommen.contains(&v) {
+                        kolommen.push(v);
+                    }
+                }
+                uit.push(Tabel { pagina: velden[regels[k][0]].pagina, regels: regels[k..eind].to_vec(), kolommen });
+            }
+        }
+        k = eind;
+    }
+    uit
+}
+
+/// Geeft elk vakje in een tabel een duidelijke vraag: "Naam zorgverlener, regel 3" (de kolom uit de eerste regel).
+pub fn benoem_tabellen(velden: &mut [Veld], tabellen: &[Tabel]) {
+    for tb in tabellen {
+        let kolommen: Vec<String> = tb.regels[0].iter().enumerate().map(|(c, &i)| {
+            let v = velden[i].vraag.split_whitespace().collect::<Vec<_>>().join(" ");
+            if v.is_empty() { tf("VeldNummer", &[&t("Kolom"), &(c + 1).to_string()]) } else { v }
+        }).collect();
+        // Liep de kop van de kolom ernaast mee ("Omschrijving Bedrag" + "Bedrag per jaar")? Dat stuk eraf.
+        let mut kolommen = kolommen;
+        for c in 0..kolommen.len().saturating_sub(1) {
+            let hier: Vec<String> = kolommen[c].split(' ').map(String::from).collect();
+            let daarna: Vec<&str> = kolommen[c + 1].split(' ').collect();
+            for n in (1..hier.len()).rev() {
+                if n <= daarna.len() && hier[hier.len() - n..].iter().zip(&daarna[..n]).all(|(a, b)| a == b) {
+                    kolommen[c] = hier[..hier.len() - n].join(" ");
+                    break;
+                }
+            }
+        }
+        for (k, r) in tb.regels.iter().enumerate() {
+            for (c, &i) in r.iter().enumerate() {
+                velden[i].vraag = tf("TabelVak", &[&kolommen[c], &(k + 1).to_string()]);
+            }
+        }
+    }
+}
+
+/// Het aantal regels van een tabel waar al iets in staat (tot en met de laatste gevulde regel).
+fn gevulde_regels(velden: &[Veld], voorgesteld: &[bool], tb: &Tabel) -> usize {
+    tb.regels.iter().rposition(|r| r.iter().any(|&i| !velden[i].waarde.is_empty() && !voorgesteld[i])).map(|p| p + 1).unwrap_or(0)
+}
+
+/// Slim invullen: per tabel alleen de eerste `aantallen[n]` regels (en regels waar al iets in staat); losse vragen die al
+/// in de PDF ingevuld zijn overslaan (behalve als Paper Pilot ze uit Mijn gegevens invulde: die check je even).
+pub fn slim_volgorde(velden: &[Veld], voorgesteld: &[bool], tabellen: &[Tabel], aantallen: &[usize]) -> Vec<usize> {
+    let mut weg = vec![false; velden.len()];
+    let mut in_tabel = vec![false; velden.len()];
+    for (tb, &aantal) in tabellen.iter().zip(aantallen) {
+        let houden = aantal.max(gevulde_regels(velden, voorgesteld, tb));
+        for (k, r) in tb.regels.iter().enumerate() {
+            for &i in r {
+                in_tabel[i] = true;
+                weg[i] = k >= houden;
+            }
+        }
+    }
+    (0..velden.len()).filter(|&i| !weg[i] && (in_tabel[i] || velden[i].waarde.is_empty() || voorgesteld[i])).collect()
+}
+
+/// Welke velden vragen? Bij een klein formulier zonder tabellen: alles. Anders mag de gebruiker kiezen:
+/// slim (per tabel alleen de regels die je nodig hebt, al ingevulde vragen overslaan), alleen verplicht, of alles.
+/// None = de gebruiker annuleert.
+fn kies_volgorde(eigenaar: HWND, velden: &mut [Veld], voorgesteld: &[bool]) -> Option<Vec<usize>> {
+    let alles: Vec<usize> = (0..velden.len()).collect();
+    let tabellen = zoek_tabellen(velden);
+    benoem_tabellen(velden, &tabellen);
+    let velden = &*velden;
+    if velden.len() <= 25 && tabellen.is_empty() {
+        return Some(alles);
+    }
+    const SLIM: i32 = 3401;
+    const VERPLICHT: i32 = 3402;
+    const ALLES: i32 = 3403;
+    let in_tabel: usize = tabellen.iter().map(|t| t.regels.iter().map(|r| r.len()).sum::<usize>()).sum();
+    let verplicht: Vec<usize> = (0..velden.len()).filter(|&i| velden[i].verplicht || velden[i].handtekening).collect();
+    let titel = t("InvullenTitel");
+    let kop = tf("SlimKop", &[&velden.len().to_string()]);
+    let tekst = if tabellen.is_empty() { t("SlimTekstZonderTabel") } else {
+        tf("SlimTekst", &[&in_tabel.to_string(), &tabellen.len().to_string()])
+    };
+    let mut v = dialogen::Vraag::nieuw(&titel, &kop, &tekst);
+    v.icoon = dialogen::ICOON_INFO;
+    v.opdrachtlinks = true;
+    v.knoppen.push(dialogen::Knop { id: SLIM, tekst: t("KnopSlim") });
+    if !verplicht.is_empty() {
+        v.knoppen.push(dialogen::Knop { id: VERPLICHT, tekst: tf("KnopAlleenVerplicht", &[&verplicht.len().to_string()]) });
+    }
+    v.knoppen.push(dialogen::Knop { id: ALLES, tekst: tf("KnopAlleVragen", &[&velden.len().to_string()]) });
+    v.gewone_knoppen = TDCBF_CANCEL_BUTTON;
+    v.standaard = SLIM;
+    let keuze = v.toon(eigenaar);
+    let volgorde = match keuze {
+        ALLES => alles,
+        VERPLICHT => verplicht,
+        SLIM => {
+            // Per tabel: hoeveel regels heb je nodig? (Regels met al iets erin tellen altijd mee.)
+            let mut aantallen = Vec::new();
+            for (n, tb) in tabellen.iter().enumerate() {
+                let gevuld = gevulde_regels(velden, voorgesteld, tb);
+                let mut keuzes = vec![t("RegelsGeen")];
+                for k in 1..=tb.regels.len() {
+                    keuzes.push(if k == 1 { t("RegelsEen") } else { tf("RegelsMeer", &[&k.to_string()]) });
+                }
+                let kolommen: String = tb.kolommen.iter().take(6).cloned().collect::<Vec<_>>().join(", ");
+                let label = tf("RegelsVraag", &[&(tb.pagina + 1).to_string(), &tb.regels.len().to_string(), &kolommen]);
+                let titel = tf("TabelVan", &[&(n + 1).to_string(), &tabellen.len().to_string()]);
+                aantallen.push(keuzevensters::kies_uit_lijst(eigenaar, &titel, &label, &keuzes, gevuld.max(1).min(tb.regels.len()))?);
+            }
+            slim_volgorde(velden, voorgesteld, &tabellen, &aantallen)
+        }
+        _ => return None,
+    };
+    logboek::schrijf(&format!("Formulier: {} velden, {} tabellen ({} vakjes), keuze {keuze}, {} vragen.", velden.len(), tabellen.len(), in_tabel, volgorde.len()));
+    Some(volgorde)
+}
+
+fn maak(eigenaar: HWND, mut velden: Vec<Veld>, voorgesteld: Vec<bool>, bron: Bron, naam: &str) {
+    // Groot formulier (zoals een PGB-budgetplan)? Dan eerst kiezen hoe: slim, alleen verplicht, of alles.
+    let Some(volgorde) = kies_volgorde(eigenaar, &mut velden, &voorgesteld) else { return };
+    if volgorde.is_empty() {
+        dialogen::melding(eigenaar, &t("GeenFormulier"), &t("SlimNietsTekst"), dialogen::ICOON_INFO);
+        return;
+    }
     let klasse = w(KLASSE);
     let wc = WNDCLASSEXW {
         cbSize: std::mem::size_of::<WNDCLASSEXW>() as u32,
@@ -209,14 +383,16 @@ fn maak(eigenaar: HWND, velden: Vec<Veld>, voorgesteld: Vec<bool>, bron: Bron, n
             ACCEL { fVirt: ctrl, key: b'L' as u16, cmd: ID_OVERZICHT as u16 },
             ACCEL { fVirt: (FVIRTKEY | FALT) as u8, key: VK_LEFT, cmd: ID_VORIGE as u16 },
             ACCEL { fVirt: (FVIRTKEY | FALT) as u8, key: VK_RIGHT, cmd: ID_VOLGENDE as u16 },
+            ACCEL { fVirt: ctrl, key: VK_NEXT, cmd: ID_PAGINA_VOLGENDE as u16 },
+            ACCEL { fVirt: ctrl, key: VK_PRIOR, cmd: ID_PAGINA_VORIGE as u16 },
         ];
         CreateAcceleratorTableW(a.as_ptr(), a.len() as i32)
     };
     let kwast = unsafe { CreateSolidBrush(kleuren.vak) };
     STAAT.with(|s| *s.borrow_mut() = Some(Staat { hwnd, kop, voortgang, label: std::ptr::null_mut(), invoer: std::ptr::null_mut(), hint,
-        knoppen, letter, kopletter, kwast, toetsen, velden, voorgesteld, nr: 0, bron, naam: naam.to_string(), gewijzigd: false }));
+        knoppen, letter, kopletter, kwast, toetsen, velden, voorgesteld, nr: 0, volgorde: volgorde.clone(), bron, naam: naam.to_string(), gewijzigd: false }));
     unsafe { ShowWindow(hwnd, SW_SHOWNORMAL) };
-    toon_vraag(0);
+    toon_vraag(volgorde[0]);
 }
 
 /// De waarde uit het invulvak terug in het veld zetten.
@@ -304,7 +480,9 @@ fn toon_vraag(nr: usize) {
             SetWindowPos(invoer, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
         }
     }
-    zet_tekst(s.voortgang, &tf("VraagVan", &[&(nr + 1).to_string(), &s.velden.len().to_string()]));
+    let plek = s.volgorde.iter().position(|&i| i == nr).map(|p| p + 1).unwrap_or(0);
+    let paginas = s.velden.iter().map(|v| v.pagina).max().unwrap_or(0) + 1;
+    zet_tekst(s.voortgang, &tf("VraagVanPagina", &[&plek.to_string(), &s.volgorde.len().to_string(), &(v.pagina + 1).to_string(), &paginas.to_string()]));
     let hint = if v.handtekening && crate::handtekening::is_merkteken(&v.waarde) { t("HintHandtekening") }
         else if v.handtekening && !crate::handtekening::heb() { t("HintGeenHandtekening") }
         else if s.voorgesteld[nr] { t("HintMijnGegevens") } else if v.soort == Soort::Lijst || v.soort == Soort::Rondje {
@@ -354,8 +532,8 @@ fn schik() {
 fn volgende() {
     bewaar_huidige();
     let Some(s) = lees() else { return };
-    if s.nr + 1 < s.velden.len() {
-        toon_vraag(s.nr + 1);
+    if let Some(&i) = s.volgorde.iter().find(|&&i| i > s.nr) {
+        toon_vraag(i);
     } else {
         dialogen::melding(s.hwnd, &t("LaatsteVraag"), &t("LaatsteVraagTekst"), dialogen::ICOON_INFO);
         unsafe { SetFocus(s.knoppen[3]) };
@@ -365,10 +543,43 @@ fn volgende() {
 fn vorige() {
     bewaar_huidige();
     let Some(s) = lees() else { return };
-    if s.nr > 0 {
-        toon_vraag(s.nr - 1);
+    if let Some(&i) = s.volgorde.iter().rev().find(|&&i| i < s.nr) {
+        toon_vraag(i);
     } else {
         unsafe { SetFocus(s.invoer) };
+    }
+}
+
+/// Ctrl+Page Down: naar de eerste vraag op de volgende pagina (de rest van deze pagina overslaan).
+fn volgende_pagina() {
+    bewaar_huidige();
+    let Some(s) = lees() else { return };
+    let pagina = s.velden[s.nr].pagina;
+    if let Some(&i) = s.volgorde.iter().find(|&&i| s.velden[i].pagina > pagina) {
+        toon_vraag(i);
+    } else {
+        dialogen::melding(s.hwnd, &t("LaatstePagina"), &t("LaatsteVraagTekst"), dialogen::ICOON_INFO);
+        unsafe { SetFocus(s.invoer) };
+    }
+}
+
+/// Ctrl+Page Up: naar de eerste vraag van deze pagina, of (als je daar al staat) van de pagina ervoor.
+fn vorige_pagina() {
+    bewaar_huidige();
+    let Some(s) = lees() else { return };
+    let pagina = s.velden[s.nr].pagina;
+    let eerste_hier = s.volgorde.iter().copied().find(|&i| s.velden[i].pagina == pagina);
+    let doel = if eerste_hier.is_some_and(|i| i < s.nr) {
+        eerste_hier
+    } else {
+        let vorige = s.volgorde.iter().rev().map(|&i| s.velden[i].pagina).find(|&p| p < pagina);
+        vorige.and_then(|p| s.volgorde.iter().copied().find(|&i| s.velden[i].pagina == p))
+    };
+    match doel {
+        Some(i) => toon_vraag(i),
+        None => unsafe {
+            SetFocus(s.invoer);
+        },
     }
 }
 
@@ -383,9 +594,10 @@ fn waarde_tekst(v: &Veld) -> String {
 fn overzicht() {
     bewaar_huidige();
     let Some(s) = lees() else { return };
-    let lijst: Vec<String> = s.velden.iter().enumerate().map(|(i, v)| format!("{}. {}: {}", i + 1, v.vraag, waarde_tekst(v))).collect();
-    if let Some(k) = keuzevensters::kies_uit_lijst(s.hwnd, &t("OverzichtTitel"), &t("OverzichtLabel"), &lijst, s.nr) {
-        toon_vraag(k);
+    let lijst: Vec<String> = s.volgorde.iter().enumerate().map(|(k, &i)| format!("{}. {}: {}", k + 1, s.velden[i].vraag, waarde_tekst(&s.velden[i]))).collect();
+    let plek = s.volgorde.iter().position(|&i| i == s.nr).unwrap_or(0);
+    if let Some(k) = keuzevensters::kies_uit_lijst(s.hwnd, &t("OverzichtTitel"), &t("OverzichtLabel"), &lijst, plek) {
+        toon_vraag(s.volgorde[k]);
     } else {
         unsafe { SetFocus(s.invoer) };
     }
@@ -517,6 +729,8 @@ unsafe extern "system" fn venster_proc(hwnd: HWND, msg: u32, wp: WPARAM, lp: LPA
                 ID_VOLGENDE => volgende(),
                 ID_VORIGE => vorige(),
                 ID_OVERZICHT => overzicht(),
+                ID_PAGINA_VOLGENDE => volgende_pagina(),
+                ID_PAGINA_VORIGE => vorige_pagina(),
                 ID_OPSLAAN => opslaan(),
                 ID_SLUITEN => sluiten(hwnd),
                 ID_INVOER if melding == 2 => volgende(), // dubbelklik in de lijst

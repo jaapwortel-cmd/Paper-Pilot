@@ -19,8 +19,9 @@ use windows_sys::Win32::UI::WindowsAndMessaging::*;
 
 const KLASSE: &str = "PaperPilotHoofdvenster";
 
-const ID_LEZEN: i32 = 1;
-const ID_CONTROLEREN: i32 = 2;
+// Niet 1 of 2: dat zijn IDOK en IDCANCEL. Enter stuurde anders altijd "Lezen en invullen" (Jaap, 9 nov 2026).
+const ID_LEZEN: i32 = 11;
+const ID_CONTROLEREN: i32 = 12;
 const ID_AFSLUITEN: i32 = 100;
 const ID_TAAL_NL: i32 = 200;
 const ID_TAAL_EN: i32 = 201;
@@ -1014,9 +1015,21 @@ fn berichtenlus() -> i32 {
                     .iter().find(|(k, _)| sneltoets(&t(k)) == letter).map(|(_, id)| *id);
                 if let Some(id) = tegel {
                     if let Some(s) = lees() {
-                        unsafe { SetFocus(s.tegels[(id - 1) as usize]) };
+                        unsafe { SetFocus(s.tegels[(id - ID_LEZEN) as usize]) };
                     }
                     unsafe { PostMessageW(hoofd, WM_COMMAND, id as usize, 0) };
+                    continue;
+                }
+            } else if msg.message == WM_KEYDOWN && (msg.wParam as u16 == VK_RETURN || msg.wParam as u16 == VK_SPACE) {
+                // Enter (of spatie) op een tegel: precies die tegel kiezen.
+                let tegels = met(|s| s.tegels).unwrap_or([std::ptr::null_mut(); 2]);
+                if let Some(k) = tegels.iter().position(|&t| t == msg.hwnd && !t.is_null()) {
+                    if msg.wParam as u16 == VK_RETURN {
+                        unsafe { PostMessageW(hoofd, WM_COMMAND, (ID_LEZEN + k as i32) as usize, 0) };
+                        continue;
+                    }
+                }
+                if unsafe { IsDialogMessageW(hoofd, &msg) } != 0 {
                     continue;
                 }
             } else if unsafe { IsDialogMessageW(hoofd, &msg) } != 0 {

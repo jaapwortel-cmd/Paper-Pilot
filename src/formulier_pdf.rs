@@ -329,6 +329,8 @@ fn tekst_in(p: &Pdfium, tekstpagina: *mut c_void, links: f64, boven: f64, rechts
         let mut buf = vec![0u16; n as usize + 1];
         let m = (p.FPDFText_GetBoundedText)(tekstpagina, links, boven, rechts, onder, buf.as_mut_ptr(), n + 1);
         let t = String::from_utf16_lossy(&buf[..m.max(0) as usize]);
+        // pdfium telt het nul-teken aan het eind mee; dat en andere stuurtekens horen niet in een vraag.
+        let t: String = t.chars().map(|c| if c.is_control() { ' ' } else { c }).collect();
         t.split_whitespace().collect::<Vec<_>>().join(" ")
     }
 }
