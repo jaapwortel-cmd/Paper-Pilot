@@ -170,3 +170,4 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   afdrukken::kies_printer zet DEVNAMES vooraf en onthoudt de keuze. hoofdvenster::apparaten_instellen: bij instelling
   apparaten_gezocht = false (eerste start, of eerste keer na deze update), en menu Instellingen, Printer en scanner kiezen.
   Echte scanner/printer niet getest (Wine heeft geen WIA); Jaap test met zijn Brother.
+  Jaap (9 nov 2026): 0.0.0.11 getest, alles werkt (ook scannen met zijn Brother); in main gezet. Hij zet hem zelf in de Dropbox-updatemap.
