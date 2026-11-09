@@ -131,6 +131,9 @@ fn main() {
     if let Some(verslag) = waarde("--proef-scanners") {
         std::process::exit(proef::proef_scanners(&verslag));
     }
+    if let Some(verslag) = waarde("--proef-werk") {
+        std::process::exit(proef::proef_werk(&verslag));
+    }
     if let Some(verslag) = waarde("--proef-updates") {
         std::process::exit(proef::proef_updates(&verslag));
     }

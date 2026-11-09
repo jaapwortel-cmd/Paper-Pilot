@@ -121,14 +121,13 @@ Druk op Alt om naar de menubalk te gaan.
 Bestand
 - Mijn post: de brieven en documenten die je hebt gelezen of gescand, de nieuwste bovenaan, met de datum en de afzender. Paper Pilot zet ze vanzelf bij een soort: Belasting en toeslagen, Zorg en gezondheid, Bank, Gemeente, Vaste lasten, Werk en inkomen of Overig. Kies Zoeken in Mijn post om te zoeken op een woord, naam of datum. Kies een brief om hem weer te openen (ook een scan die je niet hebt opgeslagen), de soort te veranderen of hem eruit te halen.
 - Herinneringen: al je herinneringen. Maak een nieuwe, of kies er een om hem weg te halen.
-- Afsluiten (Alt+F4): Paper Pilot sluiten.
+- Afsluiten (Alt+F4): Paper Pilot sluiten. Paper Pilot vraagt altijd eerst of je het zeker weet: kies Ja of Nee.
 
 Instellingen
 - Taal / Language: Nederlands of English. Paper Pilot wisselt meteen van taal.
 - Weergave: Automatisch (zoals Windows), Licht of Donker. Staat hoog contrast van Windows aan, dan gebruikt Paper Pilot altijd de kleuren van Windows.
 - Mijn gegevens: je naam, adres, geboortedatum, telefoonnummer, e-mailadres, BSN en IBAN. Paper Pilot vult ze alvast in bij formulieren. Ze staan versleuteld op je eigen computer; alleen jij kunt ze lezen.
 - Mijn handtekening: zet je handtekening met een donkere pen op wit papier en scan het, of kies een foto. Paper Pilot haalt de handtekening eruit en bewaart hem versleuteld. Bij een formulier zet Paper Pilot hem bij de vraag naar je handtekening.
-- Vragen bij afsluiten: staat dit aan, dan vraagt Paper Pilot bij Afsluiten (Alt+F4) of je het zeker weet.
 - Mijn post bijhouden: staat dit aan, dan onthoudt Paper Pilot de brieven die je leest (versleuteld, op je eigen computer).
 - Taalmodel voor handschrift en foto's: het taalmodel downloaden, of verwijderen als het er al is.
 - Bij het starten naar updates zoeken: staat dit aan, dan kijkt Paper Pilot één keer per dag of er een nieuwe versie is.

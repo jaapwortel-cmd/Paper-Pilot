@@ -32,7 +32,6 @@ const ID_TAALMODEL: i32 = 221;
 const ID_GEGEVENS: i32 = 222;
 const ID_HANDTEKENING: i32 = 223;
 const ID_POST_AAN: i32 = 224;
-const ID_VRAAG_AFSLUITEN: i32 = 225;
 const ID_POST: i32 = 101;
 const ID_HERINNERINGEN: i32 = 102;
 const ID_HANDLEIDING: i32 = 300;
@@ -261,7 +260,6 @@ fn maak_menu() -> HMENU {
         voeg(inst, ID_GEGEVENS, "MenuGegevens");
         voeg(inst, ID_HANDTEKENING, "MenuHandtekening");
         voeg(inst, ID_POST_AAN, "MenuPostAan");
-        voeg(inst, ID_VRAAG_AFSLUITEN, "MenuVraagAfsluiten");
         voeg(inst, ID_TAALMODEL, "MenuTaalmodel");
         voeg(inst, ID_UPDATES_START, "MenuUpdatesBijStart");
         sub(balk, inst, "MenuInstellingen");
@@ -297,8 +295,6 @@ fn vink_menu() {
         CheckMenuRadioItem(menu, ID_THEMA_AUTO as u32, ID_THEMA_DONKER as u32, thema as u32, MF_BYCOMMAND);
         let aan = instellingen::aan("updates_bij_start", true);
         CheckMenuItem(menu, ID_UPDATES_START as u32, MF_BYCOMMAND | if aan { MF_CHECKED } else { MF_UNCHECKED });
-        let vraag = instellingen::aan("vraag_afsluiten", true);
-        CheckMenuItem(menu, ID_VRAAG_AFSLUITEN as u32, MF_BYCOMMAND | if vraag { MF_CHECKED } else { MF_UNCHECKED });
         let post = crate::post::aan();
         CheckMenuItem(menu, ID_POST_AAN as u32, MF_BYCOMMAND | if post { MF_CHECKED } else { MF_UNCHECKED });
     } }
@@ -687,11 +683,6 @@ fn opdracht(hwnd: HWND, id: i32) {
         ID_HANDTEKENING => crate::handtekening::instellen(hwnd),
         ID_POST => mijn_post(hwnd),
         ID_HERINNERINGEN => crate::herinneringen::lijst_venster(hwnd),
-        ID_VRAAG_AFSLUITEN => {
-            let aan = !instellingen::aan("vraag_afsluiten", true);
-            instellingen::zet_aan("vraag_afsluiten", aan);
-            vink_menu();
-        }
         ID_POST_AAN => {
             let aan = !crate::post::aan();
             instellingen::zet_aan("mijn_post", aan);
@@ -784,10 +775,10 @@ unsafe extern "system" fn venster_proc(hwnd: HWND, msg: u32, wp: WPARAM, lp: LPA
             0
         }
         WM_CLOSE => {
-            // Alt+F4 of Afsluiten: eerst vragen of het echt de bedoeling is (niet bij proeven en schermafbeeldingen).
+            // Alt+F4 of Afsluiten: altijd eerst vragen of het echt de bedoeling is (Jaap: geen instelling om dit uit te zetten).
+            // Niet bij proeven en schermafbeeldingen.
             let proef = met(|s| s.opties.demo || s.opties.schermafbeelding.is_some()).unwrap_or(false);
-            if proef || !instellingen::aan("vraag_afsluiten", true)
-                || dialogen::ja_nee(hwnd, &t("AfsluitenVraag"), &t("AfsluitenVraagTekst"), true)
+            if proef || dialogen::ja_nee(hwnd, &t("AfsluitenVraag"), &t("AfsluitenVraagTekst"), true)
             {
                 DestroyWindow(hwnd);
             }

@@ -359,6 +359,27 @@ pub fn proef_scanners(verslag: &str) -> i32 {
     0
 }
 
+/// Het voortgangsvenster (dialogen::werk) moet de uitkomst teruggeven als het werk klaar is.
+/// Eerder sloot het venster zichzelf met WM_CLOSE, telde Windows dat als Annuleren en ging de uitkomst verloren
+/// (website controleren, scanners zoeken en scannen deden dan niets).
+pub fn proef_werk(verslag: &str) -> i32 {
+    let mut uit = String::new();
+    let mut fout = false;
+    for (naam, ms) in [("snel", 0u64), ("half", 300), ("langzaam", 2500)] {
+        let begin = std::time::Instant::now();
+        let r = crate::dialogen::werk(std::ptr::null_mut(), "Paper Pilot", "Proef", move |v| {
+            v.meld(format!("Proef {naam}"), 0);
+            std::thread::sleep(std::time::Duration::from_millis(ms));
+            42
+        });
+        let goed = r == Some(42);
+        fout |= !goed;
+        uit.push_str(&format!("{naam} ({ms} ms): {} na {} ms\r\n", if goed { "goed" } else { "FOUT, geen uitkomst" }, begin.elapsed().as_millis()));
+    }
+    let _ = std::fs::write(verslag, &uit);
+    if fout { 1 } else { 0 }
+}
+
 /// Alleen ter informatie: wat staat er nu in de Dropbox-map?
 pub fn proef_updates(verslag: &str) -> i32 {
     let mut tekst = match crate::bijwerken::zoek_in(crate::bijwerken::ADRES) {

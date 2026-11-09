@@ -258,6 +258,13 @@ jobs:
             "$naam.png gemaakt"
           }
 
+      - name: Voortgangsvenster geeft de uitkomst terug
+        shell: pwsh
+        run: |
+          $p = Start-Process target\release\PaperPilot.exe -ArgumentList "--proef-werk", "werk.txt" -Wait -PassThru
+          Get-Content werk.txt
+          if ($p.ExitCode -ne 0) { throw "Het voortgangsvenster gooit de uitkomst weg." }
+
       - name: Scanners zoeken (ter informatie)
         continue-on-error: true
         shell: pwsh

@@ -1,6 +1,8 @@
 ﻿Wijzigingen in Paper Pilot
 
 Versie 0.0.0.10 (november 2026)
+- Opgelost: na een taak met het venster "Bezig" gebeurde soms niets, zonder melding. Dat gold voor een website of document controleren, scanners zoeken, scannen, scannen met de camera, een formulier invullen en opslaan, vertalen, "Wat moet ik doen?" en een brief schrijven. Nu krijg je altijd de uitkomst, of een melding als er iets mis ging.
+- Bij Afsluiten (Alt+F4) vraagt Paper Pilot altijd of je het zeker weet. Het vinkje "Vragen bij afsluiten" in het menu Instellingen is weg.
 - Scannen: Paper Pilot zoekt veel beter naar scanners. Ook via de zoekdienst van Windows, op elke netwerkkaart, en hij vraagt elke printer in Windows en in je netwerk of er een scanner in zit (AirScan/eSCL, ook met een beveiligde verbinding).
 - Vindt Paper Pilot geen scanner, dan zegt hij welke printers hij wel vond en wat je kunt doen. Je kunt opnieuw zoeken, Printers en scanners van Windows openen of met de camera scannen.
 - Meer programma's van Jaap: bij elk programma staat nu een uitleg, met een knop om Jaap te mailen of je het mag uitproberen. Paper Pilot zegt eerst dat je mailprogramma opent. R-Wave Studio staat er nu ook bij.

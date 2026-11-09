@@ -121,14 +121,13 @@ Press Alt to go to the menu bar.
 File
 - My post: the letters and documents you have read or scanned, newest first, with the date and the sender. Paper Pilot sorts them into a type by itself: Taxes and allowances, Care and health, Bank, Municipality, Fixed costs, Work and income or Other. Choose Search My post to search for a word, name or date. Choose a letter to open it again (also a scan you did not save), change its type or remove it.
 - Reminders: all your reminders. Make a new one, or choose one to remove it.
-- Exit (Alt+F4): close Paper Pilot.
+- Exit (Alt+F4): close Paper Pilot. Paper Pilot always asks first whether you are sure: choose Yes or No.
 
 Settings
 - Language / Taal: Nederlands or English. Paper Pilot switches language right away.
 - Appearance: Automatic (like Windows), Light or Dark. When Windows high contrast is on, Paper Pilot always uses the Windows colours.
 - My details: your name, address, date of birth, phone number, email address, BSN and IBAN. Paper Pilot fills them in for you in forms. They are stored encrypted on your own computer; only you can read them.
 - My signature: sign with a dark pen on white paper and scan it, or choose a photo. Paper Pilot takes out the signature and stores it encrypted. On a form, Paper Pilot puts it at the question for your signature.
-- Ask before exit: when this is on, Paper Pilot asks whether you are sure when you choose Exit (Alt+F4).
 - Keep My post: when this is on, Paper Pilot remembers the letters you read (encrypted, on your own computer).
 - Language model for handwriting and photos: download the language model, or remove it if it is already there.
 - Check for updates at startup: when this is on, Paper Pilot checks once a day for a new version.

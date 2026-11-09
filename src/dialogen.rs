@@ -191,13 +191,15 @@ pub struct Voortgang {
     pub gestopt: AtomicBool,
     /// Het voortgangsvenster zelf (voor meldingen aan de schermlezer vanuit het werk).
     pub venster: std::sync::atomic::AtomicIsize,
+    /// Een onverwachte fout in het werk.
+    fout: Mutex<Option<String>>,
     stand: Mutex<(String, u32, bool)>,
     getoond: Mutex<(String, u32)>,
 }
 
 impl Voortgang {
     pub fn nieuw() -> Voortgang {
-        Voortgang { gestopt: AtomicBool::new(false), venster: std::sync::atomic::AtomicIsize::new(0), stand: Mutex::new((String::from("\u{a0}"), 0, false)), getoond: Mutex::new((String::new(), 0)) }
+        Voortgang { gestopt: AtomicBool::new(false), venster: std::sync::atomic::AtomicIsize::new(0), fout: Mutex::new(None), stand: Mutex::new((String::from("\u{a0}"), 0, false)), getoond: Mutex::new((String::new(), 0)) }
     }
 
     pub fn meld(&self, tekst: String, procent: u32) {
@@ -236,7 +238,9 @@ unsafe extern "system" fn werk_terug(hwnd: HWND, msg: u32, wp: WPARAM, _lp: LPAR
             }
         }
         TDN_BUTTON_CLICKED => {
-            if wp as i32 == IDCANCEL {
+            // Let op: Windows meldt ook IDCANCEL als Paper Pilot het venster zelf sluit omdat het werk klaar is
+            // (WM_CLOSE). Dan is het geen Annuleren van de gebruiker.
+            if wp as i32 == IDCANCEL && !v.stand.lock().unwrap().2 {
                 v.gestopt.store(true, Ordering::Relaxed);
             }
         }
@@ -255,8 +259,16 @@ pub fn werk<T: Send + 'static>(eigenaar: HWND, titel: &str, kop: &str, taak: imp
         let uitkomst = uitkomst.clone();
         std::thread::spawn(move || {
             crate::beeld::com_start();
-            let r = taak(&v);
-            *uitkomst.lock().unwrap() = Some(r);
+            // Gaat er onverwacht iets mis (een paniek), dan geen stilte: het venster sluit en de gebruiker hoort het.
+            match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| taak(&v))) {
+                Ok(r) => *uitkomst.lock().unwrap() = Some(r),
+                Err(e) => {
+                    let tekst = e.downcast_ref::<String>().cloned()
+                        .or_else(|| e.downcast_ref::<&str>().map(|s| s.to_string())).unwrap_or_default();
+                    crate::logboek::schrijf(&format!("Fout in het werk op de achtergrond: {tekst}"));
+                    *v.fout.lock().unwrap() = Some(tekst);
+                }
+            }
             v.stand.lock().unwrap().2 = true;
         });
     }
@@ -277,14 +289,26 @@ pub fn werk<T: Send + 'static>(eigenaar: HWND, titel: &str, kop: &str, taak: imp
     c.pfCallback = Some(werk_terug);
     c.lpCallbackData = Arc::as_ptr(&v) as isize;
     // Is het werk al klaar voordat het venster verschijnt, dan sluit de timer het meteen.
-    unsafe { TaskDialogIndirect(&c, std::ptr::null_mut(), std::ptr::null_mut(), std::ptr::null_mut()) };
+    let r = unsafe { TaskDialogIndirect(&c, std::ptr::null_mut(), std::ptr::null_mut(), std::ptr::null_mut()) };
+    if r != 0 {
+        crate::logboek::schrijf(&format!("Voortgangsvenster lukte niet ({r:#x}); Paper Pilot wacht zonder venster."));
+    }
+    // Is het werk klaar, dan telt de uitkomst altijd (ook als het venster als "Annuleren" sloot).
+    if let Some(r) = uitkomst.lock().unwrap().take() {
+        return Some(r);
+    }
     if v.gestopt.load(Ordering::Relaxed) {
+        crate::logboek::schrijf(&format!("Geannuleerd: {kop}"));
         return None;
     }
     // Het venster is dicht: wachten op het werk (meestal al klaar).
     loop {
         if let Some(r) = uitkomst.lock().unwrap().take() {
             return Some(r);
+        }
+        if let Some(fout) = v.fout.lock().unwrap().take() {
+            melding(eigenaar, &t("WerkMisluktKop"), &crate::teksten::tf("WerkMisluktTekst", &[kop, &fout]), ICOON_WAARSCHUWING);
+            return None;
         }
         std::thread::sleep(std::time::Duration::from_millis(50));
     }

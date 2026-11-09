@@ -146,3 +146,9 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   Geen scanner: melding met gevonden printers + Opnieuw zoeken / Printers en scanners (ms-settings:printers) / camera.
   Meer programma's: lijst -> uitleg (Prog*Uitleg) met knop Jaap mailen (eerst melding dat het mailprogramma opent) of terug;
   R-Wave Studio erbij. Andere programma's van Jaap (privé of persoonlijk) bewust niet in de lijst; Jaap beslist.
+  Ook in 0.0.0.10 (Jaap: website controleren deed niets): `dialogen::werk` sluit het voortgangsvenster met WM_CLOSE; TaskDialog
+  meldt dat als TDN_BUTTON_CLICKED IDCANCEL, dus gestopt = true en de uitkomst ging verloren (alle 16 werk-aanroepen). Nu telt de
+  uitkomst altijd, en een paniek in het werk geeft een melding (WerkMislukt*). Proef `--proef-werk` (harde stap in build.yml);
+  in Wine faalt de oude code en slaagt de nieuwe. Vraag bij afsluiten altijd (menu-vinkje weg, Jaap).
+  Lokaal testen: apt wine64 xvfb mingw-w64 xdotool; pdfium.dll uit de wheel in target/x86_64-pc-windows-gnu/release/onderdelen.
+  Wine toont geen command links in TaskDialog (alleen Cancel), dus die vensters zijn daar niet aan te klikken.
