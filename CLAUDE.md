@@ -186,3 +186,4 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   formulier_pdf::zonder_rommel (kleine 'woorden' zonder klinker of alleen leestekens vooraan: vinkjes in een symboolfont).
   Uitkomst bij het voorbeeld: 410 -> 86 vragen met 1 zorgverlener (zonder de al ingevulde regels nog minder).
   Updates: bij elke start zoeken (niet meer 1x per dag), na rondleiding/apparaten.
+  Jaap (9 nov 2026): 0.0.0.12 getest, alles werkt; in main gezet. Hij zet hem zelf in de Dropbox-updatemap.
