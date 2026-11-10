@@ -1,5 +1,8 @@
 ﻿Changes in Paper Pilot
 
+Version 0.0.0.16 (November 2026)
+- More programs by Jaap: R-Wave Studio is no longer in the list.
+
 Version 0.0.0.15 (November 2026)
 - Fixed: after an update, Paper Pilot started with administrator rights. Because of that, your screen reader could sometimes not read the text of a question, only the buttons. Now Paper Pilot starts normally after an update.
 

@@ -131,7 +131,7 @@ pub fn rondleiding(eigenaar: HWND) {
 /// Meer programma's van Jaap: eerst de lijst, dan per programma een uitleg met een knop om Jaap te mailen
 /// of je het mag uitproberen. Na de uitleg kom je terug in de lijst.
 pub fn meer_programmas(eigenaar: HWND) {
-    const PROGRAMMAS: [&str; 6] = ["Verhalenschrijver", "SpraakNaarTekst", "Maatje", "AudioEditor", "RWave", "Taxi"];
+    const PROGRAMMAS: [&str; 5] = ["Verhalenschrijver", "SpraakNaarTekst", "Maatje", "AudioEditor", "Taxi"];
     const MAILEN: i32 = 2100;
     const TERUG: i32 = 2101;
     const DOWNLOAD: i32 = 2102;

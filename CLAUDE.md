@@ -198,3 +198,4 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
 - 0.0.0.15 (10 nov 2026): bijwerken::installeer met "open" in plaats van "runas". Met runas draaide Paper Pilot na een update als
   beheerder (Inno runasoriginaluser werkt dan niet); bij de Verhalenschrijver las JAWS daardoor bij vragen alleen de knoppen voor.
   TaskDialogs zelf zijn wel goed leesbaar (Jaap hoorde Over Paper Pilot helemaal met Insert+B).
+- 0.0.0.16 (10 nov 2026, Jaap): R-Wave Studio uit Meer programma's (lijst, teksten nl/en). Stond niet in de handleiding.

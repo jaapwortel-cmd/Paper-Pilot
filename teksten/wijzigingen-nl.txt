@@ -1,5 +1,8 @@
 ﻿Wijzigingen in Paper Pilot
 
+Versie 0.0.0.16 (november 2026)
+- Meer programma's van Jaap: R-Wave Studio staat niet meer in de lijst.
+
 Versie 0.0.0.15 (november 2026)
 - Gerepareerd: na een update startte Paper Pilot met beheerdersrechten. Daardoor kon je schermlezer soms de tekst van een vraag niet voorlezen, alleen de knoppen. Nu start Paper Pilot na een update gewoon.
 
