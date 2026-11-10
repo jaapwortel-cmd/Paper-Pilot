@@ -119,12 +119,15 @@ pub fn zoek_in(adres: &str) -> Result<Uitkomst, String> {
     }
 }
 
-/// Start het installatieprogramma met beheerdersrechten. Daarna moet Paper Pilot zichzelf sluiten.
+/// Start het installatieprogramma; dat vraagt zelf om beheerdersrechten. Daarna moet Paper Pilot zichzelf sluiten.
 pub fn installeer(pad: &Path) -> bool {
     let taal = if crate::teksten::taal() == "en" { "english" } else { "dutch" };
     let parameters = w(&format!("/SILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS /LANG={taal}"));
     let bestand = w(&pad.to_string_lossy());
-    let werkwoord = w("runas");
+    // Niet "runas": dan start het installatieprogramma Paper Pilot daarna ook als beheerder (runasoriginaluser werkt
+    // alleen als het installatieprogramma zelf om rechten vraagt). Als beheerder kon JAWS bij de Verhalenschrijver
+    // de tekst van vragen niet lezen (10 nov 2026). Met "open" vraagt Windows om toestemming en start Paper Pilot gewoon.
+    let werkwoord = w("open");
     let mut info: SHELLEXECUTEINFOW = unsafe { std::mem::zeroed() };
     info.cbSize = std::mem::size_of::<SHELLEXECUTEINFOW>() as u32;
     info.lpVerb = werkwoord.as_ptr();

@@ -1,5 +1,8 @@
 ﻿Changes in Paper Pilot
 
+Version 0.0.0.15 (November 2026)
+- Fixed: after an update, Paper Pilot started with administrator rights. Because of that, your screen reader could sometimes not read the text of a question, only the buttons. Now Paper Pilot starts normally after an update.
+
 Version 0.0.0.14 (November 2026)
 - Scan (Ctrl+N): What are you going to scan? now also offers Take a photo with the camera and have it described, and The barcode of a product. You do not need a scanner for these.
 - More programs by Jaap: the Story Writer (Verhalenschrijver) is now in the list, with a button to download it.

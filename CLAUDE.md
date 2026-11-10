@@ -193,3 +193,8 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   de gebruiker bij de camera aan de voorkant), beeldmodel Soort::Foto (ModelVraagFoto: geen namen, niet raden wie), camera::een_foto (3 s wachten),
   camera::zoek_code (30 s, rxing via qr::zoek, productcode eerst), product.rs (Open Food/Beauty/Pet Food/Products Facts API v2; niet gevonden =
   200 met status 0; toestemming 1x in instelling product_internet; alleen het nummer gaat mee). Proeven --proef-product, --proef-gezicht, --proef-foto (echte camera). Bouwronde-stap voor product/gezicht staat nog niet in build.yml (push zonder workflow-rechten).
+- 0.0.0.14 (10 nov 2026, Jaap): bij Scannen ook "Een foto maken" en "De streepjescode van een product" (keuze voor de scanner);
+  Verhalenschrijver bij Meer programma's met knop Downloaden (Dropbox-link). In Dropbox en pCloud gezet op verzoek van Jaap.
+- 0.0.0.15 (10 nov 2026): bijwerken::installeer met "open" in plaats van "runas". Met runas draaide Paper Pilot na een update als
+  beheerder (Inno runasoriginaluser werkt dan niet); bij de Verhalenschrijver las JAWS daardoor bij vragen alleen de knoppen voor.
+  TaskDialogs zelf zijn wel goed leesbaar (Jaap hoorde Over Paper Pilot helemaal met Insert+B).

@@ -1,5 +1,8 @@
 ﻿Wijzigingen in Paper Pilot
 
+Versie 0.0.0.15 (november 2026)
+- Gerepareerd: na een update startte Paper Pilot met beheerdersrechten. Daardoor kon je schermlezer soms de tekst van een vraag niet voorlezen, alleen de knoppen. Nu start Paper Pilot na een update gewoon.
+
 Versie 0.0.0.14 (november 2026)
 - Scannen (Ctrl+N): bij Wat ga je scannen? staan nu ook Een foto maken met de camera en laten beschrijven, en De streepjescode van een product. Daar heb je geen scanner voor nodig.
 - Meer programma's van Jaap: de Verhalenschrijver staat erbij, met een knop om hem te downloaden.
