@@ -131,9 +131,12 @@ pub fn rondleiding(eigenaar: HWND) {
 /// Meer programma's van Jaap: eerst de lijst, dan per programma een uitleg met een knop om Jaap te mailen
 /// of je het mag uitproberen. Na de uitleg kom je terug in de lijst.
 pub fn meer_programmas(eigenaar: HWND) {
-    const PROGRAMMAS: [&str; 5] = ["SpraakNaarTekst", "Maatje", "AudioEditor", "RWave", "Taxi"];
+    const PROGRAMMAS: [&str; 6] = ["Verhalenschrijver", "SpraakNaarTekst", "Maatje", "AudioEditor", "RWave", "Taxi"];
     const MAILEN: i32 = 2100;
     const TERUG: i32 = 2101;
+    const DOWNLOAD: i32 = 2102;
+    /// De Verhalenschrijver is vrij te downloaden (Dropbox-map van Jaap, alleen bekijken).
+    const VERHALENSCHRIJVER: &str = "https://www.dropbox.com/scl/fo/rjtldoglzc5mh4rpzppid/AD07Kwa7IBq-AIH3C7OgUW8?rlkey=yt8ipqtdn2jug232sus5nfs2p&dl=0";
     let mut vorige = 2000;
     loop {
         let titel = t("MeerProgrammas");
@@ -157,11 +160,20 @@ pub fn meer_programmas(eigenaar: HWND) {
         let mut u = Vraag::nieuw(&titel, &naam, &uitleg);
         u.icoon = ICOON_INFO;
         u.opdrachtlinks = true;
-        u.knoppen.push(Knop { id: MAILEN, tekst: crate::teksten::tf("KnopProgrammaMailen", &[&naam]) });
+        let download = p == "Verhalenschrijver";
+        if download {
+            u.knoppen.push(Knop { id: DOWNLOAD, tekst: crate::teksten::tf("KnopProgrammaDownloaden", &[&naam]) });
+        }
+        u.knoppen.push(Knop { id: MAILEN, tekst: crate::teksten::tf(if download { "KnopProgrammaVraag" } else { "KnopProgrammaMailen" }, &[&naam]) });
         u.knoppen.push(Knop { id: TERUG, tekst: t("KnopTerugNaarLijst") });
         u.gewone_knoppen = TDCBF_CLOSE_BUTTON;
-        u.standaard = MAILEN;
+        u.standaard = if download { DOWNLOAD } else { MAILEN };
         match u.toon(eigenaar) {
+            DOWNLOAD => {
+                melding(eigenaar, &t("DownloadOpenenKop"), &crate::teksten::tf("DownloadOpenenTekst", &[&naam]), ICOON_INFO);
+                crate::win::open_adres(VERHALENSCHRIJVER);
+                return;
+            }
             MAILEN => {
                 // Een mailprogramma opent soms pas na een paar seconden: eerst zeggen wat er gaat gebeuren.
                 melding(eigenaar, &t("MailOpenenKop"), &crate::teksten::tf("MailOpenenTekst", &[&naam]), ICOON_INFO);

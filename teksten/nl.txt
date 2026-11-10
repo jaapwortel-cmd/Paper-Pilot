@@ -269,6 +269,8 @@ InhoudKiezen = Wat ga je scannen?
 InhoudBrief = Een brief of document
 InhoudEnvelop = Een envelop (Paper Pilot zegt van wie en aan wie)
 InhoudKlein = Iets kleins met kleine letters: etiket, bijsluiter, label (hoge resolutie)
+InhoudFoto = Een foto maken met de camera en laten beschrijven (van iemand of van iets)
+InhoudProduct = De streepjescode van een product, met de camera
 KnopInvullen = Formulier invullen (Ctrl+I)
 InvullenTitel = Formulier invullen
 InvullenZoeken = Paper Pilot zoekt de vragen in het formulier
@@ -802,3 +804,12 @@ AllergeenMosterd = mosterd
 AllergeenSesam = sesam
 AllergeenSulfiet = sulfiet
 AllergeenLupine = lupine
+
+# Verhalenschrijver bij Meer programma's (0.0.0.14)
+ProgVerhalenschrijverNaam = Verhalenschrijver
+ProgVerhalenschrijverOver = Schrijft samen met jou verhalen, columns, brieven, gedichten en radioteksten, op je eigen computer.
+ProgVerhalenschrijverUitleg = De Verhalenschrijver schrijft samen met jou. Je vertelt waar je verhaal over gaat, wie erin voorkomen en welke sfeer je wilt. Het programma schrijft hoofdstuk voor hoofdstuk; jij keurt goed of zegt wat er anders moet. Het kan ook schrijven in jouw eigen stijl, je eigen verhaal nakijken op spelling en grammatica, en controleren of je verhaal klopt.\n\nHet schrijven gebeurt op je eigen computer met het gratis programma Ollama, zonder abonnement. De Verhalenschrijver werkt met JAWS, NVDA en Verteller, op Windows 10 en 11. Je kunt hem gratis downloaden.
+KnopProgrammaDownloaden = {0} downloaden\nDe downloadpagina opent in je browser. Kies daar het installatieprogramma.
+KnopProgrammaVraag = Jaap mailen met een vraag over {0}\nJe mailprogramma maakt een mail aan Jaap. Je hoeft hem alleen nog te versturen.
+DownloadOpenenKop = De downloadpagina opent
+DownloadOpenenTekst = De downloadpagina van {0} opent zo in je browser. Kies daar het bestand met installatie in de naam, download het en start het.

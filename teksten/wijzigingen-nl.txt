@@ -1,5 +1,9 @@
 ﻿Wijzigingen in Paper Pilot
 
+Versie 0.0.0.14 (november 2026)
+- Scannen (Ctrl+N): bij Wat ga je scannen? staan nu ook Een foto maken met de camera en laten beschrijven, en De streepjescode van een product. Daar heb je geen scanner voor nodig.
+- Meer programma's van Jaap: de Verhalenschrijver staat erbij, met een knop om hem te downloaden.
+
 Versie 0.0.0.13 (november 2026)
 - Nieuw: de knop Camera (Ctrl+Shift+N). Je kiest: een brief scannen, een foto maken en laten beschrijven, of de streepjescode van een product opzoeken.
 - Nieuw: een foto maken en laten beschrijven (Ctrl+Shift+D). Van iemand, van jezelf of van iets dat je voor de camera houdt. Paper Pilot zegt hoeveel gezichten er in beeld zijn, of een gezicht helemaal of maar half in beeld is en aan welke kant het buiten beeld valt. Het taalmodel vertelt wat er te zien is en hoe iemand eruitziet. Alles op je eigen computer.

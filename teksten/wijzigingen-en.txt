@@ -1,5 +1,9 @@
 ﻿Changes in Paper Pilot
 
+Version 0.0.0.14 (November 2026)
+- Scan (Ctrl+N): What are you going to scan? now also offers Take a photo with the camera and have it described, and The barcode of a product. You do not need a scanner for these.
+- More programs by Jaap: the Story Writer (Verhalenschrijver) is now in the list, with a button to download it.
+
 Version 0.0.0.13 (November 2026)
 - New: the Camera button (Ctrl+Shift+N). You choose: scan a letter, take a photo and have it described, or look up the barcode of a product.
 - New: take a photo and describe it (Ctrl+Shift+D). Of someone, of yourself or of something you hold in front of the camera. Paper Pilot tells you how many faces are in view, whether a face is fully or only partly in view and on which side it is cut off. The language model tells you what is in the photo and what someone looks like. All on your own computer.

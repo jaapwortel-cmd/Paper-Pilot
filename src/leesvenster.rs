@@ -513,12 +513,18 @@ fn scannen() {
     let terug = || unsafe {
         SetFocus(s.vak);
     };
-    let Some(mut scanner) = kies_scanner(hwnd) else { return terug() };
     // Wat ga je scannen? (Kleine letters: hoge resolutie. Envelop: van wie en aan wie.)
-    let soorten = vec![t("InhoudBrief"), t("InhoudEnvelop"), t("InhoudKlein")];
+    // Een foto of een streepjescode gaat met de camera, dus die keuze komt voordat er een scanner nodig is (Jaap, 10 nov 2026).
+    let soorten = vec![t("InhoudBrief"), t("InhoudEnvelop"), t("InhoudKlein"), t("InhoudFoto"), t("InhoudProduct")];
     let vorige = instellingen::get("scan_inhoud").and_then(|v| v.parse::<usize>().ok()).unwrap_or(0).min(2);
     let Some(keuze) = keuzevensters::kies_uit_lijst(hwnd, &t("ScanTitel"), &t("InhoudKiezen"), &soorten, vorige) else { return terug() };
+    match keuze {
+        3 => return foto_beschrijven(None),
+        4 => return product_scannen(),
+        _ => {}
+    }
     instellingen::zet("scan_inhoud", &keuze.to_string());
+    let Some(mut scanner) = kies_scanner(hwnd) else { return terug() };
     let (inhoud, dpi) = match keuze {
         1 => (crate::lezen::Inhoud::Envelop, 300),
         2 => (crate::lezen::Inhoud::Klein, 600),
