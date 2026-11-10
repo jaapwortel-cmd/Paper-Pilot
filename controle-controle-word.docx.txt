@@ -1,0 +1,99 @@
+﻿Controle van controle-word.docx
+
+Paper Pilot vond 5 problemen en 6 punten om op te letten. 2 dingen zijn goed. Met Ctrl+K spring je van punt naar punt; met Ctrl+S sla je dit verslag op.
+
+Tip: Word heeft ook een eigen controle. Kies het tabblad Controleren, Toegankelijkheid controleren.
+
+Problemen (5)
+
+Probleem 1: Het document heeft geen titel
+
+De titel is het eerste wat een schermlezer zegt, ook in de PDF die je ervan maakt. Zonder titel hoort iemand alleen de bestandsnaam.
+
+Zo los je het op: Kies in Word Bestand, Info, en vul rechts bij Eigenschappen een Titel in.
+
+Probleem 2: 1 keer tekst die eruitziet als een kop, maar het niet is
+
+Deze regels zijn vet of groot gemaakt, maar hebben geen kopstijl. Voor jou zien ze eruit als een kop, maar een schermlezer weet dat niet en kan er niet naartoe springen.
+
+Waar: "Belangrijk nieuws"
+
+Zo los je het op: Zet de cursor in de regel en kies de stijl Kop 1, Kop 2 of Kop 3 (tabblad Start). Pas het uiterlijk desnoods aan in de stijl zelf.
+
+Probleem 3: 1 van de 1 plaatjes hebben geen beschrijving
+
+Iemand die blind is, hoort dan alleen "afbeelding". Wat er op het plaatje staat, mist hij.
+
+Waar: Picture 1
+
+Zo los je het op: Rechtsklik op het plaatje en kies Alternatieve tekst weergeven. Beschrijf kort wat er belangrijk is aan het plaatje. Is het alleen versiering, vink dan Markeren als decoratief aan.
+
+Probleem 4: 1 van de 1 tabellen hebben geen koprij
+
+Een schermlezer leest bij elke cel voor bij welke kolom hij hoort, maar alleen als de bovenste rij een koprij is.
+
+Zo los je het op: Klik in de bovenste rij, kies Tabeleigenschappen, tabblad Rij, en zet het vinkje aan bij Herhalen als koprij bovenaan elke pagina.
+
+Probleem 5: 2 keer tekst met te weinig kleurcontrast
+
+Deze tekst is moeilijk te lezen voor mensen die slechtziend of kleurenblind zijn, en op een scherm in de zon. Gewone tekst moet een contrast van minstens 4,5 hebben, grote tekst minstens 3.
+
+Waar: "Activiteiten" (contrast 4,0); "Deze tekst is lichtgrijs en slecht te lezen." (contrast 1,9)
+
+Zo los je het op: Kies een donkerdere tekstkleur (of een lichtere achtergrond). Zwart of donkergrijs op wit is altijd goed.
+
+Om op te letten (6)
+
+Let op 1: Koppen slaan een niveau over
+
+Na een hoger niveau komt hier meteen een kop die twee niveaus lager is, bijvoorbeeld van Kop 1 naar Kop 3.
+
+Waar: "Activiteiten" (niveau 3)
+
+Zo los je het op: Gebruik de koppen op volgorde: Kop 1, daaronder Kop 2, daaronder Kop 3.
+
+Let op 2: 1 keer heel kleine letters (kleiner dan 9 punten)
+
+Kleine letters zijn voor veel mensen moeilijk te lezen, ook als ze inzoomen in een PDF.
+
+Waar: "Heel kleine lettertjes." (7 pt)
+
+Zo los je het op: Gebruik voor gewone tekst minstens 11 of 12 punten.
+
+Let op 3: 1 alinea's met uitgevulde tekst
+
+Bij uitgevulde tekst (links en rechts recht) komen er ongelijke gaten tussen de woorden. Voor mensen die slechtziend zijn of dyslexie hebben, is dat moeilijk te lezen.
+
+Zo los je het op: Kies Links uitlijnen (Ctrl+L) voor gewone tekst.
+
+Let op 4: 1 keer zinnen in hoofdletters
+
+Tekst in alleen hoofdletters is moeilijker te lezen, vooral voor mensen die slechtziend zijn. Sommige schermlezers spellen woorden in hoofdletters letter voor letter.
+
+Waar: "LET OP: DE VERGADERING BEGINT OM ACHT UUR"
+
+Zo los je het op: Schrijf gewoon met kleine letters en hoofdletters. Wil je iets laten opvallen, gebruik dan een kop of vet voor een paar woorden.
+
+Let op 5: 1 keer veel lege regels achter elkaar
+
+Lege regels om ruimte te maken, leest een schermlezer voor als "leeg, leeg, leeg". Dat is vermoeiend.
+
+Zo los je het op: Gebruik Ruimte voor en Ruimte na bij de alinea (Indeling, Afstand), of een pagina-einde (Ctrl+Enter) om op een nieuwe pagina te beginnen.
+
+Let op 6: 2 keer een lijstje dat met de hand is getypt
+
+Deze regels beginnen met een streepje, sterretje of nummer dat je zelf hebt getypt. Een schermlezer weet dan niet dat het een lijst is en hoeveel punten erin staan.
+
+Waar: "- eerste punt met de hand"; "- tweede punt met de hand"
+
+Zo los je het op: Gebruik de knoppen Opsommingstekens of Nummering op het tabblad Start.
+
+Wat goed is (2)
+
+De taal is ingesteld: en-US
+
+Er zijn echte koppen: 2.
+
+Tot slot
+
+Paper Pilot controleert veel, maar niet alles. Bijvoorbeeld of de tekst duidelijk is, of de leesvolgorde klopt en of alles met het toetsenbord werkt. Laat je document of website daarom ook eens gebruiken door iemand met een schermlezer.

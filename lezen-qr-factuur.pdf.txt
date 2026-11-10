@@ -1,0 +1,23 @@
+﻿Bestand: qr-factuur.pdf
+Pagina's: 1
+Zonder tekst: []
+Invulvelden: 0
+Afbeeldingen: 0
+Melding: Op pagina 1 staat een betaal-QR-code: 12,50 euro aan Gemeente Voorbeeld. Druk op Ctrl+Q om de gegevens te kopiëren.
+Gegevens: Bedrag: 12,50 euro / Rekeningnummer (IBAN): NL91 ABNA 0417 1643 00 / Betalingskenmerk of omschrijving: Factuur 2026-123
+Kop: Factuur (18-25)
+Kop: Gevonden: QR-code (79-96)
+----
+Pagina 1 van 1
+
+Factuur
+
+Te betalen: 12,50 euro aan Gemeente Voorbeeld.
+
+Gevonden: QR-code
+
+Dit is een betaalverzoek (scan en betaal).
+Aan: Gemeente Voorbeeld
+Bedrag: 12,50 euro
+Rekeningnummer (IBAN): NL91ABNA0417164300
+Omschrijving: Factuur 2026-123

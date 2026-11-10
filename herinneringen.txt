@@ -1,0 +1,15 @@
+﻿GOED: 1 december 2026
+GOED: 15-12-2026
+GOED: 1/2/27
+GOED: 31 februari bestaat niet
+GOED: 3 dagen verschil
+GOED: dagnummer heen en terug
+GOED: over 2 dagen uitgerekend
+GOED: herinnering over 2 dagen wordt gemeld
+GOED: herinnering over een jaar nog niet
+Zin: 12 november 2026 (over 2 dagen): Proef: betalen - proef.pdf
+GOED: geplande taak gemaakt
+GOED: weer weggehaald
+GOED: geplande taak weg als er niets meer is
+GOED: Mijn post onthoudt de brief
+Regel: 10 november 2026, 08.24 - Gemeente Voorbeeld - proefbrief.txt

@@ -1,0 +1,8 @@
+Paper Pilot 0.0.0.16 - proefstart
+Teksten: 802 in het Nederlands, 802 in het Engels.
+Onderdeel (nl): &Lezen en invullen. Brieven scannen of openen en lezen, ook handschrift en foto's. PDF-formulieren vraag voor vraag invullen. Afdrukken en opslaan als PDF.
+Onderdeel (nl): &Controleren. Voor wie een PDF, Word-bestand of website maakt: kijk of een schermlezer alles goed kan lezen.
+Onderdeel (en): &Read and fill in. Scan or open letters and read them, including handwriting and photos. Fill in PDF forms question by question. Print and save as PDF.
+Onderdeel (en): &Check. For people who make a PDF, Word document or website: see whether a screen reader can read everything well.
+Tekstherkenning: beschikbaar (en-US)
+GESLAAGD

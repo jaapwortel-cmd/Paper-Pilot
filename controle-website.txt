@@ -1,0 +1,29 @@
+﻿Controle van https://www.rijksoverheid.nl
+
+Paper Pilot vond 0 problemen en 0 punten om op te letten. 8 dingen zijn goed. Met Ctrl+K spring je van punt naar punt; met Ctrl+S sla je dit verslag op.
+
+Mooi: Paper Pilot vond geen problemen.
+
+Paper Pilot kijkt naar de HTML van de pagina. Wat later met JavaScript verschijnt, en kleuren uit stijlbladen (CSS), worden niet gecontroleerd.
+
+Wat goed is (8)
+
+De taal van de pagina is ingesteld: nl
+
+De pagina heeft een titel: Informatie van de Rijksoverheid | Rijksoverheid.nl
+
+Alle 14 plaatjes hebben een alt-tekst.
+
+De 57 links hebben een naam.
+
+De 1 knoppen hebben een naam.
+
+Alle 1 invulvelden hebben een label.
+
+Er zijn 35 koppen, waarvan 1 van niveau 1.
+
+De pagina heeft een hoofdgedeelte (main).
+
+Tot slot
+
+Paper Pilot controleert veel, maar niet alles. Bijvoorbeeld of de tekst duidelijk is, of de leesvolgorde klopt en of alles met het toetsenbord werkt. Laat je document of website daarom ook eens gebruiken door iemand met een schermlezer.

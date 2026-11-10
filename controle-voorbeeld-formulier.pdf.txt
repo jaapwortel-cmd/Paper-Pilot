@@ -1,0 +1,31 @@
+﻿Controle van voorbeeld-formulier.pdf
+
+Paper Pilot vond 2 problemen en 0 punten om op te letten. 4 dingen zijn goed. Met Ctrl+K spring je van punt naar punt; met Ctrl+S sla je dit verslag op.
+
+Problemen (2)
+
+Probleem 1: De PDF heeft geen structuur (niet getagd)
+
+Een getagde PDF vertelt de schermlezer wat een kop, een alinea, een lijst, een tabel of een plaatje is. Zonder tags leest de schermlezer alles als één lange tekst, soms in een rare volgorde, en kun je niet van kop naar kop springen.
+
+Zo los je het op: Maak de PDF opnieuw vanuit Word met Opslaan als, PDF, en zet bij Opties het vinkje aan bij Documentstructuurlabels voor toegankelijkheid. In Adobe Acrobat kun je ook Toegankelijkheid, Tags automatisch toevoegen kiezen.
+
+Probleem 2: De taal van de PDF is niet ingesteld
+
+Een schermlezer weet dan niet in welke taal hij moet voorlezen. Nederlandse tekst wordt dan soms met een Engelse uitspraak voorgelezen, en dat is slecht te verstaan.
+
+Zo los je het op: Stel in Word de taal in (Controleren, Taal) voordat je de PDF maakt. In Adobe Acrobat: Bestand, Eigenschappen, Geavanceerd, Taal.
+
+Wat goed is (4)
+
+Op elke pagina staat echte tekst.
+
+De tekens in de tekst kunnen goed worden voorgelezen.
+
+De PDF heeft een titel: Wijzigingsformulier pgb
+
+Alle 7 invulvelden hebben een naam voor de schermlezer.
+
+Tot slot
+
+Paper Pilot controleert veel, maar niet alles. Bijvoorbeeld of de tekst duidelijk is, of de leesvolgorde klopt en of alles met het toetsenbord werkt. Laat je document of website daarom ook eens gebruiken door iemand met een schermlezer.

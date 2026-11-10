@@ -1,0 +1,195 @@
+﻿Controle van tests\controle-web.html
+
+Paper Pilot vond 17 problemen en 9 punten om op te letten. 0 dingen zijn goed. Met Ctrl+K spring je van punt naar punt; met Ctrl+S sla je dit verslag op.
+
+Paper Pilot kijkt naar de HTML van de pagina. Wat later met JavaScript verschijnt, en kleuren uit stijlbladen (CSS), worden niet gecontroleerd.
+
+Problemen (17)
+
+Probleem 1: De taal van de pagina is niet ingesteld
+
+Een schermlezer weet dan niet in welke taal hij moet voorlezen. Nederlandse tekst klinkt dan soms als Engels.
+
+Zo los je het op: Zet de taal in de HTML: <html lang="nl">.
+
+Probleem 2: De pagina heeft geen titel
+
+De titel is het eerste wat een schermlezer zegt als de pagina opent, en staat op het tabblad van de browser.
+
+Zo los je het op: Zet een duidelijke titel in de <title> van de pagina, bijvoorbeeld "Contact - Bakkerij De Korenaar".
+
+Probleem 3: 1 van de 3 plaatjes hebben geen alt-tekst
+
+Bij een plaatje zonder alt-tekst leest een schermlezer vaak de bestandsnaam voor, zoals "IMG_2034.jpg".
+
+Waar: logo.png
+
+Zo los je het op: Geef elk plaatje een alt-tekst die zegt wat er belangrijk aan is: <img src="..." alt="...">. Is het alleen versiering, gebruik dan alt="" (leeg).
+
+Probleem 4: 1 links zonder naam
+
+Deze links hebben geen tekst die een schermlezer kan voorlezen, bijvoorbeeld een icoontje zonder alt-tekst. De schermlezer zegt dan alleen "link" of het webadres.
+
+Waar: /
+
+Zo los je het op: Zet tekst in de link, of geef het icoontje een alt-tekst, of gebruik aria-label="...".
+
+Probleem 5: 1 knoppen zonder naam
+
+De schermlezer zegt dan alleen "knop". Iemand weet niet wat de knop doet.
+
+Waar: <button class="zoek">
+
+Zo los je het op: Zet tekst in de knop, of gebruik aria-label="..." bij een knop met alleen een icoontje.
+
+Probleem 6: 1 van de 4 invulvelden hebben geen label
+
+De schermlezer weet dan niet wat er in het veld moet. Hij zegt alleen "invoerveld".
+
+Waar: <input E-mailadres>
+
+Zo los je het op: Gebruik bij elk veld een <label for="..."> met de vraag, of aria-label="...".
+
+Probleem 7: De pagina heeft geen kop van niveau 1 (h1)
+
+De belangrijkste kop van de pagina helpt een schermlezer te zeggen waar de pagina over gaat.
+
+Zo los je het op: Maak de titel van de pagina een <h1>.
+
+Probleem 8: 1 van de 1 tabellen hebben geen kopcellen
+
+Een schermlezer zegt bij elke cel bij welke kolom hij hoort, maar alleen als de koppen in <th> staan. Anders hoor je alleen losse getallen.
+
+Zo los je het op: Zet de koppen van de kolommen in <th> in plaats van <td>. Gebruik je een tabel alleen voor de opmaak, zet er dan role="presentation" bij (of beter: gebruik CSS).
+
+Probleem 9: Bewegende of knipperende tekst
+
+Tekst die beweegt of knippert (marquee of blink) is moeilijk te lezen en leidt af. Een schermlezer kan er ook moeite mee hebben.
+
+Zo los je het op: Haal <marquee> en <blink> weg en laat de tekst stilstaan.
+
+Probleem 10: De pagina ververst of springt vanzelf naar een andere pagina
+
+Iemand met een schermlezer raakt dan zijn plek kwijt, of de pagina verandert voordat hij hem heeft kunnen lezen (WCAG 2.2.1).
+
+Zo los je het op: Haal <meta http-equiv="refresh"> weg. Laat de bezoeker zelf kiezen wanneer hij verder gaat.
+
+Probleem 11: 1 onderdelen die je alleen met de muis kunt gebruiken
+
+Deze onderdelen reageren op een muisklik (onclick), maar je kunt er niet met Tab naartoe en ze hebben geen rol. Met alleen het toetsenbord of een schermlezer werken ze niet (WCAG 2.1.1).
+
+Waar: <div class="knop">
+
+Zo los je het op: Gebruik een echte <button> of <a href>. Moet het een <div> blijven, geef hem dan role="button", tabindex="0" en laat hem ook op Enter en spatie reageren.
+
+Probleem 12: 1 onderdelen die verborgen zijn voor de schermlezer, maar wel met Tab te bereiken
+
+Ze hebben aria-hidden="true", maar je komt er wel op met Tab. De schermlezer zegt dan niets, en iemand weet niet waar hij is (WCAG 4.1.2).
+
+Waar: <button>
+
+Zo los je het op: Haal aria-hidden weg, of zorg dat het onderdeel ook niet met Tab te bereiken is (tabindex="-1" of disabled).
+
+Probleem 13: 1 getekende plaatjes (svg) zonder naam
+
+Deze svg-plaatjes hebben role="img", maar geen naam. De schermlezer zegt dan alleen "afbeelding".
+
+Zo los je het op: Geef de svg een aria-label="..." met wat het plaatje laat zien.
+
+Probleem 14: Inzoomen is uitgezet
+
+De pagina zegt tegen telefoons dat inzoomen niet mag. Mensen die slechtziend zijn, kunnen de tekst dan niet groter maken.
+
+Zo los je het op: Haal user-scalable=no en maximum-scale=1 weg uit <meta name="viewport">.
+
+Probleem 15: 1 ingevoegde stukken (iframes) zonder titel
+
+Een schermlezer zegt dan alleen "frame", zonder te zeggen wat erin staat (bijvoorbeeld een kaart of een video).
+
+Waar: https://maps.example.com/kaart
+
+Zo los je het op: Geef elk iframe een title, bijvoorbeeld <iframe title="Kaart met de route" ...>.
+
+Probleem 16: Geluid of video speelt vanzelf af
+
+Geluid dat vanzelf begint, praat door de schermlezer heen. Iemand die blind is, kan de pagina dan niet meer volgen.
+
+Zo los je het op: Laat geluid en video pas afspelen als de bezoeker op Afspelen drukt.
+
+Probleem 17: 1 keer tekst met te weinig kleurcontrast
+
+Deze tekst is moeilijk te lezen voor mensen die slechtziend of kleurenblind zijn. Gewone tekst moet een contrast van minstens 4,5 hebben.
+
+Waar: <p> (contrast 2,3)
+
+Zo los je het op: Kies een donkerdere tekstkleur of een lichtere achtergrond.
+
+Om op te letten (9)
+
+Let op 1: 1 links met een onduidelijke tekst
+
+Een schermlezer kan alle links op een rij voorlezen. "Lees meer, lees meer, klik hier" zegt dan niets.
+
+Waar: "Lees meer" → /nieuws
+
+Zo los je het op: Maak de linktekst zelf duidelijk, bijvoorbeeld "Lees meer over de openingstijden".
+
+Let op 2: 1 velden hebben alleen een voorbeeldtekst (placeholder)
+
+De voorbeeldtekst verdwijnt zodra je begint te typen, en wordt niet door elke schermlezer voorgelezen.
+
+Zo los je het op: Gebruik een echt label; de voorbeeldtekst mag erbij blijven.
+
+Let op 3: Koppen slaan een niveau over
+
+Na een <h2> komt hier bijvoorbeeld meteen een <h4>. Dan lijkt het of er een stuk ontbreekt.
+
+Waar: h4: Openingstijden
+
+Zo los je het op: Gebruik de niveaus op volgorde.
+
+Let op 4: 1 groepen keuzerondjes zonder groepsvraag
+
+Een schermlezer leest dan wel "Ja" en "Nee" voor, maar niet de vraag waar ze bij horen.
+
+Waar: name="nieuwsbrief"
+
+Zo los je het op: Zet de keuzerondjes in een <fieldset> met de vraag in een <legend>.
+
+Let op 5: 2 velden voor persoonlijke gegevens zonder autocomplete
+
+Met autocomplete kan de browser naam, adres en e-mail zelf invullen. Dat scheelt veel typen, vooral voor wie slechtziend is of moeilijk typt (WCAG 1.3.5).
+
+Waar: <input naam>; <input email>
+
+Zo los je het op: Zet het juiste autocomplete-attribuut bij het veld, bijvoorbeeld autocomplete="email", "name", "tel" of "postal-code".
+
+Let op 6: 1 video's zonder ondertiteling
+
+Mensen die doof of slechthorend zijn, kunnen dan niet volgen wat er gezegd wordt. Voor wie blind is, is soms ook audiodescriptie nodig.
+
+Zo los je het op: Voeg ondertiteling toe met <track kind="captions">, en zorg voor een beschrijving van wat er te zien is als dat belangrijk is.
+
+Let op 7: Geen hoofdgedeelte (main)
+
+Met <main> kan iemand met een schermlezer meteen naar de inhoud springen, langs het menu.
+
+Zo los je het op: Zet de inhoud van de pagina in <main>...</main>.
+
+Let op 8: 1 keer dezelfde id
+
+Labels en schermlezers zoeken velden op hun id. Staat dezelfde id er twee keer, dan kan het verkeerde veld worden voorgelezen.
+
+Waar: id="dubbel" (2x)
+
+Zo los je het op: Geef elk element een eigen id.
+
+Let op 9: 1 keer tabindex groter dan 0
+
+Dit verandert de volgorde waarin je met Tab door de pagina gaat. Dat is verwarrend voor wie alleen het toetsenbord gebruikt.
+
+Zo los je het op: Gebruik alleen tabindex="0" of tabindex="-1", en zet de onderdelen in de goede volgorde in de HTML.
+
+Tot slot
+
+Paper Pilot controleert veel, maar niet alles. Bijvoorbeeld of de tekst duidelijk is, of de leesvolgorde klopt en of alles met het toetsenbord werkt. Laat je document of website daarom ook eens gebruiken door iemand met een schermlezer.

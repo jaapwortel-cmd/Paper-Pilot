@@ -1,0 +1,54 @@
+﻿Afspraak: 14 december 2030 om 10.30 uur | Voorbeeldziekenhuis, ingang B, eerste verdieping | Afspraak bij Voorbeeldziekenhuis
+GOED: een afspraak gevonden
+GOED: tijd 10.30
+GOED: plaats gevonden
+GOED: agendabestand klopt
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Paper Pilot//NL
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:20261110T082457-20301214@paperpilot
+DTSTAMP:20261110T082457
+DTSTART:20301214T103000
+DTEND:20301214T113000
+SUMMARY:Afspraak bij Voorbeeldziekenhuis
+LOCATION:Voorbeeldziekenhuis\, ingang B\, eerste verdieping
+DESCRIPTION:U bent uitgenodigd voor een afspraak op de polikliniek Oogheelkunde. Datum: 14 december 2030 Tijd: 10.30 uur Locatie: Voorbeeldziekenhuis\, ingang B\, eerste verdieping
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Afspraak bij Voorbeeldziekenhuis
+TRIGGER:-P1D
+END:VALARM
+END:VEVENT
+END:VCALENDAR
+GOED: brief met kenmerk
+---- brief
+[je naam]
+[je adres]
+
+Voorbeeldziekenhuis
+
+10 november 2026
+
+Betreft: Een vraag stellen
+Uw kenmerk: ZH-2026-7781
+
+Geachte heer, mevrouw,
+
+Ik heb uw brief ontvangen en heb daar een vraag over.
+
+Kan de afspraak ook later op de dag?
+
+Ik zie uw antwoord graag tegemoet.
+
+Met vriendelijke groet,
+
+
+[je naam]
+----
+GOED: Word-bestand terug te lezen
+GOED: eigen Word-bestand heeft titel en taal
+GOED: soort zorg
+GOED: soort belasting
+GOED: soort bank

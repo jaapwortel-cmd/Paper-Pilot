@@ -1,0 +1,85 @@
+﻿Downloaden gelukt in 3 s
+== Handschrift (9 s)
+Boodschappen
+== Beschrijven (0 s)
+Boodschappen
+== Vertalen
+De verzekterli het Nederlands is on Monday at ten.
+
+---
+
+Dear Sir, your appointment is on Monday at ten.
+
+---
+
+Dear Sir, your appointment is on Monday at ten.
+
+---
+
+Dear Sir, your appointment is on Monday at ten.
+
+---
+
+Dear Sir, your appointment is on Monday at ten.
+
+---
+
+Dear Sir, your appointment is on Monday at ten.
+
+---
+
+Dear Sir, your appointment is on Monday at ten.
+
+---
+
+Dear Sir, your appointment is on Monday at ten.
+
+---
+
+Dear Sir, your appointment is on Monday at ten.
+
+---
+
+Dear Sir, your appointment is on Monday at ten.
+
+---
+
+Dear Sir, your appointment is on Monday at ten.
+
+---
+
+Dear Sir, your appointment is on Monday at ten.
+
+---
+
+Dear Sir,
+== Wat moet ik doen (1 s)
+Je helpt iemand die blind of slechtziend is met de post. Hieronder staat de tekst van een brief of document. Schrijf in eenvoudig Nederlands en spreek de lezer aan met "je". Zeg eerst in éen of twee zinnen van wie het is en waar het over gaat. Zeg daarin wat de lezer moet doen en vóór wanneer; hoeft de lezer niets te doen, zeg dat dan. Moet de lezer iets betalen, noem dan het bedrag, het rekeningnummer en het betalingskenmerk precies zoals ze in de tekst staan. Verzin niets: staat iets niet in de tekst, zeg dat dan. Gebruik hooguit tien korte zinnen, zonder opmaak, sterretjes of hekjes.
+== motor.log (einde)
+ed =          6
+0.09.740.580 I slot print_timing: id  0 | task 0 |   graph reallocs =          0    /     0        (same size) / (changed size)
+0.09.740.648 I slot      release: id  0 | task 0 | stop processing: n_tokens = 450, truncated = 0
+0.09.804.567 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.699 (> 0.100 thold), f_keep = 0.749
+0.09.804.748 I slot launch_slot_: id  0 | task 13 | processing task, is_child = 0
+0.09.974.338 I slot print_timing: id  0 | task 13 | prompt eval time =     133.90 ms /   145 tokens (    0.92 ms per token,  1082.89 tokens per second)
+0.09.974.349 I slot print_timing: id  0 | task 13 |        eval time =      35.65 ms /     7 tokens (    5.94 ms per token,   168.30 tokens per second)
+0.09.974.351 I slot print_timing: id  0 | task 13 |       total time =     169.55 ms /   152 tokens
+0.09.974.352 I slot print_timing: id  0 | task 13 |    graphs reused =         11
+0.09.974.353 I slot print_timing: id  0 | task 13 |   graph reallocs =          0    /     0        (same size) / (changed size)
+0.09.974.401 I slot      release: id  0 | task 13 | stop processing: n_tokens = 488, truncated = 0
+0.09.977.963 I slot get_availabl: id  1 | task -1 | selected slot by LRU, n_tokens = 0, t_last = -1
+0.09.978.007 I slot launch_slot_: id  1 | task 21 | processing task, is_child = 0
+0.10.928.818 I slot print_timing: id  1 | task 21 | prompt eval time =      56.86 ms /    93 tokens (    0.61 ms per token,  1635.71 tokens per second)
+0.10.928.833 I slot print_timing: id  1 | task 21 |        eval time =     889.26 ms /   200 tokens (    4.47 ms per token,   223.78 tokens per second)
+0.10.928.835 I slot print_timing: id  1 | task 21 |       total time =     946.12 ms /   293 tokens
+0.10.928.836 I slot print_timing: id  1 | task 21 |    graphs reused =        208
+0.10.928.837 I slot print_timing: id  1 | task 21 |   graph reallocs =          0    /     0        (same size) / (changed size)
+0.10.928.879 I slot      release: id  1 | task 21 | stop processing: n_tokens = 292, truncated = 0
+0.10.932.416 I slot get_availabl: id  2 | task -1 | selected slot by LRU, n_tokens = 0, t_last = -1
+0.10.932.495 I slot launch_slot_: id  2 | task 222 | processing task, is_child = 0
+0.12.324.196 I slot print_timing: id  2 | task 222 | prompt eval time =     199.50 ms /   295 tokens (    0.68 ms per token,  1478.73 tokens per second)
+0.12.324.207 I slot print_timing: id  2 | task 222 |        eval time =    1189.35 ms /   227 tokens (    5.26 ms per token,   190.02 tokens per second)
+0.12.324.208 I slot print_timing: id  2 | task 222 |       total time =    1388.85 ms /   522 tokens
+0.12.324.209 I slot print_timing: id  2 | task 222 |    graphs reused =        432
+0.12.324.211 I slot print_timing: id  2 | task 222 |   graph reallocs =          0    /     0        (same size) / (changed size)
+0.12.324.250 I slot      release: id  2 | task 222 | stop processing: n_tokens = 521, truncated = 0

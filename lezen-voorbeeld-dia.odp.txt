@@ -1,0 +1,19 @@
+﻿Bestand: voorbeeld-dia.odp
+Pagina's: 0
+Zonder tekst: []
+Invulvelden: 0
+Afbeeldingen: 0
+Kop: Dia 1 (0-5)
+Kop: Dia 2 (52-57)
+----
+Dia 1
+
+Welkom bij Paper Pilot
+
+Brieven lezen
+
+Dia 2
+
+Tweede dia
+
+Formulieren invullen

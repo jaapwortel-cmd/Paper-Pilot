@@ -1,0 +1,34 @@
+﻿Bestand: envelop.jpg
+Pagina's: 0
+Zonder tekst: []
+Invulvelden: 0
+Afbeeldingen: 1
+Melding: Dit is een envelop van Belastingdienst, aan De J. Jansen, Dorpsstraat 12, 1234 AB Zeist.
+Kop: Envelop (0-7)
+Kop: Alle tekst op de envelop (87-111)
+Kop: Belastingdienst (115-130)
+PDF met tekst: 22 woorden, 0 pagina's zonder tekst
+PDF-tekst: Pagina 1 van 1 Belastingdienst Retouradres Postbus 9047, 7300 GV Apeldoorn De J. Jansen Dorpsstraat 12 1234 AB Zeist PostNL Port betaald
+Afbeelding opgeslagen: lezen-envelop.jpg.txt.png
+----
+Envelop
+
+Van: Belastingdienst
+
+Aan: De J. Jansen, Dorpsstraat 12, 1234 AB Zeist
+
+Alle tekst op de envelop
+
+Belastingdienst
+
+Retouradres Postbus 9047, 7300 GV Apeldoorn
+
+De J. Jansen
+
+Dorpsstraat 12
+
+1234 AB Zeist
+
+PostNL
+
+Port betaald

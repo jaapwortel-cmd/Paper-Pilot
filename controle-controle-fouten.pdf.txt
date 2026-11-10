@@ -1,0 +1,55 @@
+﻿Controle van controle-fouten.pdf
+
+Paper Pilot vond 3 problemen en 1 punt om op te letten. 6 dingen zijn goed. Met Ctrl+K spring je van punt naar punt; met Ctrl+S sla je dit verslag op.
+
+Problemen (3)
+
+Probleem 1: De PDF heeft geen titel
+
+De schermlezer noemt dan alleen de bestandsnaam, zoals "scan_0034.pdf". Met een titel weet iemand meteen wat voor document het is.
+
+Zo los je het op: Vul in Word bij Bestand, Info, Eigenschappen een titel in voordat je de PDF maakt. In Adobe Acrobat: Bestand, Eigenschappen, Beschrijving, Titel.
+
+Probleem 2: 1 van de 1 plaatjes hebben geen beschrijving
+
+Iemand die blind is, hoort dan alleen "afbeelding", of helemaal niets. Wat er op het plaatje staat, mist hij.
+
+Waar: pagina 1
+
+Zo los je het op: Geef in Word elk plaatje een alternatieve tekst (rechtsklikken op het plaatje, Alternatieve tekst bewerken), en maak de PDF opnieuw. Is een plaatje alleen versiering, vink dan Markeren als decoratief aan.
+
+Probleem 3: 1 tabellen zonder kopcellen
+
+Een schermlezer leest bij elke cel voor bij welke kolom hij hoort, maar alleen als de bovenste rij als kopregel is gemarkeerd. Anders hoor je alleen losse getallen.
+
+Waar: pagina 1
+
+Zo los je het op: Zet in Word de cursor in de bovenste rij van de tabel, kies Tabelontwerp en zet het vinkje aan bij Koprij. Kies bij Eigenschappen van de tabel, Rij ook Herhalen als koprij.
+
+Om op te letten (1)
+
+Let op 1: Koppen slaan een niveau over
+
+Na een kop van niveau 1 komt hier meteen een kop van niveau 3. Dan lijkt het voor de schermlezer of er een stuk ontbreekt.
+
+Waar: pagina 1
+
+Zo los je het op: Gebruik de niveaus op volgorde: Kop 1 voor het hoofdstuk, Kop 2 daaronder, Kop 3 daar weer onder.
+
+Wat goed is (6)
+
+Op elke pagina staat echte tekst.
+
+De tekens in de tekst kunnen goed worden voorgelezen.
+
+De PDF is getagd: er is een structuur voor de schermlezer.
+
+De taal is ingesteld: en-US
+
+Er zijn koppen: 2.
+
+De PDF heeft bladwijzers.
+
+Tot slot
+
+Paper Pilot controleert veel, maar niet alles. Bijvoorbeeld of de tekst duidelijk is, of de leesvolgorde klopt en of alles met het toetsenbord werkt. Laat je document of website daarom ook eens gebruiken door iemand met een schermlezer.
