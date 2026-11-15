@@ -1,0 +1,10 @@
+﻿GOED: goed -> Some(Goed) (verwacht Goed) Goed zo, houd hem stil.
+GOED: links-uit -> Some(NaarLinks) (verwacht NaarLinks) Schuif de brief een beetje naar links.
+GOED: rechts-uit -> Some(NaarRechts) (verwacht NaarRechts) Schuif de brief een beetje naar rechts.
+GOED: boven-uit -> Some(Lager) (verwacht Lager) Houd de brief iets lager.
+GOED: onder-uit -> Some(Hoger) (verwacht Hoger) Houd de brief iets hoger.
+GOED: dichtbij -> Some(Dichtbij) (verwacht Dichtbij) Te dichtbij. Houd de brief verder weg.
+GOED: donker -> Some(Donker) (verwacht Donker) Te donker. Doe meer licht aan.
+GOED: wazig -> Some(Wazig) (verwacht Wazig) Wazig. Houd de brief stil, of iets verder weg.
+GOED: leeg -> Some(GeenBrief) (verwacht GeenBrief) Geen brief in beeld. Houd de brief voor de camera.
+GOED: achterkant -> Some(GeenTekst) (verwacht GeenTekst) Geen tekst te zien. Draai de brief om.

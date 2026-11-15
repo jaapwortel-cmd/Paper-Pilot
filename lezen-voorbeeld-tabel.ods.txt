@@ -1,0 +1,19 @@
+﻿Bestand: voorbeeld-tabel.ods
+Pagina's: 0
+Zonder tekst: []
+Invulvelden: 0
+Afbeeldingen: 0
+Kop: Kosten (0-6)
+Kop: Tweede (68-74)
+----
+Kosten
+
+Omschrijving | Bedrag
+
+Huur | 750
+
+Energie | 120.5
+
+Tweede
+
+Hallo blad twee

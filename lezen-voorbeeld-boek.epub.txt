@@ -1,0 +1,18 @@
+﻿Bestand: voorbeeld-boek.epub
+Pagina's: 0
+Zonder tekst: []
+Invulvelden: 0
+Afbeeldingen: 0
+Kop: Het voorbeeldboek (0-17)
+Kop: Hoofdstuk 1: Het begin (21-43)
+Kop: Hoofdstuk 2: Het einde (95-117)
+----
+Het voorbeeldboek
+
+Hoofdstuk 1: Het begin
+
+Er was eens een brief die niemand kon lezen.
+
+Hoofdstuk 2: Het einde
+
+Paper Pilot las de brief voor & iedereen was blij.

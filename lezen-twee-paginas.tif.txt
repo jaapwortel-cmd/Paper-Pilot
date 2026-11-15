@@ -1,0 +1,49 @@
+﻿Bestand: twee-paginas.tif
+Pagina's: 2
+Zonder tekst: []
+Invulvelden: 0
+Afbeeldingen: 2
+Melding: Let op: pagina 2 lag op zijn kop. Paper Pilot heeft hem rechtgezet.
+Kop: Zorgkantoor Voorbeeld (18-39)
+Kop: Zorgkantoor Voorbeeld (491-512)
+PDF met tekst: 120 woorden, 0 pagina's zonder tekst
+PDF-tekst: Pagina 1 van 2 Zorgkantoor Voorbeeld Datum: 6 november 2026 Betreft: uw persoonsgebonden budget Beste meneer of mevrouw, Wij hebben uw aanvraag ontvangen en bekeken.
+Afbeelding opgeslagen: lezen-twee-paginas.tif.txt.png
+----
+Pagina 1 van 2
+
+Zorgkantoor Voorbeeld
+
+Datum: 6 november 2026
+
+Betreft: uw persoonsgebonden budget
+
+Beste meneer of mevrouw,
+
+Wij hebben uw aanvraag ontvangen en bekeken. U krijgt
+in 2027 een budget voor zorg thuis. Het bedrag staat in
+de bijlage bij deze brief. Wilt u de gegevens controleren
+en het formulier binnen vier weken terugsturen?
+
+Met vriendelijke groet,
+het zorgkantoor
+
+Pagina 2 van 2
+
+Let op: pagina 2 lag op zijn kop. Paper Pilot heeft hem rechtgezet.
+
+Zorgkantoor Voorbeeld
+
+Datum: 6 november 2026
+
+Betreft: uw persoonsgebonden budget
+
+Beste meneer of mevrouw,
+
+Wij hebben uw aanvraag ontvangen en bekeken. U krijgt
+in 2027 een budget voor zorg thuis. Het bedrag staat in
+de bijlage bij deze brief. Wilt u de gegevens controleren
+en het formulier binnen vier weken terugsturen?
+
+Met vriendelijke groet,
+het zorgkantoor

@@ -1,0 +1,16 @@
+﻿Plekken: 13
+Plek 1: Tekst 'Voorletters' (pagina 1, x 409, onder 336, breedte 580)
+Plek 2: Tekst 'Achternaam' (pagina 1, x 409, onder 392, breedte 580)
+Plek 3: Tekst 'Burgerservicenummer' (pagina 1, x 409, onder 452, breedte 580)
+Plek 4: Tekst 'Geboortedatum' (pagina 1, x 291, onder 504, breedte 220)
+Plek 5: Tekst 'Telefoonnummer' (pagina 1, x 306, onder 556, breedte 313)
+Plek 6: Vinkje 'Geslacht: Man' (pagina 1, x 222, onder 620, breedte 15)
+Plek 7: Vinkje 'Geslacht: Vrouw' (pagina 1, x 309, onder 620, breedte 15)
+Plek 8: Vinkje 'Geslacht: Zeg ik liever niet' (pagina 1, x 416, onder 620, breedte 15)
+Plek 9: Vinkje 'Een voorleesapparaat' (pagina 1, x 119, onder 743, breedte 24)
+Plek 10: Vinkje 'Een brailleleesregel' (pagina 1, x 119, onder 787, breedte 24)
+Plek 11: Tekst 'Plaats' (pagina 1, x 324, onder 863, breedte 332)
+Plek 12: Tekst 'Datum' (pagina 1, x 804, onder 863, breedte 252)
+Plek 13: Tekst 'Handtekening' (pagina 1, x 324, onder 943, breedte 472)
+Ingevuld opgeslagen: plat-plat-formulier.pdf.txt.pdf
+Teruggelezen: antwoorden staan op de pagina

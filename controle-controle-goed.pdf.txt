@@ -1,0 +1,25 @@
+﻿Controle van controle-goed.pdf
+
+Paper Pilot vond 0 problemen en 0 punten om op te letten. 7 dingen zijn goed. Met Ctrl+K spring je van punt naar punt; met Ctrl+S sla je dit verslag op.
+
+Mooi: Paper Pilot vond geen problemen.
+
+Wat goed is (7)
+
+Op elke pagina staat echte tekst.
+
+De tekens in de tekst kunnen goed worden voorgelezen.
+
+De PDF is getagd: er is een structuur voor de schermlezer.
+
+De PDF heeft een titel: Goede brief
+
+De taal is ingesteld: en-US
+
+Er zijn koppen: 2.
+
+De PDF heeft bladwijzers.
+
+Tot slot
+
+Paper Pilot controleert veel, maar niet alles. Bijvoorbeeld of de tekst duidelijk is, of de leesvolgorde klopt en of alles met het toetsenbord werkt. Laat je document of website daarom ook eens gebruiken door iemand met een schermlezer.

@@ -1,0 +1,15 @@
+﻿Plekken: 13
+Plek 1: Tekst 'Voorletters' (pagina 1, x 852, onder 701, breedte 1210)
+Plek 2: Tekst 'Achternaam' (pagina 1, x 852, onder 818, breedte 1210)
+Plek 3: Tekst 'Burgerservicenummer' (pagina 1, x 852, onder 942, breedte 1210)
+Plek 4: Tekst 'Geboortedatum' (pagina 1, x 614, onder 1051, breedte 1669)
+Plek 5: Tekst 'Telefoonnummer' (pagina 1, x 642, onder 1168, breedte 1641)
+Plek 6: Vinkje 'Man' (pagina 1, x 463, onder 1286, breedte 32)
+Plek 7: Vinkje 'Vrouw' (pagina 1, x 643, onder 1286, breedte 32)
+Plek 8: Vinkje 'Zeg ik liever niet' (pagina 1, x 867, onder 1286, breedte 32)
+Plek 9: Vinkje 'Een voorleesapparaat' (pagina 1, x 248, onder 1549, breedte 50)
+Plek 10: Vinkje 'Een brailleleesregel' (pagina 1, x 248, onder 1641, breedte 50)
+Plek 11: Tekst 'Plaats' (pagina 1, x 675, onder 1800, breedte 692)
+Plek 12: Tekst 'Datum' (pagina 1, x 1675, onder 1800, breedte 526)
+Plek 13: Tekst 'Handtekening' (pagina 1, x 675, onder 1967, breedte 984)
+Ingevuld opgeslagen: plat-plat-scan.png.txt.pdf
