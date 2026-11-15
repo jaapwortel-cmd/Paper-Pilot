@@ -1,6 +1,6 @@
 ﻿# Paper Pilot - Nederlandse teksten. Vorm: Sleutel = tekst. \n is een nieuwe regel. {0} wordt ingevuld.
 Programma = Paper Pilot
-Ondertitel = Brieven lezen en formulieren invullen, helemaal zelf.
+Ondertitel = Voor blinden en slechtzienden: brieven en pdf's lezen met je schermlezer, en formulieren invullen.
 Voetregel = Versie {0}  ·  Gratis en open source  ·  F1 voor de handleiding
 TegelLezen = &Lezen en invullen
 TegelLezenOver = Brieven scannen of openen en lezen, ook handschrift en foto's. PDF-formulieren vraag voor vraag invullen. Afdrukken en opslaan als PDF.
@@ -50,7 +50,7 @@ KnopSluiten = Sluiten
 KnopBeginnen = Beginnen
 RondleidingTitel = Rondleiding ({0} van {1})
 Rondleiding1Kop = Welkom bij Paper Pilot
-Rondleiding1 = Paper Pilot helpt je met brieven en formulieren, helemaal zelf.\n\nDeze korte rondleiding laat zien wat het programma kan. Kies Volgende om verder te gaan, of Sluiten om meteen te beginnen.
+Rondleiding1 = Paper Pilot is voor blinden en slechtzienden. Je leest er brieven en pdf's mee met je schermlezer, en je vult er formulieren mee in, helemaal zelf. Het is geen programma om pdf's te maken of op te maken.\n\nDeze korte rondleiding laat zien wat het programma kan. Kies Volgende om verder te gaan, of Sluiten om meteen te beginnen.
 Rondleiding2Kop = Lezen en invullen
 Rondleiding2 = Met Lezen en invullen open je een brief of document (PDF, Word of tekst) en lees je hem met je schermlezer, met koppen en pagina's.\n\nScannen, formulieren invullen, ondertekenen en versturen komen in de volgende versies.
 Rondleiding3Kop = Controleren

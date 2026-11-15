@@ -1,6 +1,6 @@
 ﻿# Paper Pilot - English texts. Form: Key = text. \n is a new line. {0} is filled in.
 Programma = Paper Pilot
-Ondertitel = Read letters and fill in forms, all by yourself.
+Ondertitel = For blind and visually impaired people: read letters and PDFs with your screen reader, and fill in forms.
 Voetregel = Version {0}  ·  Free and open source  ·  F1 for the manual
 TegelLezen = &Read and fill in
 TegelLezenOver = Scan or open letters and read them, including handwriting and photos. Fill in PDF forms question by question. Print and save as PDF.
@@ -50,7 +50,7 @@ KnopSluiten = Close
 KnopBeginnen = Get started
 RondleidingTitel = Guided tour ({0} of {1})
 Rondleiding1Kop = Welcome to Paper Pilot
-Rondleiding1 = Paper Pilot helps you with letters and forms, all by yourself.\n\nThis short tour shows what the program can do. Choose Next to continue, or Close to start right away.
+Rondleiding1 = Paper Pilot is for blind and visually impaired people. You use it to read letters and PDFs with your screen reader and to fill in forms, all by yourself. It is not a program for making or designing PDFs.\n\nThis short tour shows what the program can do. Choose Next to continue, or Close to start right away.
 Rondleiding2Kop = Read and fill in
 Rondleiding2 = With Read and fill in you open a letter or document (PDF, Word or text) and read it with your screen reader, with headings and pages.\n\nScanning, filling in forms, signing and sending will come in the next versions.
 Rondleiding3Kop = Check

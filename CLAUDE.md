@@ -199,3 +199,8 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
   beheerder (Inno runasoriginaluser werkt dan niet); bij de Verhalenschrijver las JAWS daardoor bij vragen alleen de knoppen voor.
   TaskDialogs zelf zijn wel goed leesbaar (Jaap hoorde Over Paper Pilot helemaal met Insert+B).
 - 0.0.0.16 (10 nov 2026, Jaap): R-Wave Studio uit Meer programma's (lijst, teksten nl/en). Stond niet in de handleiding.
+
+## Opmerkingen van Marcel (tester, 15 nov 2026) - GEDAAN op 15 nov 2026 (zie Wijzigingen)
+1. Onduidelijk: Marcel dacht eerst dat Paper Pilot een pdf-lezer was, daarna een pdf-bewerker. De eerste zin zegt niet
+   voor wie het is. Voorstel ondertitel/welkom: "Paper Pilot leest brieven en pdf's voor met je schermlezer en helpt je
+   formulieren in te vullen, voor blinden en slechtzienden." Ook een korte beschrijving in het installatieprogramma.

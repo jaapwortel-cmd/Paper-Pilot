@@ -1,5 +1,8 @@
 ﻿Wijzigingen in Paper Pilot
 
+Versie 0.0.0.17 (november 2026)
+- Duidelijker waar Paper Pilot voor is: voor blinden en slechtzienden, om brieven en pdf's te lezen met je schermlezer en formulieren in te vullen.
+
 Versie 0.0.0.16 (november 2026)
 - Meer programma's van Jaap: R-Wave Studio staat niet meer in de lijst.
 

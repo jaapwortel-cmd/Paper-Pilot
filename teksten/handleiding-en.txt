@@ -1,7 +1,7 @@
 ﻿Paper Pilot manual
 Version 0.0.0.7
 
-Paper Pilot helps you with letters and forms, all by yourself. The program is free and open source, made by Jaap Wortel. It works with NVDA, JAWS and Narrator, with the keyboard and with the mouse.
+Paper Pilot is for blind and visually impaired people: you read letters and PDFs with your screen reader and fill in forms, all by yourself. The program is free and open source, made by Jaap Wortel. It works with NVDA, JAWS and Narrator, with the keyboard and with the mouse.
 
 Read this manual with the arrow keys. Tab moves to the Close button. Escape closes the manual.
 

@@ -1,7 +1,7 @@
 ﻿Handleiding Paper Pilot
 Versie 0.0.0.7
 
-Paper Pilot helpt je met brieven en formulieren, helemaal zelf. Het programma is gratis en open source, gemaakt door Jaap Wortel. Het werkt met NVDA, JAWS en Verteller, met het toetsenbord en met de muis.
+Paper Pilot is voor blinden en slechtzienden: je leest er brieven en pdf's mee met je schermlezer, en je vult er formulieren mee in, helemaal zelf. Het programma is gratis en open source, gemaakt door Jaap Wortel. Het werkt met NVDA, JAWS en Verteller, met het toetsenbord en met de muis.
 
 Je leest deze handleiding met de pijltjestoetsen. Met Tab ga je naar de knop Sluiten. Escape sluit de handleiding.
 
