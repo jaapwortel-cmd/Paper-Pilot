@@ -204,3 +204,13 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
 1. Onduidelijk: Marcel dacht eerst dat Paper Pilot een pdf-lezer was, daarna een pdf-bewerker. De eerste zin zegt niet
    voor wie het is. Voorstel ondertitel/welkom: "Paper Pilot leest brieven en pdf's voor met je schermlezer en helpt je
    formulieren in te vullen, voor blinden en slechtzienden." Ook een korte beschrijving in het installatieprogramma.
+
+## Ondertekenen (Jaap, 18 nov 2026)
+
+- Elk nieuw programma en elke nieuwe versie (.exe en installatiebestand) wordt ondertekend met Jaaps eigen certificaat
+  "CN=Jaap Wortel" (zelfgemaakt, geldig tot 18 nov 2031, SHA1-vingerafdruk 5E:93:31:C6:8A:1C:D3:A2:98:16:74:78:AF:06:CE:82:F4:19:5A:E1).
+  Het openbare deel staat in `Certificaat Jaap Wortel.cer` in deze repo.
+- Jaap ondertekent niet zelf: Claude doet het, zonder dat Jaap daarom hoeft te vragen.
+- Deze repo is OPENBAAR: de geheime sleutel komt hier nooit in, ook niet in een log of zip. Waar de sleutel staat, staat
+  in de afspraken van Jaaps privé-programma's (bijvoorbeeld Webbox-Playlist-Maker).
+- Eerlijk tegen Jaap: Windows SmartScreen blijft waarschuwen, want het is een zelfgemaakt certificaat.
