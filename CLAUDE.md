@@ -214,3 +214,12 @@ Het volledige plan staat in `PLAN.md`; volg dat stap voor stap.
 - Deze repo is OPENBAAR: de geheime sleutel komt hier nooit in, ook niet in een log of zip. Waar de sleutel staat, staat
   in de afspraken van Jaaps privé-programma's (bijvoorbeeld Webbox-Playlist-Maker).
 - Eerlijk tegen Jaap: Windows SmartScreen blijft waarschuwen, want het is een zelfgemaakt certificaat.
+
+## Pakketten opzoeken (Jaap, 18 nov 2026)
+
+- Voordat je een pakket toevoegt (crate, NuGet, npm, ...) of een nieuwe functie bouwt: eerst op internet kijken of er
+  een goed, actueel pakket voor is (bijvoorbeeld crates.io en docs.rs, nuget.org), welke versie de nieuwste stabiele is
+  en hoe het nu werkt. Vertrouw niet alleen op je eigen kennis: die kan verouderd zijn.
+- Wat je zo leert (pakket, versie, hoe het werkt, valkuilen) kort hier in CLAUDE.md zetten, zodat een volgende sessie
+  het ook weet.
+- Afspraken van dit programma over pakketten gaan voor (bijvoorbeeld "geen extra pakketten" of vaste versies).
